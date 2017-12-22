@@ -8,10 +8,12 @@ export default class HomeMedico extends React.Component {
   render() {
     return (
       <div>
-        <Header/>
+        <h1>Ordenes</h1>
         <div>
-        	<button><Link to="/medico/nueva-orden">Crear Orden</Link></button>
+        	<button className="crearBtn"><Link to="/medico/nueva-orden">Crear Orden</Link></button>
         </div>
+        <br/>
+        <br/>
         <div>
           <ReactTable 
           data={[{
@@ -23,6 +25,7 @@ export default class HomeMedico extends React.Component {
             fecha: '20-12-2017',
             acciones: ''
           }]} 
+          noDataText="No existen ordenes"
           columns={[{
             Header: 'ID Paciente',
             accessor:'idOrden'},{

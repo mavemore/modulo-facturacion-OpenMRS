@@ -70,3 +70,10 @@ header .logo img {
     align-self: center;
 }
 
+.crearBtn {
+    float: right;
+    align-self: center;
+    margin: 4px;
+    display: block;
+}
+
