@@ -11,6 +11,7 @@ import {Router, Route} from 'react-router';
 import App from './components/App';
 import HomeMedico from './components/medico/HomeMedico';
 import ingresoOrdenes from './components/medico/ingresoOrdenes';
+import editarOrdenes from './components/medico/editarOrdenes';
 
 export default () => {
   return (
@@ -18,6 +19,7 @@ export default () => {
   		<Route path="/" component={App}/>
 	    <Route path="/medico" component={HomeMedico}/>
 	    <Route path="/medico/nueva-orden" component={ingresoOrdenes}/>
+	    <Route path="/medico/edit" component={editarOrdenes}/>
     </Router>
   );
 }

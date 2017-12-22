@@ -1,15 +1,16 @@
 import React from 'react';
 
-export default class FormOrdenes extends React.Component {
+export default class FormOrdenesEdit extends React.Component {
   render() {
     return (
       <div>
+      	<h2>Estado: Nuevo</h2>
       	<form>
         	<fieldset>
         		<legend>Datos Generales:</legend>
-	        	<label> Paciente: <input type="text" name="paciente"/> </label>
-	        	<label> Fecha: <input type="date" name="fechaCreacion"/> </label>
-	        	<label> M&eacute;dico: <input type="text" name="paciente"/> </label>
+	        	<label> Paciente: <input type="text" name="paciente" value="Juan Perez"/> </label>
+	        	<label> Fecha: <input type="date" name="fechaCreacion" value="2017-12-20"/> </label>
+	        	<label> M&eacute;dico: <input type="text" name="paciente" value="Gonzalo Torres"/> </label>
 	        </fieldset>
 	        <fieldset>
         		<legend>Detalles Orden:</legend>
@@ -25,7 +26,7 @@ export default class FormOrdenes extends React.Component {
 	        		</select>
 	        	</label>
 	        </fieldset>
-        	<input type="submit" value="Generar Orden"/>
+        	<input type="submit" value="Guardar"/>
         </form>
       </div>
     )

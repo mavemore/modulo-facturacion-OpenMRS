@@ -2,13 +2,15 @@ import React from 'react';
 import {Link} from 'react-router';
 import Header from '../global/Header';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css'
+import 'react-table/react-table.css';
+import FaCalendarCheckO from 'react-icons/lib/fa/calendar-check-o';
+import FaCalendarTimesO from 'react-icons/lib/fa/calendar-times-o';
 
 export default class HomeMedico extends React.Component {
   render() {
     return (
       <div>
-        <h1>Ordenes</h1>
+        <h1>Órdenes</h1>
         <div>
         	<button className="crearBtn"><Link to="/medico/nueva-orden">Crear Orden</Link></button>
         </div>
@@ -17,13 +19,13 @@ export default class HomeMedico extends React.Component {
         <div>
           <ReactTable 
           data={[{
-            idOrden: '221325',
+            idOrden: <Link to="/medico/edit">221325</Link>,
             paciente: 'Juan Perez',
             medico: 'Gonzalo Torres',
             area: 'Farmacia',
             estado: 'Nuevo',
             fecha: '20-12-2017',
-            acciones: ''
+            acciones: <div><Link to="/medico"><FaCalendarCheckO/></Link>  <Link to="/medico"><FaCalendarTimesO/></Link></div>
           }]} 
           noDataText="No existen ordenes"
           columns={[{

@@ -4,7 +4,7 @@ export default class Header extends React.Component {
   render() {
     return (
       <div>
-        <h1>Modulo de Facturacion</h1>
+        <h1>M&oacute;dulo de Facturaci&oacute;n</h1>
       </div>
     )
   }

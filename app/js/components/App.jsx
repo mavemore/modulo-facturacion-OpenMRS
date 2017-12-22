@@ -17,7 +17,7 @@ export default class App extends React.Component {
         <Header/>
         <div>
         	<ul>
-	        	<li><Link to="/medico">Medico</Link></li>
+	        	<li><Link to="/medico">M&eacute;dico</Link></li>
 	        	<li><Link to="/enfermera">Enfermera</Link></li>
 	        	<li><Link to="/admin">Administrador</Link></li>
 	        	<li><Link to="/caja">Caja</Link></li>
