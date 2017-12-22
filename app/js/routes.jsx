@@ -6,13 +6,18 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-import React from 'react'
-import {Route} from 'react-router'
-import App from './components/App'
+import React from 'react';
+import {Router, Route} from 'react-router';
+import App from './components/App';
+import HomeMedico from './components/medico/HomeMedico';
+import ingresoOrdenes from './components/medico/ingresoOrdenes';
 
 export default () => {
   return (
-    <Route path="/" component={App}>
-    </Route>
+  	<Router>
+  		<Route path="/" component={App}/>
+	    <Route path="/medico" component={HomeMedico}/>
+	    <Route path="/medico/nueva-orden" component={ingresoOrdenes}/>
+    </Router>
   );
 }

@@ -7,12 +7,24 @@
  * graphic logo is a trademark of OpenMRS Inc.
  */
 import React from 'react';
+import {Link} from 'react-router';
+import Header from './global/Header';
 
 export default class App extends React.Component {
   render() {
     return (
       <div>
-        <h1>Hello, world</h1>
+        <Header/>
+        <div>
+        	<ul>
+	        	<li><Link to="/medico">Medico</Link></li>
+	        	<li><Link to="/enfermera">Enfermera</Link></li>
+	        	<li><Link to="/admin">Administrador</Link></li>
+	        	<li><Link to="/caja">Caja</Link></li>
+	        	<li><Link to="/farmacia">Farmacia</Link></li>
+	        	<li><Link to="/laboratorio">Laboratorio</Link></li>
+	        </ul>
+        </div>
       </div>
     )
   }
