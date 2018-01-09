@@ -51,7 +51,7 @@ var getConfig = function () {
 	  } catch (err) {
 	    // create file with defaults if not found
 	    config = {
-	      'LOCAL_OWA_FOLDER': '/home/veronica/openmrs/openmrs-platform/owa/',
+	      'LOCAL_OWA_FOLDER': '/usr/share/tomcat7/.OpenMRS/owa/',
 	      'APP_ENTRY_POINT': 'http://localhost:8080/openmrs/owa/modulo-facturacion-openmrs/index.html'
 	    };
 

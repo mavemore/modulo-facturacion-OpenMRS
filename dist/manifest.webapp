@@ -1,0 +1,19 @@
+{
+  "version": "0.1.0",
+  "name": "modulo-facturacion-OpenMRS",
+  "description": "Modulo de facturacion para OpenMRS",
+  "launch_path": "index.html",
+  "icons": {
+    "48": "/img/omrs-button.png"
+  },
+  "developer": {
+    "name": "mavemore",
+    "url": "https://github.com/mavemore/modulo-facturacion-OpenMRS"
+  },
+  "default_locale": "en",
+    "activities": {
+      "openmrs": {
+        "href": "*"
+      }
+    }
+}
