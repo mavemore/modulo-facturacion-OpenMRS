@@ -11,21 +11,22 @@ export default class HomeMedico extends React.Component {
     return (
       <div>
         <h1>Órdenes</h1>
+            <div><Link to="/"><button className="btn">Regresar</button></Link></div>
         <div>
-        	<button className="crearBtn"><Link to="/medico/nueva-orden">Crear Orden</Link></button>
+        	<Link to="/ordenes/nueva-orden"><button className="crearBtn">Crear Orden</button></Link>
         </div>
         <br/>
         <br/>
         <div>
           <ReactTable 
           data={[{
-            idOrden: <Link to="/medico/edit">221325</Link>,
+            idOrden: <Link to="/ordenes/edit">221325</Link>,
             paciente: 'Juan Perez',
             medico: 'Gonzalo Torres',
             area: 'Farmacia',
             estado: 'Nuevo',
             fecha: '20-12-2017',
-            acciones: <div><Link to="/medico"><FaCalendarCheckO/></Link>  <Link to="/medico"><FaCalendarTimesO/></Link></div>
+            acciones: <div><Link to="/ordenes"><FaCalendarCheckO/></Link>  <Link to="/ordenes"><FaCalendarTimesO/></Link></div>
           }]} 
           noDataText="No existen ordenes"
           columns={[{

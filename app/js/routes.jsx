@@ -13,7 +13,7 @@ import App from './components/App';
 import HomeMedico from './components/ordenes/HomeMedico';
 import ingresoOrdenes from './components/ordenes/ingresoOrdenes';
 import Home from './components/global/Home';
-//import editarOrdenes from './components/medico/editarOrdenes';
+import editarOrdenes from './components/ordenes/editarOrdenes';
 
 export default () => {
   return (
@@ -22,6 +22,7 @@ export default () => {
   		<Route path="/notfound" component={App}/>
 	    <Route path="/ordenes" component={HomeMedico}/>
 	    <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
+        <Route path="/ordenes/edit" component={editarOrdenes}/>
     </Router>
   );
 }

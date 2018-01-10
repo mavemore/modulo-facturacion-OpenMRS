@@ -7,8 +7,10 @@
     "url": "https://github.com/mavemore/modulo-facturacion-OpenMRS"
   },
   "dependencies": {
+    "moment": "^2.20.1",
     "mysql": "^2.15.0",
     "react": "^15.4.1",
+    "react-datepicker": "^1.0.4",
     "react-dom": "^15.4.1",
     "react-icons": "^2.2.7",
     "react-router": "^3.0.0",
