@@ -8,7 +8,7 @@ export default class FormOrdenesEdit extends React.Component {
       	<form>
         	<fieldset>
         		<legend>Datos Generales:</legend>
-	        	<label> Paciente: <input type="text" name="paciente" value="Juan Perez"/> </label>
+	        	<label> Paciente: <input type="text" name="paciente" value="Juan "/> </label>
 	        	<label> Fecha: <input type="date" name="fechaCreacion" value="2017-12-20"/> </label>
 	        	<label> M&eacute;dico: <input type="text" name="paciente" value="Gonzalo Torres"/> </label>
 	        </fieldset>

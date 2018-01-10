@@ -16,14 +16,8 @@ export default class App extends React.Component {
       <div>
         <Header/>
         <div>
-        	<ul>
-	        	<li><Link to="/medico">M&eacute;dico</Link></li>
-	        	<li><Link to="/enfermera">Enfermera</Link></li>
-	        	<li><Link to="/admin">Administrador</Link></li>
-	        	<li><Link to="/caja">Caja</Link></li>
-	        	<li><Link to="/farmacia">Farmacia</Link></li>
-	        	<li><Link to="/laboratorio">Laboratorio</Link></li>
-	        </ul>
+        	<h2>Estamos trabajando en ello.</h2>
+            <Link to="/"><button className="btn">Home</button></Link>
         </div>
       </div>
     )
