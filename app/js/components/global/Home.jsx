@@ -7,7 +7,7 @@ export default class Home extends React.Component {
       super();
       this.state={
           location: "",
-      }
+      };
   }
     
   componentWillMount(){
@@ -23,7 +23,7 @@ export default class Home extends React.Component {
                   this.props.router.replace("/notfound");
               }
           }
-      })
+      });
   }
   render() {
     var location = this.state.location;
@@ -31,6 +31,7 @@ export default class Home extends React.Component {
       <div>
         <Link to="/ordenes"><button className="btn">Ordenes</button></Link>
         <Link to="/notfound"><button className="btn">Facturacion</button></Link>
+        <Link to="/servicios"><button className="btn">Servicios</button></Link>
       </div>
     )
   }

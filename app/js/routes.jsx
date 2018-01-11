@@ -14,15 +14,17 @@ import HomeMedico from './components/ordenes/HomeMedico';
 import ingresoOrdenes from './components/ordenes/ingresoOrdenes';
 import Home from './components/global/Home';
 import editarOrdenes from './components/ordenes/editarOrdenes';
+import service from './components/servicios/serviceList';
 
 export default () => {
   return (
       <Router>
         <Route path="/" component={Home}/>
-  		<Route path="/notfound" component={App}/>
-	    <Route path="/ordenes" component={HomeMedico}/>
-	    <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
+  		  <Route path="/notfound" component={App}/>
+	      <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
+	      <Route path="/ordenes" component={HomeMedico}/>
         <Route path="/ordenes/edit" component={editarOrdenes}/>
+        <Route path="/servicios" component={service}/>
     </Router>
   );
 }
