@@ -14,6 +14,7 @@ import HomeMedico from './components/ordenes/HomeMedico';
 import ingresoOrdenes from './components/ordenes/ingresoOrdenes';
 import Home from './components/global/Home';
 import editarOrdenes from './components/ordenes/editarOrdenes';
+import service from './components/servicios/serviceList';
 
 export default () => {
   return (
@@ -23,6 +24,7 @@ export default () => {
         <Route path="/ordenes" component={HomeMedico}/>
         <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
         <Route path="/ordenes/edit" component={editarOrdenes}/>
+        <Route path="/servicios" component={service}/>
     </Router>
   );
 }

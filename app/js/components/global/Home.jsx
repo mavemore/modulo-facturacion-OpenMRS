@@ -3,13 +3,14 @@ import {Link} from 'react-router';
 import request from 'superagent';
 import FaClipboard from 'react-icons/lib/fa/clipboard';
 import FaMoney from 'react-icons/lib/fa/money';
+import FaAmbulance from 'react-icons/lib/fa/ambulance';
 
 export default class Home extends React.Component {
   /*constructor(){
       super();
       this.state={
           location: "",
-      }
+      };
   }
     
   componentWillMount(){
@@ -31,11 +32,9 @@ export default class Home extends React.Component {
     //var location = this.state.location;
     return (
     <div>
-      <div role='nav'>
           <Link to="/ordenes" activeClassName="active"><button className='btnImg'><FaClipboard/><p className='labMod'>Ordenes</p></button></Link>
           <Link to="/notfound" activeClassName="active"><button className='btnImg'><FaMoney/><p className='labMod'>Facturacion</p></button></Link>
-        </div>
-        {this.props.children}
+          <Link to="/servicios" activeClassName="active"><button className='btnImg'><FaAmbulance/><p className='labMod'>Servicios</p></button></Link>
     </div>
     )
   }

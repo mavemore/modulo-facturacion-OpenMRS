@@ -1,1 +1,1 @@
-{"LOCAL_OWA_FOLDER":"/usr/share/tomcat7/.OpenMRS/owa/","APP_ENTRY_POINT":"http://localhost:8080/openmrs/owa/modulo-facturacion-openmrs/index.html"}
+{"LOCAL_OWA_FOLDER":"/usr/local/apache-tomcat-7.0.54/webapps/openmrs/WEB-INF/view/module/owa/","APP_ENTRY_POINT":"http://localhost:8080/openmrs/owa/modulo-facturacion-openmrs/index.html"}
