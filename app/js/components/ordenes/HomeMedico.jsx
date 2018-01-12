@@ -7,13 +7,14 @@ import FaCalendarCheckO from 'react-icons/lib/fa/calendar-check-o';
 import FaCalendarTimesO from 'react-icons/lib/fa/calendar-times-o';
 
 export default class HomeMedico extends React.Component {
+    
   render() {
     return (
       <div>
         <h1>Órdenes</h1>
-            <div><Link to="/"><button className="btn">Regresar</button></Link></div>
-        <div>
-        	<Link to="/ordenes/nueva-orden"><button className="crearBtn">Crear Orden</button></Link>
+        <div className='row col-md-12'>
+            <Link to="/"><button className="btn">Regresar</button></Link>
+        	<Link to="/ordenes/nueva-orden"><button className="btn btn-primary crearBtn">Crear Orden</button></Link>
         </div>
         <br/>
         <br/>
@@ -26,7 +27,7 @@ export default class HomeMedico extends React.Component {
             area: 'Farmacia',
             estado: 'Nuevo',
             fecha: '20-12-2017',
-            acciones: <div><Link to="/ordenes"><FaCalendarCheckO/></Link>  <Link to="/ordenes"><FaCalendarTimesO/></Link></div>
+            acciones: <div className='acciones'><Link to="/ordenes"><FaCalendarCheckO/></Link>  <Link to="/ordenes"><FaCalendarTimesO/></Link></div>
           }]} 
           noDataText="No existen ordenes"
           columns={[{

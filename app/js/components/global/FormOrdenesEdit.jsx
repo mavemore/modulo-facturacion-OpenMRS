@@ -3,6 +3,7 @@ import {Link} from 'react-router';
 import request from 'superagent';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import Select from 'react-select';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -46,16 +47,17 @@ export default class FormOrdenesEdit extends React.Component {
         	<fieldset>
         		<legend>Datos Generales:</legend>
 	        	<label htmlFor="paciente">Paciente:</label>
-                <select readOnly='1' name="paciente" id="paciente" defaultValue='1304014382'>{listaPaciente}</select>
+                <input type='text' name="paciente" id="paciente" value='Veronica Moreira' readOnly/> 
+                <label htmlFor="medico"> M&eacute;dico: </label>
+                <input type='text' name="medico" id="medico" value='Gonzalo Torres' readOnly/>
                 <br/>
-                <label> Fecha: <DatePicker readOnly='1' selected={this.state.date} onChange={this.handleChange}/></label>
-	        	<label htmlFor="medico"> M&eacute;dico: </label>
-                <select readOnly='1' name="medico" id="medico" defaultValue='1721989315'>{listaMedicos}</select>
+                <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}
+                disabled={true}/>
 	        </fieldset>
 	        <fieldset>
         		<legend>Detalles Orden:</legend>
 	        	<label htmlFor="area"> Area de Servicio: </label>
-                <select name="area" id="area">
+                <select name="area" id="area" readOnly>
                     <option value="farmacia">Farmacia</option>
                     <option value="icu">ICU</option>
                     <option value="cirugia">Cirug&iacute;a</option>

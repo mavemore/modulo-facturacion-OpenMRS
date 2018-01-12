@@ -17,11 +17,11 @@ import editarOrdenes from './components/ordenes/editarOrdenes';
 
 export default () => {
   return (
-      <Router>
+    <Router>
         <Route path="/" component={Home}/>
-  		<Route path="/notfound" component={App}/>
-	    <Route path="/ordenes" component={HomeMedico}/>
-	    <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
+        <Route path="/notfound" component={App}/>
+        <Route path="/ordenes" component={HomeMedico}/>
+        <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
         <Route path="/ordenes/edit" component={editarOrdenes}/>
     </Router>
   );
