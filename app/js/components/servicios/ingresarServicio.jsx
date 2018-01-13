@@ -5,68 +5,68 @@ import classes from './ingresarServicio.css';
 
 
 class ingresarServicio extends Component {
-    state = {
-        orderForm: {
-            name: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Nombre...'
-                },
-                value: ''
-            },
-            codigo: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Codigo...'
-                },
-                value: ''
-            },
-            precio: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'number',
-                    placeholder: 'Precio'
-                },
-                value: ''
-            },
-            cantidad: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'number',
-                    placeholder: 'Cantidad'
-                },
-                value: ''
-            },
-            medida: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Medida'
-                },
-                value: ''
-            }
-        },
-        loading: false
-    }
-    orderHandler = ( event ) => {
-        event.preventDefault();
-    }
-
-    inputChangedHandler = (event, inputIdentifier) => {
-        const updatedOrderForm = {
-            ...this.state.orderForm
-        };
-        const updatedFormElement = { 
-            ...updatedOrderForm[inputIdentifier]
-        };
-        updatedFormElement.value = event.target.value;
-        updatedOrderForm[inputIdentifier] = updatedFormElement;
-        this.setState({orderForm: updatedOrderForm});
-    }
+    
 
     render(){
+        const state = {
+            orderForm: {
+                name: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'text',
+                        placeholder: 'Nombre...'
+                    },
+                    value: ''
+                },
+                codigo: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'text',
+                        placeholder: 'Codigo...'
+                    },
+                    value: ''
+                },
+                precio: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'number',
+                        placeholder: 'Precio'
+                    },
+                    value: ''
+                },
+                cantidad: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'number',
+                        placeholder: 'Cantidad'
+                    },
+                    value: ''
+                },
+                medida: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'text',
+                        placeholder: 'Medida'
+                    },
+                    value: ''
+                }
+            },
+            loading: false
+        }
+        orderHandler = ( event ) => {
+            event.preventDefault();
+        }
+    
+        inputChangedHandler = (event, inputIdentifier) => {
+            const updatedOrderForm = this.state.orderForm;
+            
+            const updatedFormElement = updatedOrderForm[inputIdentifier];
+            
+            updatedFormElement.value = event.target.value;
+            updatedOrderForm[inputIdentifier] = updatedFormElement;
+            this.setState({orderForm: updatedOrderForm});
+        }
+
         const formElementsArray = [];
         for (let key in this.state.orderForm) {
             formElementsArray.push({
