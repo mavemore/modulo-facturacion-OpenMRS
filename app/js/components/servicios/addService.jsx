@@ -1,60 +1,66 @@
 import React , { Component } from 'react';
 import {Link} from 'react-router';
 import Input from '../UI/Input/Input';
-import classes from './ingresarServicio.css';
+import classes from './addService.css';
 
 
-class ingresarServicio extends Component {
-    state = {
-        orderForm: {
-            name: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Nombre...'
+
+export default class addService extends Component {
+    
+    constructor(){
+        super();
+        this.state = {
+            orderForm: {
+                name: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'text',
+                        placeholder: 'Nombre...'
+                    },
+                    value: ''
                 },
-                value: ''
+                codigo: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'text',
+                        placeholder: 'Codigo...'
+                    },
+                    value: ''
+                },
+                precio: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'number',
+                        placeholder: 'Precio'
+                    },
+                    value: ''
+                },
+                cantidad: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'number',
+                        placeholder: 'Cantidad'
+                    },
+                    value: ''
+                },
+                medida: {
+                    elementType: 'input',
+                    elementConfig: {
+                        type: 'text',
+                        placeholder: 'Medida'
+                    },
+                    value: ''
+                }
             },
-            codigo: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Codigo...'
-                },
-                value: ''
-            },
-            precio: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'number',
-                    placeholder: 'Precio'
-                },
-                value: ''
-            },
-            cantidad: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'number',
-                    placeholder: 'Cantidad'
-                },
-                value: ''
-            },
-            medida: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Medida'
-                },
-                value: ''
-            }
-        },
-        loading: false
+            loading: false
+        };
     }
-    orderHandler = ( event ) => {
+
+    orderHandler( event ){
         event.preventDefault();
     }
 
-    inputChangedHandler = (event, inputIdentifier) => {
+    inputChangedHandler (event, inputIdentifier) {
         const updatedOrderForm = {
             ...this.state.orderForm
         };

@@ -7,48 +7,51 @@ import 'react-table/react-table.css';
 
 
 export default class serviceList extends React.Component{  
-    data = [{
-    id: 'P001',
-    nombre: 'Agua Destilada',
-    precio: 0.39,
-    cantidad: 1,
-    medida: 'cc'
-    }]
-
-    columns = [{
-        Header: 'Sodigo',
-        accesor: 'id'
-    },{
-        Header: 'Insumo',
-        accesor: 'nombre'
-    },{
-        Header: 'Precio',
-        accesor: 'precio'
-    },{
-        Header: 'Cantidad',
-        accesor: 'cantidad',
-    },{
-        Header: 'Medida',
-        accesor: 'medida'
-    }]
-
+    
+    constructor(){
+        super();
+        this.state = {
+            data : [{
+                id: 'P001',
+                nombre: 'servicio 1',
+                precio: 10,
+                cantidad: 2,
+                medida: 'cc'
+              },{
+                id: 'P002',
+                nombre: 'servicio 2',
+                precio: 20,
+                cantidad: 1,
+                medida: 'mm'
+              }]
+        };
+    }
+    
     render(){
+        const { data } = this.state;
         return(
             <div>
-                <h1>SSSSSServicios</h1>
+                <h1>Servicios V-3.5 </h1>
                 <div>
                     <Link to='/servicios/nuevo'><button className="btn">Agregar Servicio</button></Link>
                 </div>
                 <div>
                     <ReactTable
-                        data = {[{
-                            id: 'P001',
-                            nombre: 'Agua Destilada',
-                            precio: 0.39,
-                            cantidad: 1,
-                            medida: 'cc'
-                        }]}
-                        columns = {columns}
+                    data={this.state.data} 
+                    noDataText="No existen ordenes"
+                    columns={[{
+                        Header: 'ID',
+                        accessor:'id'},{
+                        Header: 'Nombre',
+                        accessor:'nombre'},{
+                        Header: 'Precio',
+                        accessor:'precio'},{
+                        Header: 'Cantidad',
+                        accessor:'cantidad'}, {
+                        Header: 'Medida',
+                        accessor:'medida'}
+                      ]} 
+                      sortable='true'
                     />
                 </div>
             </div>

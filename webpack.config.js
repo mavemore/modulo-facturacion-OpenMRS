@@ -179,13 +179,20 @@ var webpackConfig = {
 	    loader: 'babel-loader',
 	    exclude: /node_modules/,
 	    query: {
-	        presets: [ 'es2015', 'react' ],
+					presets: [ 'es2015', 'react' ],
 	        cacheDirectory : true
 	    }
     },{
-	    test: /\.css$/,
-	    loader: 'style-loader!css-loader'
-	}, {
+			test: /\.css$/,
+			loader: 'style-loader'
+		}, {
+			test: /\.css$/,
+			loader: 'css-loader',
+			query: {
+				modules: true,
+				localIdentName: '[name]__[local]___[hash:base64:5]'
+			}
+		}, {
 	    test: /\.(png|jpg|jpeg|gif|svg)$/,
 	    loader: 'url'
 	}, {
