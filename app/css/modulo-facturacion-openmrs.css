@@ -72,8 +72,22 @@ header .logo img {
 
 .crearBtn {
     float: right;
-    align-self: center;
-    margin: 4px;
     display: block;
 }
 
+.btnImg {
+    font-size: 5em;
+    color:darkblue;
+    padding: 5px;
+    margin:20px;
+    width: 20%;
+}
+.labMod{
+    font-size: 0.25em;
+}
+.acciones{
+    font-size: 1.3em;
+}
+label{
+    font-weight: bold;
+}
