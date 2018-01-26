@@ -1,14 +1,15 @@
 import React , { Component } from 'react';
 import {Link} from 'react-router';
 import Input from '../UI/Input/Input';
-import classes from './ingresarServicio.css';
+import classes from './addService.css';
 
 
-class ingresarServicio extends Component {
+
+export default class addService extends Component {
     
-
-    render(){
-        const state = {
+    constructor(){
+        super();
+        this.state = {
             orderForm: {
                 name: {
                     elementType: 'input',
@@ -52,21 +53,26 @@ class ingresarServicio extends Component {
                 }
             },
             loading: false
-        }
-        orderHandler = ( event ) => {
-            event.preventDefault();
-        }
-    
-        inputChangedHandler = (event, inputIdentifier) => {
-            const updatedOrderForm = this.state.orderForm;
-            
-            const updatedFormElement = updatedOrderForm[inputIdentifier];
-            
-            updatedFormElement.value = event.target.value;
-            updatedOrderForm[inputIdentifier] = updatedFormElement;
-            this.setState({orderForm: updatedOrderForm});
-        }
+        };
+    }
 
+    orderHandler( event ){
+        event.preventDefault();
+    }
+
+    inputChangedHandler (event, inputIdentifier) {
+        const updatedOrderForm = {
+            ...this.state.orderForm
+        };
+        const updatedFormElement = { 
+            ...updatedOrderForm[inputIdentifier]
+        };
+        updatedFormElement.value = event.target.value;
+        updatedOrderForm[inputIdentifier] = updatedFormElement;
+        this.setState({orderForm: updatedOrderForm});
+    }
+
+    render(){
         const formElementsArray = [];
         for (let key in this.state.orderForm) {
             formElementsArray.push({
