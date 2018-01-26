@@ -15,11 +15,7 @@ import ingresoOrdenes from './components/ordenes/ingresoOrdenes';
 import Home from './components/global/Home';
 import editarOrdenes from './components/ordenes/editarOrdenes';
 import serviceList from './components/servicios/serviceList';
-<<<<<<< HEAD
-import ingresarServicio from './components/servicios/ingresarServicio';
-=======
 import addService from './components/servicios/addService';
->>>>>>> 06696f6af3ae60c106ede98554079f7363954cbf
 
 export default () => {
   return (
@@ -30,11 +26,7 @@ export default () => {
 	      <Route path="/ordenes" component={HomeMedico}/>
         <Route path="/ordenes/edit" component={editarOrdenes}/>
         <Route path="/servicios" component={serviceList}/>
-<<<<<<< HEAD
-        <Route path="./servicios/nuevo" component={ingresarServicio}/>
-=======
         <Route path="/servicios/nuevo" component={addService}/>
->>>>>>> 06696f6af3ae60c106ede98554079f7363954cbf
     </Router>
   );
 }
