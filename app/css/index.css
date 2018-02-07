@@ -1,0 +1,36 @@
+
+
+/* line 1, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
+#breadcrumbs {
+  clear: both;
+  font-size: 0.9em;
+  border-bottom: 1px solid white;
+}
+
+
+/* line 6, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
+#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+  color: #555;
+  text-decoration: underline;
+}
+/* line 10, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
+#breadcrumbs a:hover, #breadcrumbs a:link:hover, #breadcrumbs a:visited:hover {
+  color: #7b7b7b;
+}
+/* line 14, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
+#breadcrumbs a:first-child, #breadcrumbs a:link:first-child, #breadcrumbs a:visited:first-child {
+  text-decoration: none;
+}
+/* line 19, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
+#breadcrumbs li {
+  display: inline;
+}
+/* line 22, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
+#breadcrumbs li:last-child {
+  font-family: "OpenSansBold";
+}
+
+  /* line 10, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_print.scss */
+  header, #breadcrumbs {
+    display: none;
+  }

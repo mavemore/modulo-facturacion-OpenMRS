@@ -187,11 +187,7 @@ var webpackConfig = {
 			loader: 'style-loader'
 		}, {
 			test: /\.css$/,
-			loader: 'css-loader',
-			query: {
-				modules: true,
-				localIdentName: '[name]__[local]___[hash:base64:5]'
-			}
+			loader: 'css-loader'
 		}, {
 	    test: /\.(png|jpg|jpeg|gif|svg)$/,
 	    loader: 'url'
