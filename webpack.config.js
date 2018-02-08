@@ -159,12 +159,7 @@ var webpackConfig = {
 	  app : `${__dirname}/app/js/modulo-facturacion-openmrs`,
 	  css: `${__dirname}/app/css/modulo-facturacion-openmrs.css`,
 	  vendor : [
-	        	
-	        	
-                
                     'react', 'react-router'
-                    
-                
 	            ]
   },
   devtool: devtool,
@@ -187,7 +182,8 @@ var webpackConfig = {
 			loader: 'style-loader'
 		}, {
 			test: /\.css$/,
-			loader: 'css-loader'
+			loader: 'css-loader',
+			
 		}, {
 	    test: /\.(png|jpg|jpeg|gif|svg)$/,
 	    loader: 'url'
