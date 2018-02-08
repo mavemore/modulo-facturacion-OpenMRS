@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router';
 import request from 'superagent';
+import Header from '../global/Header';
 import FaClipboard from 'react-icons/lib/fa/clipboard';
 import FaMoney from 'react-icons/lib/fa/money';
 import FaAmbulance from 'react-icons/lib/fa/ambulance';
@@ -43,20 +44,6 @@ export default class Home extends React.Component {
     
     return (
     <div>
-        <openmrs-breadcrumbs>Link</openmrs-breadcrumbs>
-        <ul id="breadcrumbs">
-              <li>
-                  <a href="#">
-                  <i class="icon-home small"></i></a>
-              </li>
-              <li>
-                  <i class="icon-chevron-right link"></i>
-                  <a href="#">Ramos, Glauber</a>
-              </li>
-              <li>
-                  <i class="icon-chevron-right link"></i>Visits
-              </li>
-          </ul>
       <div role='nav'>
           <Link to="/ordenes" activeClassName="active"><button className='btnImg'><FaClipboard/><p className='labMod'>Ordenes</p></button></Link>
           <Link to="/notfound" activeClassName="active"><button className='btnImg'><FaMoney/><p className='labMod'>Facturacion</p></button></Link>
