@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+import {buscarPaciente} from '../../api/serviciosPacientes';
 
 const selectRowProp = {
   mode: 'checkbox'
@@ -28,6 +29,12 @@ export default class FormOrdenes extends React.Component {
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
         this.handleChangeFin = this.handleChangeFin.bind(this);
         this.cambioArea = this.cambioArea.bind(this);
+        this.search = this.search.bind(this);
+    }
+    
+    search(query){
+        var pacientes = buscarPaciente(query.target.value);
+        console.log(pacientes);
     }
   
     generarOrden(e){
@@ -142,7 +149,7 @@ export default class FormOrdenes extends React.Component {
         	<fieldset>
         		<legend>Datos Generales:</legend>
 	        	<label htmlFor="paciente">Paciente:</label>
-                <input type='text' name="paciente" id="paciente"/>
+                <input type='text' name="paciente" id="paciente" onChange={this.search}/>
                 <label htmlFor="ubicacion">Ubicacion:</label>
                 <input type='text' name="ubicacion" id="ubicacion" readOnly/>
                 <br/>

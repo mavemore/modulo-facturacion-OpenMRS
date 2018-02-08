@@ -5,7 +5,6 @@ import Header from '../global/Header';
 import FaClipboard from 'react-icons/lib/fa/clipboard';
 import FaMoney from 'react-icons/lib/fa/money';
 import FaAmbulance from 'react-icons/lib/fa/ambulance';
-import {instance} from '../../axios-orders';
 
 export default class Home extends React.Component {
   /*constructor(){
@@ -32,14 +31,6 @@ export default class Home extends React.Component {
   }*/
   render() {
     //var location = this.state.location;
-    instance.get('/person/37b2ab41-2631-4e31-855d-cfe48de811de')
-        .then(function (response) {
-            console.log('axios');
-            console.log(response);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
     
     return (
     <div>
