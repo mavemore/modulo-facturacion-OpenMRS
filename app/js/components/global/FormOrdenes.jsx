@@ -5,7 +5,8 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {buscarPaciente} from '../../api/serviciosPacientes';
+import {buscarPaciente, getPaciente} from '../../api/serviciosPacientes';
+import {instance} from '../../axios-orders';
 
 const selectRowProp = {
   mode: 'checkbox'
@@ -33,12 +34,27 @@ export default class FormOrdenes extends React.Component {
     }
     
     search(query){
-        var pacientes = buscarPaciente(query.target.value);
-        console.log(pacientes);
+        //var pacientes = buscarPaciente(query.target.value);
+        //var persona = getPaciente('5b736682-1734-41cc-bef0-b57f3c058e4a');
+        console.log('/patient?q='+query.target.value);
+        instance.get('/patient?q='+query.target.value)
+        .then(
+            function(res){
+                res.data.results.forEach(
+                    function(item){
+                        console.log(item);
+                    }
+                ); 
+            }
+        ).catch(
+            function(error){
+                console.log(error);
+            }
+        );
     }
   
     generarOrden(e){
-        e.preventDefault();
+        e.getPreventDefault();
         
     }
 
