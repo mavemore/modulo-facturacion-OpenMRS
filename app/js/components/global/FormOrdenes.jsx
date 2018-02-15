@@ -27,6 +27,7 @@ export default class FormOrdenes extends React.Component {
             fechaInicio: moment(),
             fechaFin: moment(),
             pacienteSeleccionado: '',
+            medico: '',
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
@@ -34,6 +35,8 @@ export default class FormOrdenes extends React.Component {
         this.cambioArea = this.cambioArea.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
+        this.getMedico = this.getMedico.bind(this);
+        this.handleChangeMedico = this.handleChangeMedico.bind(this);
     }
     
     searchPaciente(query){
@@ -50,6 +53,29 @@ export default class FormOrdenes extends React.Component {
                 return {options: resultado};
             }
         )
+    }
+    
+    getMedico(){
+        return instance.get('/session')
+        .then(
+            (res) => {
+                var opciones = [{value: res.data.user.person.uuid, label: res.data.user.person.display}];
+                return {options: opciones};
+            }
+        )
+    }
+    
+    componentDidMount(){
+        instance.get('/session')
+        .then(
+            (res) => {
+                this.setState({medico: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
+            }
+        )
+    }
+    
+    handleChangeMedico(opcion){
+        this.setState({medico:opcion});
     }
     
     handleChangePaciente(opcion){
@@ -169,7 +195,14 @@ export default class FormOrdenes extends React.Component {
                 <br/>
                 <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                 <label htmlFor="medico"> M&eacute;dico: </label>
-                <input type='text' name="medico" id="medico"/>
+                <Select.Async 
+                autoload={false}
+                name="medico" 
+                value={this.state.medico} 
+                onChange={this.handleChangeMedico}
+                loadOptions={this.getMedico}
+                disabled={true}
+                />
 	        </fieldset>
 	        <fieldset>
         		<legend>Detalles Orden:</legend>

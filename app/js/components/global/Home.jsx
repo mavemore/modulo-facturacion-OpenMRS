@@ -7,31 +7,7 @@ import FaMoney from 'react-icons/lib/fa/money';
 import FaAmbulance from 'react-icons/lib/fa/ambulance';
 
 export default class Home extends React.Component {
-  /*constructor(){
-      super();
-      this.state={
-          location: "",
-      };
-  }
-    
-  componentWillMount(){
-     request.get('https://localhost:8080/openmrs/ws/rest/v1/appui/session')
-      .then(function(response,err){
-          if(err){
-              alert(err.status);
-          }else{
-              var location = response.body.sessionLocation.name;
-             console.log(response.body); if(location.localeCompare("Ordenes")==0){
-                  this.props.router.replace("/ordenes");
-              }else{
-                  this.props.router.replace("/notfound");
-              }
-          }
-      });
-  }*/
   render() {
-    //var location = this.state.location;
-    
     return (
     <div>
         <section>
