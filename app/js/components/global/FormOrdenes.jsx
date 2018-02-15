@@ -28,6 +28,7 @@ export default class FormOrdenes extends React.Component {
             fechaFin: moment(),
             pacienteSeleccionado: '',
             medico: '',
+            ubicacion:'',
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
@@ -79,7 +80,12 @@ export default class FormOrdenes extends React.Component {
     }
     
     handleChangePaciente(opcion){
-        this.setState({pacienteSeleccionado:opcion});
+        instance.get('/patient/'+opcion.value+'?v=full')
+        .then(
+            (res) => {
+                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location.display});
+            }
+        )
     }
   
     generarOrden(e){
@@ -191,7 +197,7 @@ export default class FormOrdenes extends React.Component {
                 onChange={this.handleChangePaciente}
                 loadOptions={this.searchPaciente}/>
                 <label htmlFor="ubicacion">Ubicacion:</label>
-                <input type='text' name="ubicacion" id="ubicacion" readOnly/>
+                <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                 <br/>
                 <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                 <label htmlFor="medico"> M&eacute;dico: </label>
