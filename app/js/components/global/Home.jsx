@@ -25,7 +25,7 @@ export default class Home extends React.Component {
         </section>    
         <div role='nav'>
           <Link to="/ordenes" activeClassName="active">
-            <button className="button big app"><i className="icon-clipboard"></i>Ordenes</button>
+            <button className="button big app"><i className="icon-tasks"></i>Ordenes</button>
           </Link>
           <Link to="/notfound" activeClassName="active">
             <button className="button big app"><i className="icon-money"></i>Facturacion</button>
