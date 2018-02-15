@@ -25,6 +25,7 @@ export default class FormOrdenes extends React.Component {
             data:[],
             fechaInicio: moment(),
             fechaFin: moment(),
+            list: [],
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
@@ -39,13 +40,7 @@ export default class FormOrdenes extends React.Component {
         console.log('/patient?q='+query.target.value);
         instance.get('/patient?q='+query.target.value)
         .then(
-            function(res){
-                res.data.results.forEach(
-                    function(item){
-                        console.log(item);
-                    }
-                ); 
-            }
+            (res) => this.setState({list:res})
         ).catch(
             function(error){
                 console.log(error);
@@ -145,6 +140,21 @@ export default class FormOrdenes extends React.Component {
         }
     };
     
+    getPersonas(list){
+        var lista = [];
+        if (list.length < 1 || list == undefined){
+            lista = list;
+        }else{
+            lista=list.data.results;
+        }
+        
+        return lista.map((item)=>(
+            <tr key={item.uuid}>
+                <td>{item.display}</td>
+            </tr>
+        ));
+    }
+    
     render() {
     
     /*var pacientes = [{uuid:'1721989364',name:'Veronica Moreira'},{uuid:'1304014382',name:'Juan Perez'}];
@@ -158,9 +168,18 @@ export default class FormOrdenes extends React.Component {
     );*/
                                       
     const formArea = this.getArea(this.state.area);
-                                                  
+    const persons = this.getPersonas(this.state.list);
+        
     return (
       <div>
+            <table>
+              <thead key="thead">
+                  <tr><th>Nombre</th></tr>
+              </thead>
+              <tbody key="tbody">
+                { persons }
+              </tbody>
+            </table>
       	<form onSubmit={this.generarOrden.bind(this)} id="formOrden">
         	<fieldset>
         		<legend>Datos Generales:</legend>
