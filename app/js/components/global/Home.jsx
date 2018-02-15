@@ -23,11 +23,13 @@ export default class Home extends React.Component {
                 </ul>
             </div>
         </section>    
-        <a className="button big app" href="#"><i className="icon-medical"></i>App button with big icon</a>
-
         <div role='nav'>
-          <Link to="/ordenes" activeClassName="active"><button className='btnImg'><FaClipboard/><p className='labMod'>Ordenes</p></button></Link>
-          <Link to="/notfound" activeClassName="active"><button className='btnImg'><FaMoney/><p className='labMod'>Facturacion</p></button></Link>
+          <Link to="/ordenes" activeClassName="active">
+            <button className="button big app"><i className="icon-clipboard"></i>Ordenes</button>
+          </Link>
+          <Link to="/notfound" activeClassName="active">
+            <button className="button big app"><i className="icon-money"></i>Facturacion</button>
+          </Link>
           <Link to="/servicios" activeClassName="active">
             <button className="button big app"><i className="icon-ambulance"></i>Servicios</button>
           </Link>

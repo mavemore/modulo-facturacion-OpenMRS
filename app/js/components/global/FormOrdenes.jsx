@@ -183,9 +183,37 @@ export default class FormOrdenes extends React.Component {
     render() {
                                       
     const formArea = this.getArea(this.state.area);
-
+    const { data } = this.state;
+        const Style1 = {
+            float: 'left',
+		};
+		const Style2 = {
+            float: 'right',
+		};
+        
     return (
       <div>
+        <section>
+            <div className="example">
+                <ul id="breadcrumbs">
+                    <li>
+                        <a href="#">
+                        <i className="icon-home small"></i></a>
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Modulo
+                        <Link to="/servicios"></Link>
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Ordenes
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Nuevo
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <div>
       	<form onSubmit={this.generarOrden.bind(this)} id="formOrden">
         	<fieldset>
         		<legend>Datos Generales:</legend>
@@ -226,6 +254,7 @@ export default class FormOrdenes extends React.Component {
             <Link to="/ordenes"><button className="btn" type="submit">Generar Orden</button></Link>
             <Link to="/ordenes"><button className="btn">Descartar</button></Link>
         </form>
+        </div>
       </div>
     )
   }

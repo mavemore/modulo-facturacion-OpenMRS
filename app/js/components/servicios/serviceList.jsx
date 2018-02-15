@@ -37,7 +37,7 @@ export default class serviceList extends React.Component{
 		};
 
         return(
-			<div>
+			  <div>
 				<section>
 					<div className="example">
 						<ul id="breadcrumbs">
@@ -56,34 +56,34 @@ export default class serviceList extends React.Component{
 					</div>
 				</section>  
 				<div>
-				<div>
-					<h1 className="h1-substitue-left" style={Style1}>Servicios</h1>
-					<span style={Style2}>
-						<Link to='/servicios/nuevo'><button className="button confirm">
-							<i className="icon-plus"></i>Agregar Servicio
-						</button></Link>
-					</span>
-				</div>
-				<br/>
-				<br/>
-				<div style={{float: 'left'}}>
-					<ReactTable
-					data={this.state.data} 
-					noDataText="No existen ordenes"
-					columns={[{
-						Header: 'ID',
-						accessor:'id'},{
-						Header: 'Nombre',
-						accessor:'nombre'},{
-						Header: 'Precio',
-						accessor:'precio'},{
-						Header: 'Cantidad',
-						accessor:'cantidad'}, {
-						Header: 'Medida',
-						accessor:'medida'}
-					]} 
-					/>
-				</div>
+                    <div>
+                        <h1 className="h1-substitue-left" style={Style1}>Servicios</h1>
+                        <span style={Style2}>
+                            <Link to='/servicios/nuevo'><button className="button confirm">
+                                <i className="icon-plus"></i>Agregar Servicio
+                            </button></Link>
+                        </span>
+                    </div>
+                    <br/>
+                    <br/>
+                    <div style={{float: 'left'}}>
+                        <ReactTable
+                        data={this.state.data} 
+                        noDataText="No existen ordenes"
+                        columns={[{
+                            Header: 'ID',
+                            accessor:'id'},{
+                            Header: 'Nombre',
+                            accessor:'nombre'},{
+                            Header: 'Precio',
+                            accessor:'precio'},{
+                            Header: 'Cantidad',
+                            accessor:'cantidad'}, {
+                            Header: 'Medida',
+                            accessor:'medida'}
+                        ]} 
+                        />
+                    </div>
 				</div>
             </div>
         );       

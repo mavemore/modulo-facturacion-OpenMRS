@@ -9,12 +9,40 @@ import FaCalendarTimesO from 'react-icons/lib/fa/calendar-times-o';
 export default class HomeMedico extends React.Component {
     
   render() {
+        const Style1 = {
+            float: 'left',
+		};
+		const Style2 = {
+            float: 'right',
+		};
+    
     return (
       <div>
-        <h1>Órdenes</h1>
-        <div className='row col-md-12'>
-            <Link to="/"><button className="btn">Regresar</button></Link>
-        	<Link to="/ordenes/nueva-orden"><button className="btn btn-primary crearBtn">Crear Orden</button></Link>
+        <section>
+            <div className="example">
+                <ul id="breadcrumbs">
+                    <li>
+                        <a href="#">
+                        <i className="icon-home small"></i></a>
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Modulo
+                        <Link to="/servicios"></Link>
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Órdenes
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <div>
+        <div>
+            <h1 className="h1-substitue-left" style={Style1}>Órdenes</h1>
+            <span style={Style2}>
+                <Link to='/ordenes/nueva-orden'><button className="button confirm">
+                    <i className="icon-plus"></i>Agregar Orden
+                </button></Link>
+            </span>
         </div>
         <br/>
         <br/>
@@ -46,7 +74,8 @@ export default class HomeMedico extends React.Component {
             Header: 'Acciones',
             accessor:'acciones'}
           ]} 
-          sortable='true'/>
+          sortable={true}/>
+        </div>
         </div>
       </div>
     )
