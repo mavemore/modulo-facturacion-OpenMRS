@@ -7,7 +7,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import {buscarPaciente, getPaciente} from '../../api/serviciosPacientes';
 import {instance} from '../../axios-orders';
-
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 const selectRowProp = {
   mode: 'checkbox'
 };
@@ -25,27 +26,34 @@ export default class FormOrdenes extends React.Component {
             data:[],
             fechaInicio: moment(),
             fechaFin: moment(),
-            list: [],
+            pacienteSeleccionado: '',
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
         this.handleChangeFin = this.handleChangeFin.bind(this);
         this.cambioArea = this.cambioArea.bind(this);
-        this.search = this.search.bind(this);
+        this.searchPaciente = this.searchPaciente.bind(this);
+        this.handleChangePaciente = this.handleChangePaciente.bind(this);
     }
     
-    search(query){
-        //var pacientes = buscarPaciente(query.target.value);
-        //var persona = getPaciente('5b736682-1734-41cc-bef0-b57f3c058e4a');
-        console.log('/patient?q='+query.target.value);
-        instance.get('/patient?q='+query.target.value)
+    searchPaciente(query){
+        return instance.get('/patient?q='+query)
         .then(
-            (res) => this.setState({list:res})
-        ).catch(
-            function(error){
-                console.log(error);
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
             }
-        );
+        )
+    }
+    
+    handleChangePaciente(opcion){
+        this.setState({pacienteSeleccionado:opcion});
     }
   
     generarOrden(e){
@@ -139,52 +147,23 @@ export default class FormOrdenes extends React.Component {
             return null;
         }
     };
-    
-    getPersonas(list){
-        var lista = [];
-        if (list.length < 1 || list == undefined){
-            lista = list;
-        }else{
-            lista=list.data.results;
-        }
         
-        return lista.map((item)=>(
-            <tr key={item.uuid}>
-                <td>{item.display}</td>
-            </tr>
-        ));
-    }
-    
     render() {
-    
-    /*var pacientes = [{uuid:'1721989364',name:'Veronica Moreira'},{uuid:'1304014382',name:'Juan Perez'}];
-    var listaPaciente = pacientes.map(pacientes =>
-        <option value="pacientes.uuid">{pacientes.name}</option>
-    );
-                                      
-    var medicos = [{uuid:'1721989315',name:'Gonzalo Torres'},{uuid:'1721989356',name:'Maria Morevna'}];
-    var listaMedicos = medicos.map(medicos =>
-        <option value="medicos.uuid">{medicos.name}</option>
-    );*/
                                       
     const formArea = this.getArea(this.state.area);
-    const persons = this.getPersonas(this.state.list);
-        
+
     return (
       <div>
-            <table>
-              <thead key="thead">
-                  <tr><th>Nombre</th></tr>
-              </thead>
-              <tbody key="tbody">
-                { persons }
-              </tbody>
-            </table>
       	<form onSubmit={this.generarOrden.bind(this)} id="formOrden">
         	<fieldset>
         		<legend>Datos Generales:</legend>
-	        	<label htmlFor="paciente">Paciente:</label>
-                <input type='text' name="paciente" id="paciente" onChange={this.search}/>
+	        	<label> Paciente: </label>
+                <Select.Async 
+                autoload={false}
+                name="paciente" 
+                value={this.state.pacienteSeleccionado} 
+                onChange={this.handleChangePaciente}
+                loadOptions={this.searchPaciente}/>
                 <label htmlFor="ubicacion">Ubicacion:</label>
                 <input type='text' name="ubicacion" id="ubicacion" readOnly/>
                 <br/>
