@@ -34,10 +34,27 @@ export default class Home extends React.Component {
     
     return (
     <div>
-      <div role='nav'>
+        <section>
+            <div className="example">
+                <ul id="breadcrumbs">
+                    <li>
+                        <a href="#">
+                        <i className="icon-home small"></i></a>
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Modulo
+                    </li>
+                </ul>
+            </div>
+        </section>    
+        <a className="button big app" href="#"><i className="icon-medical"></i>App button with big icon</a>
+
+        <div role='nav'>
           <Link to="/ordenes" activeClassName="active"><button className='btnImg'><FaClipboard/><p className='labMod'>Ordenes</p></button></Link>
           <Link to="/notfound" activeClassName="active"><button className='btnImg'><FaMoney/><p className='labMod'>Facturacion</p></button></Link>
-          <Link to="/servicios" activeClassName="active"><button className='btnImg'><FaAmbulance/><p className='labMod'>Servicios</p></button></Link>
+          <Link to="/servicios" activeClassName="active">
+            <button className="button big app"><i className="icon-ambulance"></i>Servicios</button>
+          </Link>
         </div>
         {this.props.children}
     </div>

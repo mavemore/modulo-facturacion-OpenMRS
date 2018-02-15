@@ -1,0 +1,147 @@
+<h2>Servicios</h2>
+                
+                <div>
+                    <Link to='/servicios/nuevo'><button className="btn">Agregar Servicio</button></Link>
+                </div>
+                <div>
+                    <ReactTable
+                    data={this.state.data} 
+                    noDataText="No existen ordenes"
+                    columns={[{
+                        Header: 'ID',
+                        accessor:'id'},{
+                        Header: 'Nombre',
+                        accessor:'nombre'},{
+                        Header: 'Precio',
+                        accessor:'precio'},{
+                        Header: 'Cantidad',
+                        accessor:'cantidad'}, {
+                        Header: 'Medida',
+                        accessor:'medida'}
+                      ]} 
+                      sortable='true'
+                    />
+                </div> 
+
+
+
+                <div className="container">
+                    <div className="dashboard clear">
+                        <div className="info-container column">
+                            <div className="info-section">
+                                <div className="info-header">
+                                    <i className="icon-diagnosis"></i>
+                                    <h3>DIAGNOSIS</h3>
+                                </div>
+                                <div className="info-body">
+                                    <ul>
+                                        <li><span className="status active"></span>Malaria <small>Lamare Johanne</small></li>
+                                        <li><span className="status active"></span>Diabetes <small>Lamare Johanne</small></li>
+                                        <li>Headache</li>
+                                        <li>HIV complicating pregnancy</li>
+                                        <li>Malignant Brain Tumour</li>
+                                        <li>Leg Fracture</li>
+                                        <li>Fracture of spinal vertebra</li>
+                                        <li>Obsessive-Compulsive Disorder</li>
+                                    </ul>
+                                    <a className="view-more">Show more info &gt;</a>
+                                </div>
+                            </div>
+                            <div className="info-section vitals">
+                                <div className="info-header">
+                                    <i className="icon-vitals"></i>
+                                    <h3>VITALS</h3>
+                                </div>
+                                <div className="info-body">
+                                    <ul>
+                                        <li><i className="icon-time"></i>Last Vitals on 16 May 2013 11:00 AM</li>
+                                        <li><small>height</small> 30,5 CM</li>
+                                        <li><small>weight</small> 10,5 KG</li>
+                                        <li><small>temperature</small> 20.5 °C</li>
+                                        <li><small>heart rate</small> 20 /MIN</li>
+                                        <li><small>respiratory</small> 23  /MIN</li>
+                                        <li><small>blood</small> 30 / 30</li>
+                                        <li><small>o2</small> 30 %</li>
+                                    </ul>
+                                    <a className="view-more">Show more info &gt;</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="info-container column">
+                            <div className="info-section">
+                                <div className="info-header">
+                                    <i className="icon-medicine"></i>
+                                    <h3>PESCRIBED MEDICATION</h3>
+                                </div>
+                                <div className="info-body">
+                                    <ul>
+                                        <li>Aspirin <small>500 mg every day for 2 weeks</small></li>
+                                        <li>Agenerase Oral Solution <small>200 ml once a day for 1 week</small></li>
+                                        <li>Tacrine (Cognex) <small>100 ml once a day for 1 week</small></li>
+                                        <li>Lacrisert (Cellulose) <small>100 mg for 1 week</small></li>
+                                        <li>Valsartan (Diovan) <small>300 ml once a day for 2 weeks</small></li>
+                                    </ul>
+                                    <a className="view-more">Show more info &gt;</a>
+                                </div>
+                            </div>
+                            <div className="info-section">
+                                <div className="info-header">
+                                    <i className="icon-medical"></i>
+                                    <h3>ALLERGIES</h3>
+                                </div>
+                                <div className="info-body">
+                                    <ul>
+                                        <li>Shrimp <small>Hives</small></li>
+                                        <li>Seafood <small>Labored Breathing</small></li>
+                                        <li>Pinicilin <small>Dizziness and Vomiting</small></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="info-section">
+                                <div className="info-header">
+                                    <i className="icon-calendar"></i>
+                                    <h3>VISITS</h3>
+                                </div>
+                                <div className="info-body">
+                                    <ul>
+                                        <li className="clear"><a className="visit-link">18 Set 2013 - Today</a> <div className="tag">Inpatient</div></li>
+                                        <li className="clear"><a className="visit-link">28 Jun 2013</a> <div className="tag">Emergency</div></li>
+                                        <li className="clear"><a className="visit-link">28 May 2013</a> <div class="tag">Outpatient</div></li>
+                                        <li className="clear"><a className="visit-link">8 May 2013 - 12 May 2013</a> <div className="tag">Inpatient</div></li>
+                                        <li className="clear"><a className="visit-link">12 Apr 2013 - 29 Apr 2013</a> <div className="tag">Inpatient</div></li>
+                                    </ul>
+                                    <a className="view-more">Show more info &gt;</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="action-container column">
+                            <div className="action-section">
+                                <ul>
+                                    <h3>PATIENT</h3>
+                                    <li><i className="icon-vitals"></i>Record Vitals</li>
+                                    <li><i className="icon-stethoscope"></i>Write Consult Note</li>
+                                    <li><i className="icon-stethoscope"></i>Write ED Note</li>
+                                    <li><i className="icon-x-ray"></i>Order X-Ray</li>
+                                    <li><i className="icon-tomo"></i>Order CT Scan</li>
+                                    <li><i className="icon-paste"></i>Write Surgery Note</li>
+                                    <h3>GENERAL</h3>
+                                    <li><i className="icon-folder-open"></i>Request Paper Record</li>
+                                    <li><i className="icon-print"></i>Print Card Label</li>
+                                    <li><i className="icon-print"></i>Print Chart Label</li>
+                                </ul>
+                                <a className="button medium " href="#">
+                                    <i className="icon-x-ray"></i>
+                                    Radiology
+                                </a>
+                                <a className="button medium " href="#">
+                                    <i className="icon-paste"></i>
+                                    Notes
+                                </a>
+                                <a className="button medium " href="#">
+                                    <i className="icon-paper-clip"></i>
+                                    Surgery
+                                </a>
+                            </div>
+                        </div> 
+                    </div>
+                </div>

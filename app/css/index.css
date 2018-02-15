@@ -1,5 +1,4 @@
 
-
 /* line 1, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_breadcrumbs.scss */
 #breadcrumbs {
   clear: both;
@@ -30,7 +29,37 @@
   font-family: "OpenSansBold";
 }
 
-  /* line 10, ../../../../../../../scss/src/main/resources/sass/reference/fragments/_print.scss */
-  header, #breadcrumbs {
-    display: none;
-  }
+#body-wrapper.style-guide #content article section .example, #body-wrapper.style-guide #content article section code {
+    display: block;
+    position: relative;
+    margin: 35px 0 0 0;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+/* line 109, ../../../../../../../scss/src/main/resources/sass/styleguide/index.scss */
+#body-wrapper.style-guide #content article section .example:after, #body-wrapper.style-guide #content article section code:after {
+  content: "Example";
+  position: absolute;
+  top: -24px;
+  left: -1px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+  color: #969696;
+  background: #F9F9F9;
+}
+
+/* line 125, ../../../../../../../scss/src/main/resources/sass/styleguide/index.scss */
+#body-wrapper.style-guide #content article section .example ul.grid > li {
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  width: 200px;
+  margin: 10px;
+}
