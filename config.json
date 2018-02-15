@@ -1,4 +1,4 @@
 {
-    "LOCAL_OWA_FOLDER":"/usr/share/tomcat7/.OpenMRS/owa/",
-    "APP_ENTRY_POINT":"http://localhost:8080/openMRS/owa/modulo-facturacion-openmrs/index.html"
+    "LOCAL_OWA_FOLDER": "/home/oscar/Downloads/referenceapplication-standalone-2.7.0/appdata\\owa/ ",
+    "APP_ENTRY_POINT":"http://localhost:8082/openmrs-standalone/owa/modulo-facturacion-openmrs/index.html"
 }

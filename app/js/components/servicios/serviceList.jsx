@@ -29,31 +29,62 @@ export default class serviceList extends React.Component{
     
     render(){
         const { data } = this.state;
+        const Style1 = {
+            float: 'left',
+		};
+		const Style2 = {
+            float: 'right',
+		};
+
         return(
-            <div>
-                <h1>Servicios V-3.6 </h1>
-                <div>
-                    <Link to='/servicios/nuevo'><button className="btn">Agregar Servicio</button></Link>
-                </div>
-                <div>
-                    <ReactTable
-                    data={this.state.data} 
-                    noDataText="No existen ordenes"
-                    columns={[{
-                        Header: 'ID',
-                        accessor:'id'},{
-                        Header: 'Nombre',
-                        accessor:'nombre'},{
-                        Header: 'Precio',
-                        accessor:'precio'},{
-                        Header: 'Cantidad',
-                        accessor:'cantidad'}, {
-                        Header: 'Medida',
-                        accessor:'medida'}
-                      ]} 
-                      sortable='true'
-                    />
-                </div>
+			<div>
+				<section>
+					<div className="example">
+						<ul id="breadcrumbs">
+							<li>
+								<a href="#">
+								<i className="icon-home small"></i></a>
+							</li>
+							<li>
+								<i className="icon-chevron-right link"></i>Modulo
+								<Link to="/servicios"></Link>
+							</li>
+							<li>
+								<i className="icon-chevron-right link"></i>Servicios
+							</li>
+						</ul>
+					</div>
+				</section>  
+				<div>
+				<div>
+					<h1 className="h1-substitue-left" style={Style1}>Servicios</h1>
+					<span style={Style2}>
+						<Link to='/servicios/nuevo'><button className="button confirm">
+							<i className="icon-plus"></i>Agregar Servicio
+						</button></Link>
+					</span>
+				</div>
+				<br/>
+				<br/>
+				<div style={{float: 'left'}}>
+					<ReactTable
+					data={this.state.data} 
+					noDataText="No existen ordenes"
+					columns={[{
+						Header: 'ID',
+						accessor:'id'},{
+						Header: 'Nombre',
+						accessor:'nombre'},{
+						Header: 'Precio',
+						accessor:'precio'},{
+						Header: 'Cantidad',
+						accessor:'cantidad'}, {
+						Header: 'Medida',
+						accessor:'medida'}
+					]} 
+					/>
+				</div>
+				</div>
             </div>
         );       
     }

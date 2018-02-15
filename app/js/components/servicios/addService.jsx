@@ -96,6 +96,10 @@ export default class addService extends Component {
         );
         return(
             <div className={classes.ContactData}>
+                <div class="button-group">
+                    <label class="button" ng-model="propertyToSet" btn-radio="valueToSetItTo"> Display </label>
+                    <label class="button" ng-model="propertyToSet" btn-radio="anotherValueToSetItTo"> Another </label>
+                </div>
                 <h4>Ingresa los datos del servicio</h4>
                 {form}
             </div>
