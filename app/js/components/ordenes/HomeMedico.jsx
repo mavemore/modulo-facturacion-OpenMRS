@@ -26,8 +26,7 @@ export default class HomeMedico extends React.Component {
                         <i className="icon-home small"></i></a>
                     </li>
                     <li>
-                        <i className="icon-chevron-right link"></i>Modulo
-                        <Link to="/servicios"></Link>
+                         <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
                     </li>
                     <li>
                         <i className="icon-chevron-right link"></i>Órdenes
@@ -46,7 +45,7 @@ export default class HomeMedico extends React.Component {
         </div>
         <br/>
         <br/>
-        <div>
+        <div style={{marginTop: '30px'}}>
           <ReactTable 
           data={[{
             idOrden: <Link to="/ordenes/edit">221325</Link>,
@@ -74,6 +73,7 @@ export default class HomeMedico extends React.Component {
             Header: 'Acciones',
             accessor:'acciones'}
           ]} 
+          defaultPageSize={5} 
           sortable={true}/>
         </div>
         </div>

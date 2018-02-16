@@ -16,6 +16,7 @@ import Home from './components/global/Home';
 import editarOrdenes from './components/ordenes/editarOrdenes';
 import serviceList from './components/servicios/serviceList';
 import addService from './components/servicios/addService';
+import formServicios from './components/servicios/formServicios';
 
 export default () => {
   return (
@@ -27,6 +28,7 @@ export default () => {
         <Route path="/ordenes/edit" component={editarOrdenes}/>
         <Route path="/servicios" component={serviceList}/>
         <Route path="/servicios/nuevo" component={addService}/>
+        <Route path="/servicios/nuevo2" component={formServicios}/>
     </Router>
   );
 }

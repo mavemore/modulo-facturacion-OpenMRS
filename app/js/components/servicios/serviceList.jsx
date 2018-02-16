@@ -3,7 +3,7 @@ import Header from '../global/Header';
 import {Link} from 'react-router';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-
+import {instance} from '../../axios-openmrs';
 
 
 export default class serviceList extends React.Component{  
@@ -12,30 +12,66 @@ export default class serviceList extends React.Component{
         super();
         this.state = {
             data : [{
-                id: 'P001',
+                codigo: 'P001',
                 nombre: 'servicio 1',
                 precio: 10,
-                cantidad: 2,
-                medida: 'cc'
+                fecha: '15-02-2018',
+                acciones: <div><i className="icon-pencil edit-action" title="Edit"></i><i className="icon-remove delete-action" title="Delete"></i></div>
               },{
-                id: 'P002',
+                codigo: 'P002',
                 nombre: 'servicio 2',
                 precio: 20,
-                cantidad: 1,
-                medida: 'mm'
-              }]
+                fecha: '15-02-2018',
+                acciones: <div><i className="icon-pencil edit-action" title="Edit"></i><i className="icon-remove delete-action" title="Delete"></i></div>
+              }],
+            loading : false
         };
+        this.fetchData = this.fetchData.bind(this);   
     }
     
+    fetchData(){
+        this.setState({ loading: true });
+        instance.get( '/servicios.json' )
+            .then( response => {
+                console.log('fetch data');
+                const newArray = [ ]
+                for ( let key in response.data ) {
+                    newArray.push(response.data[key])
+                }
+                console.log(newArray)
+                this.setState( { 
+                    data: newArray,
+                    loading: false } );
+            } )
+            .catch( error => {
+                //this.setState( { error: true } );
+            } );
+    }
+
+
+    componentDidMount(){
+        instance.get( '/servicios.json' )
+            .then( response => {
+                console.log('dentro de servicios');
+                const newArray = [ ...this.state.data]
+                for ( let key in response.data ) {
+                    newArray.push(response.data[key])
+                }
+                this.setState( { data: newArray, loading: false } );
+            } )
+            .catch( error => {
+                //this.setState( { error: true } );
+            } );
+    }
+
     render(){
-        const { data } = this.state;
+       
         const Style1 = {
             float: 'left',
 		};
 		const Style2 = {
             float: 'right',
-		};
-
+        };
         return(
 			  <div>
 				<section>
@@ -46,8 +82,7 @@ export default class serviceList extends React.Component{
 								<i className="icon-home small"></i></a>
 							</li>
 							<li>
-								<i className="icon-chevron-right link"></i>Modulo
-								<Link to="/servicios"></Link>
+								<Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
 							</li>
 							<li>
 								<i className="icon-chevron-right link"></i>Servicios
@@ -59,29 +94,31 @@ export default class serviceList extends React.Component{
                     <div>
                         <h1 className="h1-substitue-left" style={Style1}>Servicios</h1>
                         <span style={Style2}>
-                            <Link to='/servicios/nuevo'><button className="button confirm">
+                            <Link to='/servicios/nuevo2'><button className="button confirm">
                                 <i className="icon-plus"></i>Agregar Servicio
                             </button></Link>
                         </span>
                     </div>
                     <br/>
                     <br/>
-                    <div style={{float: 'left'}}>
-                        <ReactTable
+                    <div style={{marginTop: '30px'}}>
+                        <ReactTable 
                         data={this.state.data} 
                         noDataText="No existen ordenes"
                         columns={[{
                             Header: 'ID',
-                            accessor:'id'},{
+                            accessor:'codigo'},{
                             Header: 'Nombre',
                             accessor:'nombre'},{
                             Header: 'Precio',
                             accessor:'precio'},{
-                            Header: 'Cantidad',
-                            accessor:'cantidad'}, {
-                            Header: 'Medida',
-                            accessor:'medida'}
-                        ]} 
+                            Header: 'Fecha de modificacion',
+                            accessor: 'fecha'},{
+                            Header: 'Acciones',
+                            accessor:'acciones'}
+                        ]}
+                        defaultPageSize={5} 
+                        onFetchData={this.fetchData}
                         />
                     </div>
 				</div>

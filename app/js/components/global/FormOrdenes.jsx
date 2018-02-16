@@ -201,11 +201,10 @@ export default class FormOrdenes extends React.Component {
                         <i className="icon-home small"></i></a>
                     </li>
                     <li>
-                        <i className="icon-chevron-right link"></i>Modulo
-                        <Link to="/servicios"></Link>
+                        <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
                     </li>
                     <li>
-                        <i className="icon-chevron-right link"></i>Ordenes
+                        <Link to="/ordenes"><i className="icon-chevron-right link"></i>Ordenes</Link>
                     </li>
                     <li>
                         <i className="icon-chevron-right link"></i>Nuevo
