@@ -24,14 +24,41 @@ export default class Home extends React.Component {
             </div>
         </section>    
         <div role='nav'>
-          <Link to="/ordenes" activeClassName="active">
-            <button className="button big app"><i className="icon-tasks"></i>Ordenes</button>
+          <Link to="/ordenes/farmacia/nuevo" activeClassName="active">
+            <button className="button big app"><i className="icon-medkit"></i>Nueva Orden Farmacia</button>
           </Link>
-          <Link to="/notfound" activeClassName="active">
-            <button className="button big app"><i className="icon-money"></i>Facturacion</button>
+          <Link to="/ordenes/imagenes/nuevo" activeClassName="active">
+            <button className="button big app"><i className="icon-tasks"></i>Nueva Orden Imágenes</button>
+          </Link>
+          <Link to="/ordenes/laboratorio/nuevo" activeClassName="active">
+            <button className="button big app"><i className="icon-beaker"></i>Nueva Orden Laboratorio</button>
+          </Link>
+          <Link to="/ordenes/cirugia/nuevo" activeClassName="active">
+            <button className="button big app"><i className="icon-user-md"></i>Nueva Orden Cirugía</button>
+          </Link>
+          <Link to="/ordenes/dietetica/nuevo" activeClassName="active">
+            <button className="button big app"><i className="icon-food"></i>Nueva Orden Dietética</button>
+          </Link>
+          <Link to="/ordenes/consultas/nuevo" activeClassName="active">
+            <button className="button big app"><i className="icon-stethoscope"></i>Nueva Orden Interconsulta</button>
+          </Link>
+          <Link to="/ordenes" activeClassName="active">
+            <button className="button big app"><i className="icon-tasks"></i>Consultar Ordenes</button>
+          </Link>
+          <Link to="/ordenes" activeClassName="active">
+            <button className="button big app"><i className="icon-ok"></i>Atender Ordenes</button>
+          </Link>
+          <Link to="/ordenes" activeClassName="active">
+            <button className="button big app"><i className="icon-remove"></i>Cancelar Ordenes</button>
+          </Link>
+          <Link to="/facturacion/orden" activeClassName="active">
+            <button className="button big app"><i className="icon-money"></i>Facturación Ordenes</button>
+          </Link>
+          <Link to="/facturacion/rapida" activeClassName="active">
+            <button className="button big app"><i className="icon-money"></i>Facturación Rápida</button>
           </Link>
           <Link to="/servicios" activeClassName="active">
-            <button className="button big app"><i className="icon-ambulance"></i>Servicios</button>
+            <button className="button big app"><i className="icon-ambulance"></i>Administrar Servicios</button>
           </Link>
         </div>
         {this.props.children}

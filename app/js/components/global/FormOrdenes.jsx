@@ -41,7 +41,7 @@ export default class FormOrdenes extends React.Component {
     }
     
     searchPaciente(query){
-        return instance.get('/patient?q='+query)
+        return instance.get('/v1/patient?q='+query)
         .then(
             (res) => {
                 var resultado = [];
@@ -57,7 +57,7 @@ export default class FormOrdenes extends React.Component {
     }
     
     getMedico(){
-        return instance.get('/session')
+        return instance.get('/v1/session')
         .then(
             (res) => {
                 var opciones = [{value: res.data.user.person.uuid, label: res.data.user.person.display}];
@@ -67,7 +67,7 @@ export default class FormOrdenes extends React.Component {
     }
     
     componentDidMount(){
-        instance.get('/session')
+        instance.get('/v1/session')
         .then(
             (res) => {
                 this.setState({medico: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
@@ -80,7 +80,7 @@ export default class FormOrdenes extends React.Component {
     }
     
     handleChangePaciente(opcion){
-        instance.get('/patient/'+opcion.value+'?v=full')
+        instance.get('/v1/patient/'+opcion.value+'?v=full')
         .then(
             (res) => {
                 this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location.display});

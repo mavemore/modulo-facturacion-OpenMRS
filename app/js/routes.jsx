@@ -11,7 +11,14 @@ import {render} from 'react-dom';
 import {Router, Route} from 'react-router';
 import App from './components/App';
 import HomeMedico from './components/ordenes/HomeMedico';
-import ingresoOrdenes from './components/ordenes/ingresoOrdenes';
+import nuevoFarmacia from './components/ordenes/nuevoFarmacia';
+import nuevoCirugia from './components/ordenes/nuevoCirugia';
+import nuevoConsulta from './components/ordenes/nuevoConsulta';
+import nuevoDietetica from './components/ordenes/nuevoDietetica';
+import nuevoImagenes from './components/ordenes/nuevoImagenes';
+import nuevoLaboratorio from './components/ordenes/nuevoLaboratorio';
+import nuevaFactOrden from './components/facturacion/nuevaFactOrden';
+import nuevaFactRapida from './components/facturacion/nuevaFactRapida';
 import Home from './components/global/Home';
 import editarOrdenes from './components/ordenes/editarOrdenes';
 import serviceList from './components/servicios/serviceList';
@@ -22,10 +29,15 @@ export default () => {
   return (
     <Router>
         <Route path="/" component={Home}/>
-        <Route path="/notfound" component={App}/>
+        <Route path="/facturacion/orden" component={nuevaFactOrden}/>
+        <Route path="/facturacion/rapida" component={nuevaFactRapida}/>
         <Route path="/ordenes" component={HomeMedico}/>
-        <Route path="/ordenes/nueva-orden" component={ingresoOrdenes}/>
-        <Route path="/ordenes/edit" component={editarOrdenes}/>
+        <Route path="/ordenes/farmacia/nuevo" component={nuevoFarmacia}/>
+        <Route path="/ordenes/imagenes/nuevo" component={nuevoImagenes}/>
+        <Route path="/ordenes/laboratorio/nuevo" component={nuevoLaboratorio}/>
+        <Route path="/ordenes/cirugia/nuevo" component={nuevoCirugia}/>
+        <Route path="/ordenes/consultas/nuevo" component={nuevoConsulta}/>
+        <Route path="/ordenes/dietetica/nuevo" component={nuevoDietetica}/>
         <Route path="/servicios" component={serviceList}/>
         <Route path="/servicios/nuevo" component={addService}/>
         <Route path="/servicios/nuevo2" component={formServicios}/>

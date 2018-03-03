@@ -37,11 +37,6 @@ export default class HomeMedico extends React.Component {
         <div>
         <div>
             <h1 className="h1-substitue-left" style={Style1}>Órdenes</h1>
-            <span style={Style2}>
-                <Link to='/ordenes/nueva-orden'><button className="button confirm">
-                    <i className="icon-plus"></i>Agregar Orden
-                </button></Link>
-            </span>
         </div>
         <br/>
         <br/>
