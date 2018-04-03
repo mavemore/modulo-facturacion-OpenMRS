@@ -27,6 +27,8 @@ export default class FormDietetica extends React.Component {
             pacienteSeleccionado: '',
             medico: '',
             ubicacion:'',
+            observaciones:'',
+            paquete:'',
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
@@ -35,6 +37,9 @@ export default class FormDietetica extends React.Component {
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
+        this.handleChangeObs = this.handleChangeObs.bind(this);
+        this.searchPaquete = this.searchPaquete.bind(this);
+        this.handleChangePaquete = this.handleChangePaquete.bind(this);
     }
     
     searchPaciente(query){
@@ -54,20 +59,52 @@ export default class FormDietetica extends React.Component {
     }
     
     getMedico(){
-        return instance.get('/v1/session')
+        //return instance.get('/v1/session')
+        return instance.get('/v1/provider')
         .then(
             (res) => {
-                var opciones = [{value: res.data.user.person.uuid, label: res.data.user.person.display}];
-                return {options: opciones};
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
             }
         )
     }
     
     componentDidMount(){
-        instance.get('/v1/session')
+        var resultado = [];
+        var idMedico = '';
+        var medicoObj = {};
+        instance.get('/v1/provider?v=full')
         .then(
             (res) => {
-                this.setState({medico: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                        person: item.person.uuid,
+                    }));
+                }
+                instance.get('/v1/session')
+                .then(
+                    (res2) => {
+                        idMedico = res2.data.user.person.uuid;
+                        medicoObj = resultado.find(x => x.person == idMedico);
+                        this.setState({medico: {value: medicoObj.value, label: medicoObj.label}});
+                    } 
+                ).catch(
+                    (err) => {
+                        console.log(err);
+                    }
+                )
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
             }
         )
     }
@@ -84,9 +121,62 @@ export default class FormDietetica extends React.Component {
             }
         )
     }
+    
+    searchPaquete(query){
+        return instance.get('/v1/concept/767bfd99-0f7c-4c32-83fa-7302c8b3273b')
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.setMembers.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
+    }
+        
+    handleChangePaquete(opcion){
+        this.setState({paquete:opcion});
+    }
   
     generarOrden(e){
-        e.getPreventDefault();
+        e.preventDefault();
+        var ordenes = this.state.data.map((item) => ({
+                  "type" : "order",
+                  "patient" : this.state.pacienteSeleccionado.value,
+                  "concept" : item.paquete,
+                  "orderer": this.state.medico.value,
+                  "careSetting" : "c365e560-c3ec-11e3-9c1a-0800200c9a66",
+                  "orderReasonNonCoded": item.observaciones,
+                  "startDate": this.state.fechaInicio.format(),
+                  "autoExpireDate":this.state.fechaFin.format(),
+        }));
+
+        const body = {
+            "patient": this.state.pacienteSeleccionado.value,
+            "location": this.state.ubicacion.uuid,
+            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": "240b26f9-dd88-4172-823d-4a8bfeb7841f"}],
+            "encounterType": "bc26c537-023c-4284-b921-bc83bb16101c",
+            "encounterDatetime": this.state.date.format(),
+            "orders": ordenes,
+            "obs": [
+                {obsDatetime: this.state.date.format(), 
+                concept:'70885eca-dfe9-4d6a-9dfd-cd2feebd77f3',
+                value: 'Dietetica'}]
+        }
+        instance.post('/v1/encounter', body)
+        .then(
+            (res) => {
+                console.log("yaaas");
+            }
+        ).catch(
+            (err)=> {
+                console.log(err);
+            }
+        )
         
     }
 
@@ -100,7 +190,11 @@ export default class FormDietetica extends React.Component {
     
     handleChangeFin(date){
         this.setState({fechaFin:date});
-    }    
+    }   
+    
+    handleChangeObs(e){
+        this.setState({observaciones:e.target.value});
+    }
         
     render() {
     const { data } = this.state;
@@ -161,14 +255,21 @@ export default class FormDietetica extends React.Component {
                     <legend>Informacion Dietetica:</legend>
                     <label> Fecha Inicio: </label><DatePicker selected={this.state.fechaInicio} onChange={this.handleChangeInicio}/>
                     <label> Fecha Fin: </label><DatePicker selected={this.state.fechaFin} onChange={this.handleChangeFin}/>
-                   <label htmlFor='paquete'>Paquete: </label>
-                   <input type='text' name='paquete' id='paquete'/>
-                   <label htmlFor='observaciones'>Observaciones: </label>
-                   <input type='text' name='observaciones' id='observaciones'/>
+                   <label> Paquete: </label>
+                    <Select.Async 
+                        autoload={false}
+                        name="paquete" 
+                        value={this.state.paquete} 
+                        onChange={this.handleChangePaquete}
+                        loadOptions={this.searchPaquete}
+                        />
+                    <label htmlFor="observaciones">Observaciones:</label>
+                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
                </fieldset>
                 <div>
-                    <Link to="/"><button className="btn" type="submit">Generar Orden</button></Link>
-                    <Link to="/"><button className="btn">Descartar</button></Link>
+                    <button className="btn" type="submit">Generar Orden</button>
+                    <span>     </span>
+                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

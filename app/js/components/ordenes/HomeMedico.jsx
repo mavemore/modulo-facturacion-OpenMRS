@@ -3,10 +3,90 @@ import {Link} from 'react-router';
 import Header from '../global/Header';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import FaCalendarCheckO from 'react-icons/lib/fa/calendar-check-o';
-import FaCalendarTimesO from 'react-icons/lib/fa/calendar-times-o';
+import moment from 'moment';
+import {instance} from '../../axios-orders';
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 
 export default class HomeMedico extends React.Component {
+  
+  constructor(props){
+        super(props);
+        this.state={
+            data:[],
+            pacienteSeleccionado: '',
+            usuario:'',
+        };
+        this.searchPaciente = this.searchPaciente.bind(this);
+        this.handleChangePaciente = this.handleChangePaciente.bind(this);
+    }
+    
+    componentDidMount(){
+        instance.get('/v1/session')
+        .then(
+            (res) => {
+                this.setState({usuario: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
+            }
+        )
+    }
+    
+    searchPaciente(query){
+        return instance.get('/v1/patient?q='+query)
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
+    }
+        
+    handleChangePaciente(opcion){
+        instance.get('/v1/patient/'+opcion.value+'?v=full')
+        .then(
+            (res) => {
+                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location.display});
+                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType=bc26c537-023c-4284-b921-bc83bb16101c&v=full')
+                .then(
+                    (res2) => {
+                        var ordenes = [];
+                        if ('data' in res2){
+                            ordenes = res2.data.results.map(function(item, i){
+                                var medico = '';
+                                var observaciones ='';
+                                if(item.encounterProviders.length>0){
+                                    medico = item.encounterProviders[0].provider.display
+                                }
+                                if(item.obs.length>0){
+                                    observaciones = item.obs.find(x => x.concept.uuid == '70885eca-dfe9-4d6a-9dfd-cd2feebd77f3').value;
+                                    console.log(observaciones);
+                                }
+                                return {
+                                idOrden: {link: 'ordenes/'+item.uuid, index: i+1},
+                                paciente: item.patient.display,
+                                medico: medico,
+                                area: observaciones,
+                                estado: item.encounterType.display,
+                                fecha: moment(item.encounterDatetime).format('DD/MM/YYYY'),
+                                }
+                            });
+                        }
+                        this.setState({data: ordenes});
+                    }
+                )
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+                this.setState({data: []});
+            }
+        )
+    }
     
   render() {
         const Style1 = {
@@ -39,22 +119,25 @@ export default class HomeMedico extends React.Component {
             <h1 className="h1-substitue-left" style={Style1}>Órdenes</h1>
         </div>
         <br/>
+        <fieldset>
+            <legend>Busqueda:</legend>
+            <label> Paciente: </label>
+            <Select.Async 
+            autoload={false}
+            name="paciente" 
+            value={this.state.pacienteSeleccionado} 
+            onChange={this.handleChangePaciente}
+            loadOptions={this.searchPaciente}/>
+        </fieldset>
         <br/>
         <div style={{marginTop: '30px'}}>
           <ReactTable 
-          data={[{
-            idOrden: <Link to="/ordenes/edit">221325</Link>,
-            paciente: 'Juan Perez',
-            medico: 'Gonzalo Torres',
-            area: 'Farmacia',
-            estado: 'Nuevo',
-            fecha: '20-12-2017',
-            acciones: <div className='acciones'><Link to="/ordenes"><FaCalendarCheckO/></Link>  <Link to="/ordenes"><FaCalendarTimesO/></Link></div>
-          }]} 
+          data={this.state.data} 
           noDataText="No existen ordenes"
           columns={[{
-            Header: 'ID Paciente',
-            accessor:'idOrden'},{
+            Header: 'No.',
+            accessor:'idOrden',
+            Cell: ({value})=> (<Link to={value.link}>{value.index}</Link>)},{
             Header: 'Paciente',
             accessor:'paciente'},{
             Header: 'Medico',
@@ -64,11 +147,9 @@ export default class HomeMedico extends React.Component {
             Header: 'Estado',
             accessor:'estado'},{
             Header: 'Fecha Modificado',
-            accessor:'fecha'},{
-            Header: 'Acciones',
-            accessor:'acciones'}
+            accessor:'fecha'}
           ]} 
-          defaultPageSize={5} 
+          defaultPageSize={10} 
           sortable={true}/>
         </div>
         </div>

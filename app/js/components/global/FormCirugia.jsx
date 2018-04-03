@@ -25,12 +25,17 @@ export default class FormCirugia extends React.Component {
             pacienteSeleccionado: '',
             medico: '',
             ubicacion:'',
+            observaciones:'',
+            cirugia:'',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
+        this.handleChangeObs = this.handleChangeObs.bind(this);
+        this.searchCirugia = this.searchCirugia.bind(this);
+        this.handleChangeCirugia = this.handleChangeCirugia.bind(this);
     }
     
     searchPaciente(query){
@@ -50,20 +55,52 @@ export default class FormCirugia extends React.Component {
     }
     
     getMedico(){
-        return instance.get('/v1/session')
+        //return instance.get('/v1/session')
+        return instance.get('/v1/provider')
         .then(
             (res) => {
-                var opciones = [{value: res.data.user.person.uuid, label: res.data.user.person.display}];
-                return {options: opciones};
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
             }
         )
     }
     
     componentDidMount(){
-        instance.get('/v1/session')
+        var resultado = [];
+        var idMedico = '';
+        var medicoObj = {};
+        instance.get('/v1/provider?v=full')
         .then(
             (res) => {
-                this.setState({medico: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                        person: item.person.uuid,
+                    }));
+                }
+                instance.get('/v1/session')
+                .then(
+                    (res2) => {
+                        idMedico = res2.data.user.person.uuid;
+                        medicoObj = resultado.find(x => x.person == idMedico);
+                        this.setState({medico: {value: medicoObj.value, label: medicoObj.label}});
+                    } 
+                ).catch(
+                    (err) => {
+                        console.log(err);
+                    }
+                )
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
             }
         )
     }
@@ -80,15 +117,69 @@ export default class FormCirugia extends React.Component {
             }
         )
     }
+    
+    searchCirugia(query){
+        return instance.get('/v1/concept/db903aa4-9d68-4512-9162-d80a404e0dc3')
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.setMembers.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
+    }
+        
+    handleChangeCirugia(opcion){
+        this.setState({cirugia:opcion});
+    }
   
     generarOrden(e){
-        e.getPreventDefault();
-        
+        e.preventDefault();
+        var ordenes = this.state.data.map((item) => ({
+                  "type" : "order",
+                  "patient" : this.state.pacienteSeleccionado.value,
+                  "concept" : item.cirugia,
+                  "orderer": this.state.medico.value,
+                  "careSetting" : "c365e560-c3ec-11e3-9c1a-0800200c9a66",
+                  "orderReasonNonCoded": item.observaciones,
+        }));
+
+        const body = {
+            "patient": this.state.pacienteSeleccionado.value,
+            "location": this.state.ubicacion.uuid,
+            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": "240b26f9-dd88-4172-823d-4a8bfeb7841f"}],
+            "encounterType": "bc26c537-023c-4284-b921-bc83bb16101c",
+            "encounterDatetime": this.state.date.format(),
+            "orders": ordenes,
+            "obs": [
+                {obsDatetime: this.state.date.format(), 
+                concept:'70885eca-dfe9-4d6a-9dfd-cd2feebd77f3',
+                value: 'Cirugia'}]
+        }
+        instance.post('/v1/encounter', body)
+        .then(
+            (res) => {
+                console.log("yaaas");
+            }
+        ).catch(
+            (err)=> {
+                console.log(err);
+            }
+        )
     }
 
     handleChange(date){
         this.setState({date:date});
     }  
+    
+    handleChangeObs(e){
+        this.setState({observaciones:e.target.value});
+    }
         
     render() {
     const { data } = this.state;
@@ -151,14 +242,21 @@ export default class FormCirugia extends React.Component {
                    <input type='text' name='especialista' id='especialista'/>
                    <label htmlFor='parteCuerpo'>Area cirugia: </label>
                    <input type='text' name='parteCuerpo' id='parteCuerpo'/>
-                   <label htmlFor='cirugia'>Cirugia: </label>
-                   <input type='text' name='cirugia' id='cirugia'/>
-                   <label htmlFor='diagnostico'>Diagnostico: </label>
-                   <input type='textarea' name='diagnostico' id='diagnostico'/>
+                   <label> Cirugia: </label>
+                    <Select.Async 
+                        autoload={false}
+                        name="cirugia" 
+                        value={this.state.cirugia} 
+                        onChange={this.handleChangeCirugia}
+                        loadOptions={this.searchCirugia}
+                        />
+                   <label htmlFor="observaciones">Observaciones:</label>
+                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
                </fieldset>
                 <div>
-                    <Link to="/"><button className="btn" type="submit">Generar Orden</button></Link>
-                    <Link to="/"><button className="btn">Descartar</button></Link>
+                    <button className="btn" type="submit">Generar Orden</button>
+                    <span>     </span>
+                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

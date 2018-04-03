@@ -13,9 +13,65 @@ export default class FormOrdenesEdit extends React.Component {
         super(props);
         this.state={
             date: moment(),
-            area: "farmacia",
+            pacienteSeleccionado: '',
+            medico: '',
+            ubicacion:{display:'', uuid:''},
+            idorden: '',
         };
         this.handleChange = this.handleChange.bind(this);
+        this.searchPaciente = this.searchPaciente.bind(this);
+        this.handleChangePaciente = this.handleChangePaciente.bind(this);
+        this.getMedico = this.getMedico.bind(this);
+        this.handleChangeMedico = this.handleChangeMedico.bind(this);
+    }
+    
+    componentDidMount(){
+        console.log(this.props.match);
+    }
+    
+    searchPaciente(query){
+        return instance.get('/v1/patient?q='+query)
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
+    }
+    
+    handleChangePaciente(opcion){
+        instance.get('/v1/patient/'+opcion.value+'?v=full')
+        .then(
+            (res) => {
+                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location});
+            }
+        )
+    }
+    
+    handleChangeMedico(opcion){
+        this.setState({medico:opcion});
+    }
+    
+    getMedico(){
+        return instance.get('/v1/provider')
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
     }
   
     generarOrden(e){
@@ -30,48 +86,67 @@ export default class FormOrdenesEdit extends React.Component {
 
 
     render() {
-    var pacientes = [{uuid:'1721989364',name:'Veronica Moreira'},{uuid:'1304014382',name:'Juan Perez'}];
-    var listaPaciente = pacientes.map(pacientes =>
-        <option value="pacientes.uuid">{pacientes.name}</option>
-    );
-                                      
-    var medicos = [{uuid:'1721989315',name:'Gonzalo Torres'},{uuid:'1721989356',name:'Maria Morevna'}];
-    var listaMedicos = medicos.map(medicos =>
-        <option value="medicos.uuid">{medicos.name}</option>
-    );
-        
+    const { data } = this.state;
+        const Style1 = {
+            float: 'left',
+		};
+		const Style2 = {
+            float: 'right',
+		};
     return (
       <div>
-      	<h2>Estado: Nuevo</h2>
-      	<form onSubmit={this.generarOrden.bind(this)} id="formOrden">
-        	<fieldset>
-        		<legend>Datos Generales:</legend>
-	        	<label htmlFor="paciente">Paciente:</label>
-                <input type='text' name="paciente" id="paciente" value='Veronica Moreira' readOnly/> 
-                <label htmlFor="medico"> M&eacute;dico: </label>
-                <input type='text' name="medico" id="medico" value='Gonzalo Torres' readOnly/>
-                <br/>
-                <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}
-                disabled={true}/>
-	        </fieldset>
-	        <fieldset>
-        		<legend>Detalles Orden:</legend>
-	        	<label htmlFor="area"> Area de Servicio: </label>
-                <select name="area" id="area" readOnly>
-                    <option value="farmacia">Farmacia</option>
-                    <option value="icu">ICU</option>
-                    <option value="cirugia">Cirug&iacute;a</option>
-                    <option value="laboratorio">Laboratorio</option>
-                    <option value="imagenes">Centro de Im&aacute;genes</option>
-                    <option value="interconsulta">Interconsulta</option>
-                    <option value="dietetica">Diet&eacute;tica</option>
-                </select>
-	        </fieldset>
-            
-            <Link to="/ordenes"><button className="btn" type="submit">Guardar</button></Link>
-            <Link to="/ordenes"><button className="btn">Descartar</button></Link>
-        </form>
-      </div>
+        <section>
+            <div className="example">
+                <ul id="breadcrumbs">
+                    <li>
+                        <a href="#">
+                        <i className="icon-home small"></i></a>
+                    </li>
+                    <li>
+                        <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
+                    </li>
+                    <li>
+                        <Link to="/ordenes"><i className="icon-chevron-right link"></i>Ordenes</Link>
+                    </li>
+                    <li>
+                        <i className="icon-chevron-right link"></i>Nuevo
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <div>
+            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+                <fieldset>
+                    <legend>Datos Generales:</legend>
+                    <label> Paciente: </label>
+                    <Select.Async 
+                    autoload={false}
+                    name="paciente" 
+                    value={this.state.pacienteSeleccionado} 
+                    onChange={this.handleChangePaciente}
+                    loadOptions={this.searchPaciente}/>
+                    <label htmlFor="ubicacion">Ubicacion:</label>
+                    <input type='text' name="ubicacion" value={this.state.ubicacion.display} id="ubicacion" readOnly/>
+                    <br/>
+                    <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
+                    <label htmlFor="medico"> M&eacute;dico: </label>
+                    <Select.Async 
+                    autoload={false}
+                    name="medico" 
+                    value={this.state.medico} 
+                    onChange={this.handleChangeMedico}
+                    loadOptions={this.getMedico}
+                    disabled={true}
+                    />
+                </fieldset>
+                <div>
+                    <button className="btn" type="submit">Generar Orden</button>
+                    <span>     </span>
+                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
+                </div>
+            </form>
+        </div>
+    </div>
     )
   }
 }

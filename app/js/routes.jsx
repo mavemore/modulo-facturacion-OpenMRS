@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import {render} from 'react-dom';
-import {Router, Route} from 'react-router';
+import {BrowserRouter as Router, Route} from 'react-router-dom';
 import App from './components/App';
 import HomeMedico from './components/ordenes/HomeMedico';
 import nuevoFarmacia from './components/ordenes/nuevoFarmacia';
@@ -32,6 +32,7 @@ export default () => {
         <Route path="/facturacion/orden" component={nuevaFactOrden}/>
         <Route path="/facturacion/rapida" component={nuevaFactRapida}/>
         <Route path="/ordenes" component={HomeMedico}/>
+        <Route path="/ordenes/:orderId" component={editarOrdenes}/>
         <Route path="/ordenes/farmacia/nuevo" component={nuevoFarmacia}/>
         <Route path="/ordenes/imagenes/nuevo" component={nuevoImagenes}/>
         <Route path="/ordenes/laboratorio/nuevo" component={nuevoLaboratorio}/>
