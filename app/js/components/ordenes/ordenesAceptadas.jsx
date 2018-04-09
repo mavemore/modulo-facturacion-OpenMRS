@@ -8,7 +8,7 @@ import {instance} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
-export default class HomeMedico extends React.Component {
+export default class ordenesAceptadas extends React.Component {
   
   constructor(props){
         super(props);
@@ -51,7 +51,7 @@ export default class HomeMedico extends React.Component {
         .then(
             (res) => {
                 this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location.display});
-                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType=bc26c537-023c-4284-b921-bc83bb16101c&v=full')
+                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType=08007d58-026e-44e0-92e0-6c1bd0a43a8c&v=full')
                 .then(
                     (res2) => {
                         var ordenes = [];
@@ -59,20 +59,20 @@ export default class HomeMedico extends React.Component {
                             ordenes = res2.data.results.map(function(item, i){
                                 var medico = '';
                                 var observaciones ='';
-                                var idorden = {link: 'ordenes/'+item.uuid, index: i+1};
+                                var idorden = {link: 'ordenes_atender/'+item.uuid, index: i+1};
                                 if(item.encounterProviders.length>0){
                                     medico = item.encounterProviders[0].provider.display
                                 }
                                 if(item.obs.length>0){
                                     observaciones = item.obs.find(x => x.concept.uuid == '70885eca-dfe9-4d6a-9dfd-cd2feebd77f3').value;
                                     if (observaciones=='Dietetica'){
-                                        idorden = {link: 'ordenes/dietetica/ver/'+item.uuid, index: i+1}
+                                        idorden = {link: 'ordenes_atender/dietetica/'+item.uuid, index: i+1}
                                     }else if (observaciones=='Farmacia'){
-                                        idorden = {link: 'ordenes/farmacia/ver/'+item.uuid, index: i+1}
+                                        idorden = {link: 'ordenes_atender/farmacia/'+item.uuid, index: i+1}
                                     }else if (observaciones=='Cirugia'){
-                                        idorden = {link: 'ordenes/cirugia/ver/'+item.uuid, index: i+1}
+                                        idorden = {link: 'ordenes_atender/cirugia/'+item.uuid, index: i+1}
                                     }else if (observaciones=='Laboratorio'){
-                                        idorden = {link: 'ordenes/laboratorio/ver/'+item.uuid, index: i+1}
+                                        idorden = {link: 'ordenes_atender/laboratorio/'+item.uuid, index: i+1}
                                     }
                                 }
                                 return {

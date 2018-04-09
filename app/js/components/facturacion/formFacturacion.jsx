@@ -128,7 +128,8 @@ export default class FormFacturacion extends React.Component {
                 <fieldset>
                     <legend>Lineas Items:</legend>
                    <BootstrapTable data={data} insertRow={ true } deleteRow={ true } selectRow={ selectRowProp } options={ options }>
-                      <TableHeaderColumn dataField='descripcion'>Descripcion</TableHeaderColumn>
+                      <TableHeaderColumn dataField='codigo' isKey>ID</TableHeaderColumn>
+                       <TableHeaderColumn dataField='descripcion'>Descripcion</TableHeaderColumn>
                       <TableHeaderColumn dataField='cantidad' >Cantidad</TableHeaderColumn>
                       <TableHeaderColumn dataField='precio' editable={false}>Precio</TableHeaderColumn>
                       <TableHeaderColumn dataField='total' editable={false}>Total</TableHeaderColumn>

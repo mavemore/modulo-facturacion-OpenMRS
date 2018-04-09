@@ -4,36 +4,37 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance,paquetesDietetica_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../axios-orders';
+import {instance,CLOUDINARY_UPLOAD_PRESET,CLOUDINARY_UPLOAD_URL,paquetesDietetica_id,encounterTypeFinalizada_id,observacionesFotoURL} from '../../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import Dropzone from 'react-dropzone';
+import request from 'superagent';
 import Simplert from 'react-simplert';
 
 const options = {   // A hook for after insert rows
 };
 
-export default class FormDietetica extends React.Component {
+export default class finalizarDietetica extends React.Component {
     
     constructor(props){
         super(props);
         this.state={
             date: moment(),
             data:[],
-            fechaInicio: moment(),
             fechaFin: moment(),
             pacienteSeleccionado: '',
+            foto:'',
+            fotoURL:'',
             medico: '',
-            ubicacion:'',
             observaciones:'',
             paquete:'',
+            orden:'',
             showAlert:false,
             titleAlert: "titulo",
             messageAlert:"mensaje",
             typeAlert:'success',
         };
         this.handleChange = this.handleChange.bind(this);
-        this.handleChangeInicio = this.handleChangeInicio.bind(this);
-        this.handleChangeFin = this.handleChangeFin.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
@@ -41,6 +42,9 @@ export default class FormDietetica extends React.Component {
         this.handleChangeObs = this.handleChangeObs.bind(this);
         this.searchPaquete = this.searchPaquete.bind(this);
         this.handleChangePaquete = this.handleChangePaquete.bind(this);
+        this.handleChangeFin = this.handleChangeFin.bind(this);
+        this.handleChangeComentario = this.handleChangeComentario.bind(this);
+        this.handleChangeFoto = this.handleChangeFoto.bind(this);
         this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
@@ -78,31 +82,39 @@ export default class FormDietetica extends React.Component {
     }
     
     componentDidMount(){
-        var resultado = [];
-        var idMedico = '';
-        var medicoObj = {};
-        instance.get('/v1/provider?v=full')
+        instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
         .then(
             (res) => {
                 if ('data' in res){
-                    resultado = res.data.results.map((item) => ({
-                        value: item.uuid,
-                        label: item.display,
-                        person: item.person.uuid,
-                    }));
-                }
-                instance.get('/v1/session')
-                .then(
-                    (res2) => {
-                        idMedico = res2.data.user.person.uuid;
-                        medicoObj = resultado.find(x => x.person == idMedico);
-                        this.setState({medico: {value: medicoObj.value, label: medicoObj.label}});
-                    } 
-                ).catch(
-                    (err) => {
-                        console.log(err);
+                    var medico = '';
+                    var tipo = '';
+                    var orden = '';
+                    if(res.data.encounterProviders.length>0){
+                        medico = { value: res.data.encounterProviders[0].provider.uuid, label: res.data.encounterProviders[0].provider.display}
+                                }
+                    if(res.data.obs.length>0){
+                        tipo = res.data.obs[0].display;
                     }
-                )
+                    if(res.data.orders.length>0){
+                        var ordenes = res.data.orders.map((item,i)=>(
+                            {
+                                paquete: {value: item.concept.uuid, label:item.concept.display},
+                                index: i,
+                                uuid: item.uuid,
+                                observaciones: item.orderReasonNonCoded,
+                                careSetting: item.careSetting.uuid,
+                            }));
+                        orden = ordenes[0];
+                    };
+                    this.setState({
+                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                        date: moment(res.data.encounterDatetime),
+                        medico: medico,
+                        observaciones: orden.observaciones,
+                        paquete: orden.paquete,
+                        orden: orden,
+                    });
+                }
             }
         ).catch(
             (err) => {
@@ -148,71 +160,102 @@ export default class FormDietetica extends React.Component {
         this.setState({showAlert:false});
     }
   
-    generarOrden(e){
+    guardarOrden(e){
         e.preventDefault();
-        if(this.state.pacienteSeleccionado==''||this.state.paquete==''){
+        if(this.state.fotoURL==''){
             this.setState({showAlert:true,
                           titleAlert: "Campos Vacios",
-                          messageAlert:"falta por llenar campos requeridos: Paciente o Cirugia",
+                          messageAlert:"falta por llenar campos requeridos.",
                           typeAlert: 'error'});
         }else{
-            var ordenes = [{
-                      "type" : "testorder",
-                      "patient" : this.state.pacienteSeleccionado.value,
-                      "concept" : this.state.paquete.value,
-                      "orderer": this.state.medico.value,
-                      "careSetting" : careSettingInpatient_id,
-                      "orderReasonNonCoded": this.state.observaciones,
-                      //"startDate": this.state.fechaInicio.format(),
-                      //"autoExpireDate":this.state.fechaFin.format(),
-                      "specimenSource": specimenSourceNA_id,
-            }];
-
-            const body = {
-                "patient": this.state.pacienteSeleccionado.value,
-                "location": this.state.ubicacion.uuid,
-                "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-                "encounterType": encounterTypeOrdenNueva_id,
-                "encounterDatetime": this.state.date.format(),
-                "orders": ordenes,
-                "obs": [
+            var body = {
+                'encounterType': encounterTypeFinalizada_id,
+                'obs': [
                     {obsDatetime: this.state.date.format(), 
-                    concept:ObservacioneAreaServicio_id,
-                    value: 'Dietetica'}]
+                    concept:observacionesFotoURL,
+                    value: this.state.fotoURL}
+                ]
             }
-            instance.post('/v1/encounter', body)
+            instance.post('/v1/encounter/'+this.state.idorden, body)
             .then(
                 (res) => {
-                    hashHistory.push('/');
+                    var detalles={
+                        "type":'testorder',
+                        "action": 'DISCONTINUE',
+                        "previousOrder": this.state.orden.uuid,
+                        "careSetting": this.state.orden.careSetting,
+                        "concept": this.state.orden.paquete.value,
+                        "encounter": this.state.idorden,
+                        "orderer": this.state.medico.value,
+                        "patient": this.state.pacienteSeleccionado.value,
+                        "dateActivated": this.state.dateFin.format(),
+                        "orderReasonNonCoded": this.state.comentarios,
+                    }
+                    instance.post('/v1/order', detalles)
+                    .then(
+                        (res2) => {
+                            hashHistory.push('/ordenes_atender');
+                        }
+                    ).catch(
+                        (err) => {
+                            console.log(err);
+                        }
+                    ) 
                 }
             ).catch(
-                (err)=> {
+                (err) => {
                     console.log(err);
-                    this.setState({showAlert:true,
-                          titleAlert: "Error Servidor",
-                          messageAlert:"Ha ocurrido un error en el servidor",
-                          typeAlert: 'error'});
                 }
-            )
+            ) 
         }
-        
     }
 
+    handleChangeFin(date){
+        this.setState({dateFin:date});
+    }
+    
+    handleChangeComentario(e){
+        this.setState({comentarios:e.target.value});
+    }
+    
+    handleChangeFoto(e){
+        this.setState({foto:e.target.value});
+    }
+    
     handleChange(date){
         this.setState({date:date});
     }
     
-    handleChangeInicio(date){
-        this.setState({fechaInicio:date});
-    }
-    
-    handleChangeFin(date){
-        this.setState({fechaFin:date});
-    }   
-    
     handleChangeObs(e){
         this.setState({observaciones:e.target.value});
     }
+    
+    //UPLOAD IMAGEN
+    onImageDrop(files) {
+        this.setState({
+          foto: files[0]
+        });
+
+        this.handleImageUpload(files[0]);
+    }
+    
+    handleImageUpload(file) {
+        let upload = request.post(CLOUDINARY_UPLOAD_URL)
+                            .field('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+                            .field('file', file);
+
+        upload.end((err, response) => {
+          if (err) {
+            console.error(err);
+          }
+
+          if (response.body.secure_url !== '') {
+            this.setState({
+              fotoURL: response.body.secure_url
+            });
+          }
+        });
+      }
         
     render() {
     const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
@@ -252,7 +295,7 @@ export default class FormDietetica extends React.Component {
             </div>
         </section>
         <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+            <form onSubmit={this.guardarOrden.bind(this)} id="formOrden">
                 <fieldset>
                     <legend>Datos Generales:</legend>
                     <label> Paciente: </label>
@@ -261,9 +304,11 @@ export default class FormDietetica extends React.Component {
                     name="paciente" 
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
-                    loadOptions={this.searchPaciente}/>
+                    loadOptions={this.searchPaciente}
+                    disabled={true}/>
                     <br/>
-                    <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
+                    <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}
+                    disabled={true}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
                     <Select.Async 
                     autoload={false}
@@ -283,14 +328,35 @@ export default class FormDietetica extends React.Component {
                         value={this.state.paquete} 
                         onChange={this.handleChangePaquete}
                         loadOptions={this.searchPaquete}
-                        />
+                        disabled={true}/>
                     <label htmlFor="observaciones">Observaciones:</label>
-                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
+                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs} readOnly/>
                </fieldset>
+                <fieldset>
+                    <legend>Evidencia Entrega:</legend>
+                    <label> Fecha Realizacion: </label><DatePicker selected={this.state.dateFin} onChange={this.handleChangeFin}/>
+                    <label htmlFor="comentarios">Comentario:</label>
+                    <input type='text' name="comentarios" value={this.state.comentarios} id="comentarios" onChange={this.handleChangeComentario}/>
+                    
+                </fieldset>
                 <div>
-                    <button className="btn" type="submit">Generar Orden</button>
+                    <Dropzone
+                      multiple={false}
+                      accept="image/*"
+                      onDrop={this.onImageDrop.bind(this)}>
+                      <p>Arrastre una imagen o haga clic para seleccionar un archivo a cargar.</p>
+                    </Dropzone>
+                    <div>
+                    {this.state.fotoURL === '' ? null :
+                    <div>
+                      <img src={this.state.fotoURL} />
+                    </div>}
+                  </div>
+                </div>
+                <div>
+                    <button className="btn" type="submit">Guardar</button>
                     <span>     </span>
-                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
+                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

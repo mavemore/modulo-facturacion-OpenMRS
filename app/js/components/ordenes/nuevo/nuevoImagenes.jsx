@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Header from '../global/Header';
-import FormImagenes from '../global/FormImagenes';
+import Header from '../../global/Header';
+import FormImagenes from '../../global/FormImagenes';
 
 export default class nuevoImagenes extends React.Component {
   render() {

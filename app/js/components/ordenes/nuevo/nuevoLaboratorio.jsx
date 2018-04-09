@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Header from '../global/Header';
-import FormLaboratorio from '../global/FormLaboratorio';
+import Header from '../../global/Header';
+import FormLaboratorio from '../../global/FormLaboratorio';
 
 export default class nuevoLaboratorio extends React.Component {
   render() {

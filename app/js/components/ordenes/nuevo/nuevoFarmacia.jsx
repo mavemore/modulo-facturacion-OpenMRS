@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Header from '../global/Header';
-import FormFarmacia from '../global/FormFarmacia';
+import Header from '../../global/Header';
+import FormFarmacia from '../../global/FormFarmacia';
 
 export default class nuevoFarmacia extends React.Component {
   render() {

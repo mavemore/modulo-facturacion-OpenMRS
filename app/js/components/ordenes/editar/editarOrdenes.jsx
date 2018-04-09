@@ -1,32 +1,64 @@
 import React from 'react';
-import {Link} from 'react-router';
-import request from 'superagent';
+import {Link, hashHistory} from 'react-router';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
-
+import {instance} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default class FormOrdenesEdit extends React.Component {
-    
-    constructor(props){
-        super(props);
+//import FormOrdenesEdit from '../global/FormOrdenesEdit';
+
+export default class editarOrdenes extends React.Component {
+    constructor(...args){
+        super(...args);
         this.state={
             date: moment(),
             pacienteSeleccionado: '',
             medico: '',
             ubicacion:{display:'', uuid:''},
-            idorden: '',
+            idorden: this.props.params.orderId,
+            tipoOrden: '',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
+        this.cancelarOrden = this.cancelarOrden.bind(this);
+        this.procesarOrden = this.procesarOrden.bind(this);
     }
     
     componentDidMount(){
-        console.log(this.props.match);
+        instance.get('/v1/encounter/'+this.props.params.orderId)
+        .then(
+            (res) => {
+                if ('data' in res){
+                    var medico = '';
+                    var tipo = '';
+                    var location = '';
+                    if(res.data.encounterProviders.length>0){
+                        medico = { value: res.data.encounterProviders[0].uuid, label: res.data.encounterProviders[0].display}
+                                }
+                    if(res.data.obs.length>0){
+                        tipo = res.data.obs[0].display;
+                    }
+                    if(res.data.location != null){
+                        location = res.data.location.display;
+                    }
+                    this.setState({
+                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                        date: moment(res.data.encounterDatetime),
+                        medico: medico,
+                        ubicacion: location,
+                        tipoOrden: tipo,
+                    });
+                }
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
     
     searchPaciente(query){
@@ -74,9 +106,44 @@ export default class FormOrdenesEdit extends React.Component {
         )
     }
   
-    generarOrden(e){
+    guardarOrden(e){
         e.preventDefault();
+        hashHistory.push('/ordenes');
         
+    }
+    
+    cancelarOrden(e){
+        var body = {'encounterType': '4a98bb63-d12e-44ce-ba4b-ae27503ff769'}
+        instance.post('/v1/encounter/'+this.state.idorden, body)
+        .then(
+            (res) => {
+                instance.delete('/v1/encounter/'+this.state.idorden)
+                .then(
+                    (res2) => {
+                        hashHistory.push('/ordenes');
+                    }
+                )
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
+    }
+    
+    procesarOrden(e){
+        var body = {'encounterType': '08007d58-026e-44e0-92e0-6c1bd0a43a8c'}
+        instance.post('/v1/encounter/'+this.state.idorden, body)
+        .then(
+            (res) => {
+                console.log(res);
+                hashHistory.push('/ordenes');
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
 
     handleChange(date){
@@ -93,6 +160,7 @@ export default class FormOrdenesEdit extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
+    const {tipoOrden} = this.state;
     return (
       <div>
         <section>
@@ -115,7 +183,8 @@ export default class FormOrdenesEdit extends React.Component {
             </div>
         </section>
         <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+            <h2>{tipoOrden}</h2>
+            <form onSubmit={this.guardarOrden.bind(this)} id="formOrden">
                 <fieldset>
                     <legend>Datos Generales:</legend>
                     <label> Paciente: </label>
@@ -126,7 +195,7 @@ export default class FormOrdenesEdit extends React.Component {
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
                     <label htmlFor="ubicacion">Ubicacion:</label>
-                    <input type='text' name="ubicacion" value={this.state.ubicacion.display} id="ubicacion" readOnly/>
+                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                     <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
@@ -140,9 +209,14 @@ export default class FormOrdenesEdit extends React.Component {
                     />
                 </fieldset>
                 <div>
-                    <button className="btn" type="submit">Generar Orden</button>
+                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
                     <span>     </span>
-                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
+                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>
+                </div>
+                <div>
+                    <button className="btn" type="submit">Guardar</button>
+                    <span>     </span>
+                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

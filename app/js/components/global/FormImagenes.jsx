@@ -1,6 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router';
-import request from 'superagent';
+import {Link, hashHistory} from 'react-router';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -131,8 +130,6 @@ export default class FormImagenes extends React.Component {
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
-                    <label htmlFor="ubicacion">Ubicacion:</label>
-                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                     <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>

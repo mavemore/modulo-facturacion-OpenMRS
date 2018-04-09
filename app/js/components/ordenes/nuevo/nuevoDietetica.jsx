@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Header from '../global/Header';
-import FormDietetica from '../global/FormDietetica';
+import Header from '../../global/Header';
+import FormDietetica from '../../global/FormDietetica';
 
 export default class nuevoDietetica extends React.Component {
   render() {

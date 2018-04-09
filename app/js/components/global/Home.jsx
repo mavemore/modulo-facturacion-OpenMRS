@@ -43,13 +43,10 @@ export default class Home extends React.Component {
             <button className="button big app"><i className="icon-stethoscope"></i>Nueva Orden Interconsulta</button>
           </Link>
           <Link to="/ordenes" activeClassName="active">
-            <button className="button big app"><i className="icon-tasks"></i>Consultar Ordenes</button>
+            <button className="button big app"><i className="icon-tasks"></i>Ordenes Nuevas</button>
           </Link>
-          <Link to="/ordenes" activeClassName="active">
-            <button className="button big app"><i className="icon-ok"></i>Atender Ordenes</button>
-          </Link>
-          <Link to="/ordenes" activeClassName="active">
-            <button className="button big app"><i className="icon-remove"></i>Cancelar Ordenes</button>
+          <Link to="/ordenes_atender" activeClassName="active">
+            <button className="button big app"><i className="icon-ok"></i>Ordenes Aceptadas</button>
           </Link>
           <Link to="/facturacion/orden" activeClassName="active">
             <button className="button big app"><i className="icon-money"></i>Facturación Ordenes</button>

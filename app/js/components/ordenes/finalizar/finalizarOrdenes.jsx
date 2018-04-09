@@ -1,22 +1,23 @@
 import React from 'react';
-import {Link} from 'react-router';
-import request from 'superagent';
+import {Link, hashHistory} from 'react-router';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
-
+import {instance} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default class FormOrdenesEdit extends React.Component {
-    
-    constructor(props){
-        super(props);
+//import FormOrdenesEdit from '../global/FormOrdenesEdit';
+
+export default class finalizarOrdenes extends React.Component {
+    constructor(...args){
+        super(...args);
         this.state={
             date: moment(),
             pacienteSeleccionado: '',
             medico: '',
             ubicacion:{display:'', uuid:''},
-            idorden: '',
+            idorden: this.props.params.orderId,
+            tipoOrden: '',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -26,7 +27,36 @@ export default class FormOrdenesEdit extends React.Component {
     }
     
     componentDidMount(){
-        console.log(this.props.match);
+        instance.get('/v1/encounter/'+this.props.params.orderId)
+        .then(
+            (res) => {
+                if ('data' in res){
+                    var medico = '';
+                    var tipo = '';
+                    var location = '';
+                    if(res.data.encounterProviders.length>0){
+                        medico = { value: res.data.encounterProviders[0].uuid, label: res.data.encounterProviders[0].display}
+                                }
+                    if(res.data.obs.length>0){
+                        tipo = res.data.obs[0].display;
+                    }
+                    if(res.data.location != null){
+                        location = res.data.location.display;
+                    }
+                    this.setState({
+                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                        date: moment(res.data.encounterDatetime),
+                        medico: medico,
+                        ubicacion: location,
+                        tipoOrden: tipo,
+                    });
+                }
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
     
     searchPaciente(query){
@@ -74,17 +104,17 @@ export default class FormOrdenesEdit extends React.Component {
         )
     }
   
-    generarOrden(e){
+    guardarOrden(e){
         e.preventDefault();
+        hashHistory.push('/ordenes');
         
     }
+    
 
     handleChange(date){
         this.setState({date:date});
     }
     
-
-
     render() {
     const { data } = this.state;
         const Style1 = {
@@ -93,6 +123,8 @@ export default class FormOrdenesEdit extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
+    const {tipoOrden} = this.state;
+    
     return (
       <div>
         <section>
@@ -106,7 +138,7 @@ export default class FormOrdenesEdit extends React.Component {
                         <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
                     </li>
                     <li>
-                        <Link to="/ordenes"><i className="icon-chevron-right link"></i>Ordenes</Link>
+                        <Link to="/ordenes_atender"><i className="icon-chevron-right link"></i>Ordenes</Link>
                     </li>
                     <li>
                         <i className="icon-chevron-right link"></i>Nuevo
@@ -115,7 +147,8 @@ export default class FormOrdenesEdit extends React.Component {
             </div>
         </section>
         <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+            <h2>{tipoOrden}</h2>
+            <form onSubmit={this.guardarOrden.bind(this)} id="formOrden">
                 <fieldset>
                     <legend>Datos Generales:</legend>
                     <label> Paciente: </label>
@@ -126,7 +159,7 @@ export default class FormOrdenesEdit extends React.Component {
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
                     <label htmlFor="ubicacion">Ubicacion:</label>
-                    <input type='text' name="ubicacion" value={this.state.ubicacion.display} id="ubicacion" readOnly/>
+                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                     <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
@@ -140,9 +173,9 @@ export default class FormOrdenesEdit extends React.Component {
                     />
                 </fieldset>
                 <div>
-                    <button className="btn" type="submit">Generar Orden</button>
+                    <button className="btn" type="submit">Guardar</button>
                     <span>     </span>
-                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
+                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>
