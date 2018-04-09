@@ -56,7 +56,7 @@ export default class formServicios extends React.Component{
                 "lowCritical": "1",
                 "allowDecimal": true,
                 "displayPrecision": 2,
-                "conceptClass": con,
+                "conceptClass": conceptclass_id,
                 "descriptions": [{
                     "description": this.state.precio	
                     } 

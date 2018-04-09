@@ -120,7 +120,7 @@ export default class FormImagenes extends React.Component {
         )
     }
     
-    searchConsulta(query){
+    searchImagen(query){
         return instance.get('/v1/concept/'+imagenes_id)
         .then(
             (res) => {
@@ -136,7 +136,7 @@ export default class FormImagenes extends React.Component {
         )
     }
         
-    handleChangeConsulta(opcion){
+    handleChangeImagen(opcion){
         this.setState({imagenes:opcion});
     }
     

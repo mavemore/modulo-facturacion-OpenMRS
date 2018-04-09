@@ -360,7 +360,7 @@ export default class finalizarCirugia extends React.Component {
                 <div>
                     <button className="btn" type="submit">Guardar</button>
                     <span>     </span>
-                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
+                    <Link to="/ordenes_atender"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>
