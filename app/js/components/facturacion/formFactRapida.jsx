@@ -8,12 +8,8 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import {instance} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
-
-const options = {   // A hook for after insert rows
-};
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 
 export default class FormFactRapida extends React.Component {
     
@@ -23,11 +19,19 @@ export default class FormFactRapida extends React.Component {
             data:[],
             pacienteSeleccionado: '',
             usuario:'',
+            servicioSeleccionado: '',
+            total:0,
+            
         };
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getUsuario = this.getUsuario.bind(this);
         this.handleChangeUsuario = this.handleChangeUsuario.bind(this);
+        this.searchServicios = this.searchServicios.bind(this);
+        this.handleChangeServicio = this.handleChangeServicio.bind(this);
+        this.fetchData = this.fetchData.bind(this);
+        this.onAfterDeleteRow = this.onAfterDeleteRow.bind(this);
+        this.findValue = this.findValue.bind(this);
     }
     
     getUsuario(){
@@ -64,6 +68,7 @@ export default class FormFactRapida extends React.Component {
                         label: item.display,
                     }));
                 }
+                console.log(resultado);
                 return {options: resultado};
             }
         )
@@ -77,7 +82,111 @@ export default class FormFactRapida extends React.Component {
             }
         )
     }
-        
+     
+    searchServicios(){
+        return instance.get('/v1/concept/a45d556e-e0c5-4d27-9a0c-17324ff284e3?v=full')
+        .then( response => {
+            let resultado = [];
+            console.log(response.data.setMembers);
+            if ('data' in response){
+                resultado = response.data.setMembers.map((item) => ({
+                    value: item.uuid,
+                    label: item.display,
+                    precio: item.descriptions[0].display,
+                    nombre: item.display
+                }));
+            }
+            console.log(resultado)
+            return {options: resultado};
+        })
+    }
+
+    handleChangeServicio(opcion){
+        console.log('opcion:'+opcion);
+        instance.get('/v1/concept?v=full&q='+opcion.value)
+        .then(
+            (res) => {
+                console.log(res.data);
+                this.setState({servicioSeleccionado:opcion});
+        })
+        .catch( (err) => { console.log(err); });
+    }
+    
+    findValue(array, value){
+        for (let key in array){
+            console.log(array[key].id);
+            if (array[key].id == value){
+                console.log('repetido');
+                return key;
+            }
+        }
+        return false;
+    }
+
+    fetchData(){
+        let servicio = this.state.servicioSeleccionado;
+        //console.log(servicio);
+        const array = [...this.state.data];
+        let newTotal;
+        let serv = {
+            id : servicio.value,
+            cod: servicio.value.slice(0,5),
+            nombre : servicio.nombre,
+            precio: servicio.precio,
+            cantidad: 1
+        }
+
+        let index = this.findValue(array, serv.id);
+        //console.log('index: '+ index);
+        if(index === false){
+            //console.log('no lo incluye')
+            array.push(serv)
+            let oldTotal = this.state.total;
+            //console.log(oldTotal);
+            let actualPrice = servicio.precio;
+            //console.log(actualPrice);
+            //console.log(parseFloat(actualPrice));
+            newTotal = oldTotal + parseFloat(actualPrice)
+            //console.log('total:'+newTotal);
+        }
+        else{
+            //console.log('repetidox2' + index);
+            //console.log(array[index]);
+            array[index].cantidad = array[index].cantidad +1;
+            //console.log('nueva cantidad:' + array[index].cantidad);
+            let oldTotal = this.state.total;
+            let actualPrice = array[index].precio;
+            //console.log(actualPrice);
+            newTotal = oldTotal + parseFloat(actualPrice)
+            parseFloat(newTotal).toFixed(2);
+            array[index].precio = array[index].precio * array[index].cantidad;
+           // console.log('total:'+newTotal);
+ 
+        }
+        console.log(array);
+        this.setState({data: array, total: newTotal});
+    }
+
+    onAfterDeleteRow(rowKeys){
+        const updateArray = [...this.state.data];
+        let newTotal;
+        for (let key in updateArray){
+            console.log('id:'+ updateArray[key].cod + ' rowkey:' + rowKeys);
+            if(updateArray[key].cod == rowKeys){
+                //console.log('Eliminar esta:'+ updateArray[key].id);
+                let oldTotal = this.state.total;
+                let antPrice = updateArray[key].precio;
+                newTotal = oldTotal - antPrice;
+                //console.log(newTotal);
+                newTotal.toFixed(2);
+                //console.log(newTotal);
+                updateArray.splice(key, 1);
+                break;
+            }
+        }
+        this.setState({data: updateArray, total: newTotal});
+    }
+
     render() {
     const { data } = this.state;
         const Style1 = {
@@ -86,7 +195,18 @@ export default class FormFactRapida extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
-        
+    
+
+    const options = {
+        afterDeleteRow: this.onAfterDeleteRow  // A hook for after droping rows.
+    };
+
+    // If you want to enable deleteRow, you must enable row selection also.
+    const selectRowProp = {
+        mode: 'checkbox'
+    };
+
+
     return (
       <div>
         <section>
@@ -105,52 +225,76 @@ export default class FormFactRapida extends React.Component {
                 </ul>
             </div>
         </section>
-        <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+        <br/>
+        {/*<form  id="formOrden">*/}
+            <div style={{align: 'center'}}>
+            <fieldset style= {{width: '90%'}}>
                 <label htmlFor="usuario"> Usuario: </label>
-                <Select.Async 
-                    autoload={false}
-                    name="usuario" 
-                    value={this.state.usuario} 
-                    onChange={this.handleChangeUsuario}
-                    loadOptions={this.getUsuario}
-                    disabled={true}/>
-                <fieldset>
-                    <legend>Paciente:</legend>
                     <Select.Async 
+                        autoload={false}
+                        name="usuario" 
+                        value={this.state.usuario} 
+                        onChange={this.handleChangeUsuario}
+                        loadOptions={this.getUsuario}
+                        disabled={true}/>
+            </fieldset>
+            <fieldset style= {{width: '90%'}}>
+                <legend>Paciente:</legend>
+                <Select.Async 
                     autoload={false}
                     name="paciente" 
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
-                    />
-                </fieldset>
-                <fieldset>
-                    <legend>Lineas Items:</legend>
-                   <BootstrapTable data={data} insertRow={ true } deleteRow={ true } selectRow={ selectRowProp } options={ options }>
-                      <TableHeaderColumn dataField='descripcion'>Descripcion</TableHeaderColumn>
-                      <TableHeaderColumn dataField='cantidad' >Cantidad</TableHeaderColumn>
-                      <TableHeaderColumn dataField='precio' editable={false}>Precio</TableHeaderColumn>
-                      <TableHeaderColumn dataField='total' editable={false}>Total</TableHeaderColumn>
-                    </BootstrapTable>  
-                    <label htmlFor='totaltodo'>Total: </label>
-                   <input type='text' name='totaltodo' id='totaltodo'/>
-                    <label htmlFor='totalpagar'>Total a Pagar: </label>
-                   <input type='text' name='totalpagar' id='totalpagar'/>
-               </fieldset>
-                <fieldset>
-                    <legend>Pagos:</legend>
-                   <label htmlFor='formapago'>Forma de pago: </label>
-                   <input type='text' name='formapago' id='formapago'/>
-                   <label htmlFor='cuotas'>Cantidad: </label>
-                   <input type='text' name='cuotas' id='cuotas'/>
-               </fieldset>
+            </fieldset>
+            <fieldset style= {{width: '90%'}}>
+                <legend>Lineas Items:</legend>
+                <Select.Async 
+                    autoload={false}
+                    name="Lineas Items" 
+                    value={this.state.servicioSeleccionado} 
+                    onChange={this.handleChangeServicio}
+                    loadOptions={this.searchServicios} style={{width: '50%'}}/>
+                <br/>
                 <div>
-                    <Link to="/"><button className="btn" type="submit">Guardar Factura</button></Link>
-                    <Link to="/"><button className="btn">Descartar</button></Link>
+                    <button className="button confirm" style={{float:'left'}} onClick={this.fetchData} >
+                            <i className=" icon-ok "></i>Añadir</button>
                 </div>
-            </form>
-        </div>
+                <br/>
+                <br/>
+                    <BootstrapTable data={ this.state.data } deleteRow={ true } selectRow={ selectRowProp } options={ options }>
+                        <TableHeaderColumn dataField='cod' isKey>ID</TableHeaderColumn>
+                        <TableHeaderColumn dataField='nombre'>Nombre</TableHeaderColumn>
+                        <TableHeaderColumn dataField='cantidad'>Cantidad</TableHeaderColumn>
+                        <TableHeaderColumn dataField='precio'>Total</TableHeaderColumn>
+                    </BootstrapTable>
+                <br/>   
+                <form  id="formOrden"> 
+                    <label htmlFor='totaltodo'>Total: </label>
+                    <input type='text' name='totaltodo' id='totaltodo' value={this.state.total}/>
+                    <label htmlFor='totalpagar'>Total a Pagar: </label>
+                    <input type='text' name='totalpagar' id='totalpagar' value={this.state.total}/>
+                </form>
+            </fieldset>
+            <fieldset style= {{width: '90%'}}>
+                <legend>Pagos:</legend>
+                <form>
+                    <label htmlFor='formapago'>Forma de pago: </label>
+                    <input type='text' name='formapago' id='formapago'/>
+                    <label htmlFor='cuotas'>Cantidad: </label>
+                    <input type='text' name='cuotas' id='cuotas'/>
+                </form>
+            </fieldset>
+            <br/>
+            <br/>
+            <div>
+                <form>
+                    <Link to="/"><button className="btn" type="submit" style={{float:'left'}}>Guardar Factura</button></Link>
+                    <Link to="/"><button className="btn" style={{float:'right'}}>Descartar</button></Link>
+                </form>
+            </div>
+            </div>
+        {/*</form>*/}
     </div>
     )
   }

@@ -1,9 +1,10 @@
 import React from 'react';
 import Header from '../global/Header';
 import {Link} from 'react-router';
+import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import {instance} from '../../axios-openmrs';
+import {instance} from '../../axios-orders';
 
 
 export default class serviceList extends React.Component{  
@@ -12,56 +13,61 @@ export default class serviceList extends React.Component{
         super();
         this.state = {
             data : [{
-                codigo: 'P001',
                 nombre: 'servicio 1',
                 precio: 10,
                 fecha: '15-02-2018',
-                acciones: <div><i className="icon-pencil edit-action" title="Edit"></i><i className="icon-remove delete-action" title="Delete"></i></div>
+                acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
               },{
-                codigo: 'P002',
                 nombre: 'servicio 2',
                 precio: 20,
                 fecha: '15-02-2018',
-                acciones: <div><i className="icon-pencil edit-action" title="Edit"></i><i className="icon-remove delete-action" title="Delete"></i></div>
+                acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
               }],
             loading : false
         };
         this.fetchData = this.fetchData.bind(this);   
+        this.eliminarServicio = this.eliminarServicio.bind(this);
     }
     
-    fetchData(){
-        this.setState({ loading: true });
-        instance.get( '/servicios.json' )
-            .then( response => {
-                console.log('fetch data');
-                const newArray = [ ]
-                for ( let key in response.data ) {
-                    newArray.push(response.data[key])
-                }
-                console.log(newArray)
-                this.setState( { 
-                    data: newArray,
-                    loading: false } );
-            } )
-            .catch( error => {
-                //this.setState( { error: true } );
-            } );
+    eliminarServicio(uuid){
+        //console.log(uuid);
+        instance.delete('/v1/concept/'+uuid, {params: {'uuid':uuid}})
+            .then(response => {
+                //console.log(response);
+                //console.log('deleted');
+            })
+            .catch((err) => { console.log(err.response.data); })
     }
 
-
-    componentDidMount(){
-        instance.get( '/servicios.json' )
+    fetchData(){
+        this.setState( { loading: true } );
+        instance.get('/v1/concept/a45d556e-e0c5-4d27-9a0c-17324ff284e3?v=full')
             .then( response => {
-                console.log('dentro de servicios');
-                const newArray = [ ...this.state.data]
-                for ( let key in response.data ) {
-                    newArray.push(response.data[key])
+                let newData = [];
+                let name;
+                let precio;
+                let fecha = moment().format('L')
+                let uuid;
+                for (let key in response.data.setMembers){
+                    name = response.data.setMembers[key].name.name;
+                    uuid = response.data.setMembers[key].uuid;
+                    if (response.data.setMembers[key].descriptions.length>0){
+                        precio = response.data.setMembers[key].descriptions[0].display;
+                    } 
+                    if(response.data.setMembers[key].version){
+                        fecha = response.data.setMembers[key].version
+                    }
+                    let newItem = {
+                        nombre: name,
+                        precio: parseFloat(precio),
+                        fecha: fecha,
+                        acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                    };
+                    newData.push(newItem); 
                 }
-                this.setState( { data: newArray, loading: false } );
+                this.setState({data: newData, loading: false});
             } )
-            .catch( error => {
-                //this.setState( { error: true } );
-            } );
+            .catch( (err) => { console.log(err); });
     }
 
     render(){
@@ -106,8 +112,6 @@ export default class serviceList extends React.Component{
                         data={this.state.data} 
                         noDataText="No existen ordenes"
                         columns={[{
-                            Header: 'ID',
-                            accessor:'codigo'},{
                             Header: 'Nombre',
                             accessor:'nombre'},{
                             Header: 'Precio',
