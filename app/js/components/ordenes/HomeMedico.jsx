@@ -4,7 +4,7 @@ import Header from '../global/Header';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import moment from 'moment';
-import {instance} from '../../axios-orders';
+import {instance,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
@@ -51,7 +51,7 @@ export default class HomeMedico extends React.Component {
         .then(
             (res) => {
                 this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location.display});
-                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType=bc26c537-023c-4284-b921-bc83bb16101c&v=full')
+                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType='+encounterTypeOrdenNueva_id+'&v=full')
                 .then(
                     (res2) => {
                         var ordenes = [];
@@ -64,7 +64,7 @@ export default class HomeMedico extends React.Component {
                                     medico = item.encounterProviders[0].provider.display
                                 }
                                 if(item.obs.length>0){
-                                    observaciones = item.obs.find(x => x.concept.uuid == '70885eca-dfe9-4d6a-9dfd-cd2feebd77f3').value;
+                                    observaciones = item.obs.find(x => x.concept.uuid == ObservacioneAreaServicio_id).value;
                                     if (observaciones=='Dietetica'){
                                         idorden = {link: 'ordenes/dietetica/ver/'+item.uuid, index: i+1}
                                     }else if (observaciones=='Farmacia'){
@@ -73,6 +73,10 @@ export default class HomeMedico extends React.Component {
                                         idorden = {link: 'ordenes/cirugia/ver/'+item.uuid, index: i+1}
                                     }else if (observaciones=='Laboratorio'){
                                         idorden = {link: 'ordenes/laboratorio/ver/'+item.uuid, index: i+1}
+                                    }else if (observaciones=='Consulta'){
+                                        idorden = {link: 'ordenes/consulta/ver/'+item.uuid, index: i+1}
+                                    }else if (observaciones=='Imagenes'){
+                                        idorden = {link: 'ordenes/imagenes/ver/'+item.uuid, index: i+1}
                                     }
                                 }
                                 return {
