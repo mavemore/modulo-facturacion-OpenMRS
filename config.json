@@ -1,2 +1,2 @@
-{   "LOCAL_OWA_FOLDER":"/Users/pc/Downloads/openmrs2.7/referenceapplication-standalone-2.7.0/appdata/owa/",
-    "APP_ENTRY_POINT":"http://localhost:8081/openmrs-standalone/owa/modulo-facturacion-openmrs/index.html"}
+{   "LOCAL_OWA_FOLDER":"/home/veronica/openmrs/ref/owa/",
+    "APP_ENTRY_POINT":"http://localhost:8080/openmrs/owa/modulo-facturacion-openmrs/index.html"}
