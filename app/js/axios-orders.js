@@ -74,13 +74,13 @@ export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
 
 //uuid conceptclass de servicios
 export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f';
------------------------------------------------------------------------
-/*
+//-----------------------------------------------------------------------
+
 //uuid del concepto de servicios
-export const servicios_id = 'a45d556e-e0c5-4d27-9a0c-17324ff284e3';
+//export const servicios_id = 'a45d556e-e0c5-4d27-9a0c-17324ff284e3';
 
 //uuid del datatype de servicio num
-export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
+//export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
 
 //uuid conceptclass de servicios
-export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f';*/
+//export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f'
