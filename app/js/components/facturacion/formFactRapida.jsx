@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance} from '../../axios-orders';
+import {instance, servicios_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import ReactTable from 'react-table';
@@ -84,7 +84,7 @@ export default class FormFactRapida extends React.Component {
     }
      
     searchServicios(){
-        return instance.get('/v1/concept/a45d556e-e0c5-4d27-9a0c-17324ff284e3?v=full')
+        return instance.get('/v1/concept/'+ servicios_id +'?v=full')
         .then( response => {
             let resultado = [];
             console.log(response.data.setMembers);

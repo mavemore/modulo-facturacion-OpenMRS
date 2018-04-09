@@ -4,7 +4,7 @@ import {Link} from 'react-router';
 import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import {instance} from '../../axios-orders';
+import {instance, servicios_id} from '../../axios-orders';
 
 
 export default class serviceList extends React.Component{  
@@ -41,7 +41,7 @@ export default class serviceList extends React.Component{
 
     fetchData(){
         this.setState( { loading: true } );
-        instance.get('/v1/concept/a45d556e-e0c5-4d27-9a0c-17324ff284e3?v=full')
+        instance.get('/v1/concept/'+ servicios_id +'?v=full')
             .then( response => {
                 let newData = [];
                 let name;
