@@ -2,34 +2,61 @@ import React from 'react';
 import {Link, hashHistory} from 'react-router';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import 'react-datepicker/dist/react-datepicker.css';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance} from '../../axios-orders';
 import Select from 'react-select';
-import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
+import {instance} from '../../../axios-orders';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const options = {   // A hook for after insert rows
-};
+//import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
-export default class FormConsulta extends React.Component {
-    
-    constructor(props){
-        super(props);
+export default class finalizarOrdenes extends React.Component {
+    constructor(...args){
+        super(...args);
         this.state={
             date: moment(),
-            data:[],
             pacienteSeleccionado: '',
             medico: '',
-            ubicacion:'',
+            ubicacion:{display:'', uuid:''},
+            idorden: this.props.params.orderId,
+            tipoOrden: '',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
+    }
+    
+    componentDidMount(){
+        instance.get('/v1/encounter/'+this.props.params.orderId)
+        .then(
+            (res) => {
+                if ('data' in res){
+                    var medico = '';
+                    var tipo = '';
+                    var location = '';
+                    if(res.data.encounterProviders.length>0){
+                        medico = { value: res.data.encounterProviders[0].uuid, label: res.data.encounterProviders[0].display}
+                                }
+                    if(res.data.obs.length>0){
+                        tipo = res.data.obs[0].display;
+                    }
+                    if(res.data.location != null){
+                        location = res.data.location.display;
+                    }
+                    this.setState({
+                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                        date: moment(res.data.encounterDatetime),
+                        medico: medico,
+                        ubicacion: location,
+                        tipoOrden: tipo,
+                    });
+                }
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
     
     searchPaciente(query){
@@ -48,21 +75,11 @@ export default class FormConsulta extends React.Component {
         )
     }
     
-    getMedico(){
-        return instance.get('/v1/session')
+    handleChangePaciente(opcion){
+        instance.get('/v1/patient/'+opcion.value+'?v=full')
         .then(
             (res) => {
-                var opciones = [{value: res.data.user.person.uuid, label: res.data.user.person.display}];
-                return {options: opciones};
-            }
-        )
-    }
-    
-    componentDidMount(){
-        instance.get('/v1/session')
-        .then(
-            (res) => {
-                this.setState({medico: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
+                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location});
             }
         )
     }
@@ -71,24 +88,33 @@ export default class FormConsulta extends React.Component {
         this.setState({medico:opcion});
     }
     
-    handleChangePaciente(opcion){
-        instance.get('/v1/patient/'+opcion.value+'?v=full')
+    getMedico(){
+        return instance.get('/v1/provider')
         .then(
             (res) => {
-                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location.display});
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
             }
         )
     }
   
-    generarOrden(e){
-        e.getPreventDefault();
+    guardarOrden(e){
+        e.preventDefault();
+        hashHistory.push('/ordenes');
         
     }
+    
 
     handleChange(date){
         this.setState({date:date});
-    }   
-        
+    }
+    
     render() {
     const { data } = this.state;
         const Style1 = {
@@ -97,7 +123,8 @@ export default class FormConsulta extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
-        
+    const {tipoOrden} = this.state;
+    
     return (
       <div>
         <section>
@@ -111,7 +138,7 @@ export default class FormConsulta extends React.Component {
                         <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
                     </li>
                     <li>
-                        <Link to="/ordenes"><i className="icon-chevron-right link"></i>Ordenes</Link>
+                        <Link to="/ordenes_atender"><i className="icon-chevron-right link"></i>Ordenes</Link>
                     </li>
                     <li>
                         <i className="icon-chevron-right link"></i>Nuevo
@@ -120,7 +147,8 @@ export default class FormConsulta extends React.Component {
             </div>
         </section>
         <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+            <h2>{tipoOrden}</h2>
+            <form onSubmit={this.guardarOrden.bind(this)} id="formOrden">
                 <fieldset>
                     <legend>Datos Generales:</legend>
                     <label> Paciente: </label>
@@ -130,7 +158,8 @@ export default class FormConsulta extends React.Component {
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
-                    
+                    <label htmlFor="ubicacion">Ubicacion:</label>
+                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                     <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
@@ -143,18 +172,10 @@ export default class FormConsulta extends React.Component {
                     disabled={true}
                     />
                 </fieldset>
-                <fieldset>
-                    <legend>Informacion Consulta:</legend>
-                   <label htmlFor='especialista'>Especialista: </label>
-                   <input type='text' name='especialista' id='especialista'/>
-                   <label htmlFor='areesp'>Area: </label>
-                   <input type='text' name='areesp' id='areesp'/>
-                   <label htmlFor='diagnostico'>Diagnostico: </label>
-                   <input type='textarea' name='diagnostico' id='diagnostico'/>
-               </fieldset>
                 <div>
-                    <Link to="/"><button className="btn" type="submit">Generar Orden</button></Link>
-                    <Link to="/"><button className="btn">Descartar</button></Link>
+                    <button className="btn" type="submit">Guardar</button>
+                    <span>     </span>
+                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

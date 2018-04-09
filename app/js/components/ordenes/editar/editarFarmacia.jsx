@@ -1,46 +1,41 @@
 import React from 'react';
 import {Link, hashHistory} from 'react-router';
-import request from 'superagent';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import 'react-datepicker/dist/react-datepicker.css';
-import ReactTable from 'react-table';
-import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id} from '../../axios-orders';
 import Select from 'react-select';
-import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
+import ReactTable from 'react-table';
+import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../axios-orders';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const options = {   // A hook for after insert rows
-};
+//import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
-export default class FormFarmacia extends React.Component {
-    
-    constructor(props){
-        super(props);
+export default class editarFarmacia extends React.Component {
+    constructor(...args){
+        super(...args);
         this.state={
             date: moment(),
-            data:[],
-            datashow: [],
-            fechaInicio: moment(),
-            fechaFin: moment(),
             pacienteSeleccionado: '',
             medico: '',
             ubicacion:{display:'', uuid:''},
+            idorden: this.props.params.orderId,
+            tipoOrden: '',
+            data:[],
             medicinaSeleccionada: '',
             unidad:'',
             dosis: 0.00,
             observaciones: '',
             frecuencia: '',
             route: '',
+            datashow: [],
+            
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
-        this.searchMedicina = this.searchMedicina.bind(this);
+        this.cancelarOrden = this.cancelarOrden.bind(this);
+        this.procesarOrden = this.procesarOrden.bind(this);
         this.handleChangeMedicina = this.handleChangeMedicina.bind(this);
         this.searchUnidad = this.searchUnidad.bind(this);
         this.handleChangeUnidad = this.handleChangeUnidad.bind(this);
@@ -52,6 +47,68 @@ export default class FormFarmacia extends React.Component {
         this.handleChangeRuta = this.handleChangeRuta.bind(this);
         this.searchFrecuencia = this.searchFrecuencia.bind(this);
         this.handleChangeFrecuencia = this.handleChangeFrecuencia.bind(this);
+    }
+    
+    componentDidMount(){
+        instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
+        .then(
+            (res) => {
+                if ('data' in res){
+                    var medico = '';
+                    var tipo = '';
+                    var location = '';
+                    var filas = [];
+                    var ordenes = [];
+                    if(res.data.encounterProviders.length>0){
+                        medico = { value: res.data.encounterProviders[0].provider.uuid, label: res.data.encounterProviders[0].provider.display}
+                                }
+                    if(res.data.obs.length>0){
+                        tipo = res.data.obs[0].display;
+                    }
+                    if(res.data.location != null){
+                        location = res.data.location.display;
+                    }
+                    if(res.data.orders.length>0){
+                        filas = res.data.orders.map((item,i)=>(
+                            {
+                                medicina: item.concept.display,
+                                index: i,
+                                uuid: item.uuid,
+                                dosis : item.dose,
+                                unidad : item.doseUnits.display,
+                                frecuencia : item.frequency.display,
+                                route : item.route.display, 
+                                observaciones: item.orderReasonNonCoded,
+                            }));
+                        ordenes = res.data.orders.map((item,i)=>(
+                            {
+                                medicina: item.concept.uuid,
+                                index: i+1,
+                                uuid: item.uuid,
+                                dosis : item.dose,
+                                unidad : item.doseUnits.uuid,
+                                frecuencia : item.frequency.uuid,
+                                route : item.route.uuid, 
+                                observaciones: item.orderReasonNonCoded,
+                                careSetting: item.careSetting.uuid,
+                            }));
+                    };
+                    this.setState({
+                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                        date: moment(res.data.encounterDatetime),
+                        medico: medico,
+                        ubicacion: location,
+                        tipoOrden: tipo,
+                        data: ordenes,
+                        datashow: filas,
+                    });
+                }
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
     
     searchPaciente(query){
@@ -95,40 +152,6 @@ export default class FormFarmacia extends React.Component {
                     }));
                 }
                 return {options: resultado};
-            }
-        )
-    }
-    
-    componentDidMount(){
-        var resultado = [];
-        var idMedico = '';
-        var medicoObj = {};
-        instance.get('/v1/provider?v=full')
-        .then(
-            (res) => {
-                if ('data' in res){
-                    resultado = res.data.results.map((item) => ({
-                        value: item.uuid,
-                        label: item.display,
-                        person: item.person.uuid,
-                    }));
-                }
-                instance.get('/v1/session')
-                .then(
-                    (res2) => {
-                        idMedico = res2.data.user.person.uuid;
-                        medicoObj = resultado.find(x => x.person == idMedico);
-                        this.setState({medico: {value: medicoObj.value, label: medicoObj.label}});
-                    }
-                ).catch(
-                    (err) => {
-                        console.log(err);
-                    }
-                )
-            }
-        ).catch(
-            (err) => {
-                console.log(err);
             }
         )
     }
@@ -245,50 +268,6 @@ export default class FormFarmacia extends React.Component {
             route: {}
         });
     }
-  
-    generarOrden(e){
-        e.preventDefault();
-        var ordenes = this.state.data.map((item) => ({
-                  "type" : "drugorder",
-                  "patient" : this.state.pacienteSeleccionado.value,
-                  "concept" : item.medicina,
-                  "orderer": this.state.medico.value,
-                  "careSetting" : careSettingInpatient_id,
-                  "drug": item.medicina,
-                  "dose" : item.dosis,
-                  "doseUnits" : item.unidad,
-                  "frequency" : item.frecuencia,
-                  "route" : item.route, 
-                  "orderReasonNonCoded": item.observaciones,
-        }));
-
-        const body = {
-            "patient": this.state.pacienteSeleccionado.value,
-            "location": this.state.ubicacion.uuid,
-            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-            "encounterType": encounterTypeOrdenNueva_id,
-            "encounterDatetime": this.state.date.format(),
-            "orders": ordenes,
-            "obs": [
-                {obsDatetime: this.state.date.format(), 
-                concept:ObservacioneAreaServicio_id,
-                value: 'Farmacia'}]
-        }
-        instance.post('/v1/encounter', body)
-        .then(
-            (res) => {
-                hashHistory.push('/');
-            }
-        ).catch(
-            (err)=> {
-                console.log(err);
-            }
-        )
-    }
-
-    handleChange(date){
-        this.setState({date:date});
-    }
     
     removerMed(index){
         var filas = this.state.data;
@@ -297,6 +276,90 @@ export default class FormFarmacia extends React.Component {
         filashow.splice(index,1);
         this.setState({data:filas, datashow: filashow});
         console.log(index);
+    }
+  
+    guardarOrden(e){
+        e.preventDefault();
+        instance.delete('/v1/encounter/'+this.state.idorden)
+        .then(
+            (res2) => {
+                var ordenes = this.state.data.map((item) => ({
+                          "type" : "drugorder",
+                          "patient" : this.state.pacienteSeleccionado.value,
+                          "concept" : item.medicina,
+                          "orderer": this.state.medico.value,
+                          "careSetting" : careSettingInpatient_id,
+                          "drug": item.medicina,
+                          "dose" : item.dosis,
+                          "doseUnits" : item.unidad,
+                          "frequency" : item.frecuencia,
+                          "route" : item.route, 
+                          "orderReasonNonCoded": item.observaciones,
+                }));
+
+                const body = {
+                    "patient": this.state.pacienteSeleccionado.value,
+                    "location": this.state.ubicacion.uuid,
+                    "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                    "encounterType": encounterTypeOrdenNueva_id,
+                    "encounterDatetime": this.state.date.format(),
+                    "orders": ordenes,
+                    "obs": [
+                        {obsDatetime: this.state.date.format(), 
+                        concept:ObservacioneAreaServicio_id,
+                        value: 'Farmacia'}]
+                }
+                instance.post('/v1/encounter', body)
+                .then(
+                    (res) => {
+                        hashHistory.push('/ordenes');
+                    }
+                ).catch(
+                    (err)=> {
+                        console.log(err);
+                    }
+                )
+            }
+        )
+    }
+    
+    cancelarOrden(e){
+        var body = {'encounterType': encounterTypeOrdenCancelada_id}
+        instance.post('/v1/encounter/'+this.state.idorden, body)
+        .then(
+            (res) => {
+                instance.delete('/v1/encounter/'+this.state.idorden)
+                .then(
+                    (res2) => {
+                        hashHistory.push('/ordenes');
+                    }
+                )
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
+    }
+    
+    procesarOrden(e){
+        var body = {'encounterType': encounterTypeOrdenAceptada_id}
+        instance.post('/v1/encounter/'+this.state.idorden, body)
+        .then(
+            (res) => {
+                console.log(res);
+                hashHistory.push('/ordenes');
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
+    }
+    
+
+    handleChange(date){
+        this.setState({date:date});
     }
     
     render() {
@@ -307,7 +370,8 @@ export default class FormFarmacia extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
-       
+    const {tipoOrden, datashow} = this.state;
+        
     const columnas = [{
                         Header: 'Medicina',
                         accessor:'medicina'},{
@@ -326,18 +390,7 @@ export default class FormFarmacia extends React.Component {
                         Cell: ({value})=> (<button type="button" onClick={()=>{this.removerMed({value})}}>Remover</button>)
                         }
                       ]
-
-    const filas = this.state.datashow.map(function(row,i){        
-            return ({
-                    index: i,
-                    medicina: row.medicina,
-                    dosis: row.dosis,
-                    unidad: row.unidad,
-                    frecuencia: row.frecuencia,
-                    route: row.route,
-                    observaciones: row.observaciones,
-            })});
-        
+    
     return (
       <div>
         <section>
@@ -351,7 +404,7 @@ export default class FormFarmacia extends React.Component {
                         <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
                     </li>
                     <li>
-                        <Link to="/ordenes"><i className="icon-chevron-right link"></i>Ordenes</Link>
+                        <Link to="/ordenes_atender"><i className="icon-chevron-right link"></i>Ordenes</Link>
                     </li>
                     <li>
                         <i className="icon-chevron-right link"></i>Nuevo
@@ -360,7 +413,8 @@ export default class FormFarmacia extends React.Component {
             </div>
         </section>
         <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+            <h2>{tipoOrden}</h2>
+            <form onSubmit={this.guardarOrden.bind(this)} id="formOrden">
                 <fieldset>
                     <legend>Datos Generales:</legend>
                     <label> Paciente: </label>
@@ -371,7 +425,7 @@ export default class FormFarmacia extends React.Component {
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
                     <label htmlFor="ubicacion">Ubicacion:</label>
-                    <input type='text' name="ubicacion" value={this.state.ubicacion.display} id="ubicacion" readOnly/>
+                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                     <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
@@ -384,7 +438,7 @@ export default class FormFarmacia extends React.Component {
                     disabled={true}
                     />
                 </fieldset>
-                <div>
+                 <div>
                     <fieldset>
                         <legend>Nueva Medicina:</legend>
                         <label> Nombre Medicina: </label>
@@ -429,18 +483,21 @@ export default class FormFarmacia extends React.Component {
                     <br></br>
                     <br></br>
                     <ReactTable 
-                      data={filas} 
+                      data={datashow} 
                       noDataText="No existen ordenes"
                       columns={columnas} 
                       defaultPageSize={5} 
                       sortable={true}/>
                 </div>
-                <br></br>
-                <br></br>
                 <div>
-                    <button className="btn" type="submit">Generar Orden</button>
+                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
                     <span>     </span>
-                    <Link to="/"><button className="btn" type="button">Descartar</button></Link>
+                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>
+                </div>
+                <div>
+                    <button className="btn" type="submit">Guardar</button>
+                    <span>     </span>
+                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

@@ -1,24 +1,29 @@
 import React from 'react';
-import {Link} from 'react-router';
-import request from 'superagent';
+import {Link, hashHistory} from 'react-router';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
-import {instance} from '../../axios-orders';
+import ReactTable from 'react-table';
+import {instance,paquetesDietetica_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 
 //import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
-export default class editarOrdenes extends React.Component {
+export default class editarDietetica extends React.Component {
     constructor(...args){
         super(...args);
         this.state={
             date: moment(),
+            fechaInicio: moment(),
+            fechaFin: moment(),
             pacienteSeleccionado: '',
             medico: '',
-            ubicacion:{display:'', uuid:''},
             idorden: this.props.params.orderId,
             tipoOrden: '',
+            data:[],
+            observaciones: '',
+            paquete:'',
+            
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -27,27 +32,40 @@ export default class editarOrdenes extends React.Component {
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
         this.cancelarOrden = this.cancelarOrden.bind(this);
         this.procesarOrden = this.procesarOrden.bind(this);
+        this.handleChangeObs = this.handleChangeObs.bind(this);
+        this.searchPaquete = this.searchPaquete.bind(this);
+        this.handleChangePaquete = this.handleChangePaquete.bind(this);
     }
     
     componentDidMount(){
-        instance.get('/v1/encounter/'+this.props.params.orderId)
+        instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
         .then(
             (res) => {
                 if ('data' in res){
                     var medico = '';
                     var tipo = '';
+                    var orden = '';
                     if(res.data.encounterProviders.length>0){
-                        medico = { value: res.data.encounterProviders[0].uuid, label: res.data.encounterProviders[0].display}
+                        medico = { value: res.data.encounterProviders[0].provider.uuid, label: res.data.encounterProviders[0].provider.display}
                                 }
                     if(res.data.obs.length>0){
-                        tipo = res.data.obs.find(x => x.uuid == '70885eca-dfe9-4d6a-9dfd-cd2feebd77f3').display;
+                        tipo = res.data.obs[0].display;
                     }
+                    if(res.data.orders.length>0){
+                        var ordenes = res.data.orders.map((item,i)=>(
+                            {
+                                dietetica: {value: item.concept.uuid, label:item.concept.display},
+                                index: i,
+                                observaciones: item.orderReasonNonCoded,
+                            }));
+                        orden = ordenes[0];
+                    };
                     this.setState({
                         pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
                         date: moment(res.data.encounterDatetime),
                         medico: medico,
-                        ubicacion: res.data.location.display,
-                        tipoOrden: tipo,
+                        observaciones: orden.observaciones,
+                        paquete: orden.dietetica,
                     });
                 }
             }
@@ -78,7 +96,7 @@ export default class editarOrdenes extends React.Component {
         instance.get('/v1/patient/'+opcion.value+'?v=full')
         .then(
             (res) => {
-                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location});
+                this.setState({pacienteSeleccionado:opcion});
             }
         )
     }
@@ -102,21 +120,81 @@ export default class editarOrdenes extends React.Component {
             }
         )
     }
-  
-    guardarOrden(e){
-        e.preventDefault();
+    
+    searchPaquete(query){
+        return instance.get('/v1/concept/'+paquetesDietetica_id)
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.setMembers.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
+    }
         
+    handleChangePaquete(opcion){
+        this.setState({paquete:opcion});
     }
     
-    cancelarOrden(){
-        var body = {'encounterType': '4a98bb63-d12e-44ce-ba4b-ae27503ff769'}
+    handleChangeObs(e){
+        this.setState({observaciones:e.target.value});
+    }
+        
+    guardarOrden(e){
+        e.preventDefault();
+        instance.delete('/v1/encounter/'+this.state.idorden)
+        .then(
+            (res2) => {
+                var ordenes = [{
+                          "type" : "testorder",
+                          "patient" : this.state.pacienteSeleccionado.value,
+                          "concept" : this.state.paquete.value,
+                          "orderer": this.state.medico.value,
+                          "careSetting" : careSettingInpatient_id,
+                          "orderReasonNonCoded": this.state.observaciones,
+                          "specimenSource": specimenSourceNA_id,
+                }];
+
+                const body = {
+                    "patient": this.state.pacienteSeleccionado.value,
+                    "location": this.state.ubicacion.uuid,
+                    "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                    "encounterType": encounterTypeOrdenNueva_id,
+                    "encounterDatetime": this.state.date.format(),
+                    "orders": ordenes,
+                    "obs": [
+                        {obsDatetime: this.state.date.format(), 
+                        concept:ObservacioneAreaServicio_id,
+                        value: 'Dietetica'}]
+                }
+                instance.post('/v1/encounter', body)
+                .then(
+                    (res) => {
+                        hashHistory.push('/');
+                    }
+                ).catch(
+                    (err)=> {
+                        console.log(err);
+                    }
+                )
+            }
+        )
+    }
+    
+    cancelarOrden(e){
+        var body = {'encounterType': encounterTypeOrdenCancelada_id}
         instance.post('/v1/encounter/'+this.state.idorden, body)
         .then(
             (res) => {
                 instance.delete('/v1/encounter/'+this.state.idorden)
                 .then(
                     (res2) => {
-                        console.log(res2);
+                        hashHistory.push('/ordenes');
                     }
                 )
             }
@@ -127,12 +205,12 @@ export default class editarOrdenes extends React.Component {
         )
     }
     
-    procesarOrden(){
-        var body = {'encounterType': '08007d58-026e-44e0-92e0-6c1bd0a43a8c'}
+    procesarOrden(e){
+        var body = {'encounterType': encounterTypeOrdenAceptada_id}
         instance.post('/v1/encounter/'+this.state.idorden, body)
         .then(
             (res) => {
-                console.log(res);
+                hashHistory.push('/ordenes');
             }
         ).catch(
             (err) => {
@@ -140,13 +218,20 @@ export default class editarOrdenes extends React.Component {
             }
         )
     }
+    
 
     handleChange(date){
         this.setState({date:date});
     }
     
-
-
+    handleChangeInicio(date){
+        this.setState({fechaInicio:date});
+    }
+    
+    handleChangeFin(date){
+        this.setState({fechaFin:date});
+    }  
+    
     render() {
     const { data } = this.state;
         const Style1 = {
@@ -155,6 +240,8 @@ export default class editarOrdenes extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
+    const {tipoOrden} = this.state;
+    
     return (
       <div>
         <section>
@@ -168,7 +255,7 @@ export default class editarOrdenes extends React.Component {
                         <Link to="/"><i className="icon-chevron-right link"></i>Modulo</Link>
                     </li>
                     <li>
-                        <Link to="/ordenes"><i className="icon-chevron-right link"></i>Ordenes</Link>
+                        <Link to="/ordenes_atender"><i className="icon-chevron-right link"></i>Ordenes</Link>
                     </li>
                     <li>
                         <i className="icon-chevron-right link"></i>Nuevo
@@ -177,7 +264,7 @@ export default class editarOrdenes extends React.Component {
             </div>
         </section>
         <div>
-            <h2>{this.state.tipoOrden}</h2>
+            <h2>{tipoOrden}</h2>
             <form onSubmit={this.guardarOrden.bind(this)} id="formOrden">
                 <fieldset>
                     <legend>Datos Generales:</legend>
@@ -188,9 +275,6 @@ export default class editarOrdenes extends React.Component {
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
-                    <label htmlFor="ubicacion">Ubicacion:</label>
-                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
-                    <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
                     <Select.Async 
@@ -202,6 +286,21 @@ export default class editarOrdenes extends React.Component {
                     disabled={true}
                     />
                 </fieldset>
+                 <fieldset>
+                    <legend>Informacion Dietetica:</legend>
+                    <label> Fecha Inicio: </label><DatePicker selected={this.state.fechaInicio} onChange={this.handleChangeInicio}/>
+                    <label> Fecha Fin: </label><DatePicker selected={this.state.fechaFin} onChange={this.handleChangeFin}/>
+                   <label> Paquete: </label>
+                    <Select.Async 
+                        autoload={false}
+                        name="paquete" 
+                        value={this.state.paquete} 
+                        onChange={this.handleChangePaquete}
+                        loadOptions={this.searchPaquete}
+                        />
+                    <label htmlFor="observaciones">Observaciones:</label>
+                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
+               </fieldset>
                 <div>
                     <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
                     <span>     </span>

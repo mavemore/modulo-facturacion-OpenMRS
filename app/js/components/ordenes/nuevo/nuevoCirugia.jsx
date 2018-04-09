@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Header from '../global/Header';
-import FormCirugia from '../global/FormCirugia';
+import Header from '../../global/Header';
+import FormCirugia from '../../global/FormCirugia';
 
 export default class nuevoCirugia extends React.Component {
   render() {

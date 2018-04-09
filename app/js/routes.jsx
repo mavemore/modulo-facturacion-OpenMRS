@@ -11,34 +11,54 @@ import {render} from 'react-dom';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 import App from './components/App';
 import HomeMedico from './components/ordenes/HomeMedico';
-import nuevoFarmacia from './components/ordenes/nuevoFarmacia';
-import nuevoCirugia from './components/ordenes/nuevoCirugia';
-import nuevoConsulta from './components/ordenes/nuevoConsulta';
-import nuevoDietetica from './components/ordenes/nuevoDietetica';
-import nuevoImagenes from './components/ordenes/nuevoImagenes';
-import nuevoLaboratorio from './components/ordenes/nuevoLaboratorio';
+import nuevoFarmacia from './components/ordenes/nuevo/nuevoFarmacia';
+import nuevoCirugia from './components/ordenes/nuevo/nuevoCirugia';
+import nuevoConsulta from './components/ordenes/nuevo/nuevoConsulta';
+import nuevoDietetica from './components/ordenes/nuevo/nuevoDietetica';
+import nuevoImagenes from './components/ordenes/nuevo/nuevoImagenes';
+import nuevoLaboratorio from './components/ordenes/nuevo/nuevoLaboratorio';
 import nuevaFactOrden from './components/facturacion/nuevaFactOrden';
 import nuevaFactRapida from './components/facturacion/nuevaFactRapida';
 import Home from './components/global/Home';
-import editarOrdenes from './components/ordenes/editarOrdenes';
+import editarOrdenes from './components/ordenes/editar/editarOrdenes';
+import editarFarmacia from './components/ordenes/editar/editarFarmacia';
+import editarCirugia from './components/ordenes/editar/editarCirugia';
+import editarDietetica from './components/ordenes/editar/editarDietetica';
+import editarLaboratorio from './components/ordenes/editar/editarLaboratorio';
 import serviceList from './components/servicios/serviceList';
 import addService from './components/servicios/addService';
 import formServicios from './components/servicios/formServicios';
+import ordenesAceptadas from './components/ordenes/ordenesAceptadas';
+import finalizarOrdenes from './components/ordenes/finalizar/finalizarOrdenes';
+import finalizarFarmacia from './components/ordenes/finalizar/finalizarFarmacia';
+import finalizarCirugia from './components/ordenes/finalizar/finalizarCirugia';
+import finalizarDietetica from './components/ordenes/finalizar/finalizarDietetica';
+import finalizarLaboratorio from './components/ordenes/finalizar/finalizarLaboratorio';
 
 export default () => {
   return (
     <Router>
-        <Route path="/" component={Home}/>
+        <Route exact path="/" component={Home}/>
         <Route path="/facturacion/orden" component={nuevaFactOrden}/>
         <Route path="/facturacion/rapida" component={nuevaFactRapida}/>
         <Route path="/ordenes" component={HomeMedico}/>
+        <Route path="/ordenes_atender" component={ordenesAceptadas}/>
         <Route path="/ordenes/:orderId" component={editarOrdenes}/>
-        <Route path="/ordenes/farmacia/nuevo" component={nuevoFarmacia}/>
-        <Route path="/ordenes/imagenes/nuevo" component={nuevoImagenes}/>
-        <Route path="/ordenes/laboratorio/nuevo" component={nuevoLaboratorio}/>
-        <Route path="/ordenes/cirugia/nuevo" component={nuevoCirugia}/>
-        <Route path="/ordenes/consultas/nuevo" component={nuevoConsulta}/>
-        <Route path="/ordenes/dietetica/nuevo" component={nuevoDietetica}/>
+        <Route path="/ordenes/dietetica/ver/:orderId" component={editarDietetica}/>
+        <Route path="/ordenes/farmacia/ver/:orderId" component={editarFarmacia}/>
+        <Route path="/ordenes/cirugia/ver/:orderId" component={editarCirugia}/>
+        <Route path="/ordenes/laboratorio/ver/:orderId" component={editarLaboratorio}/>
+        <Route path="/ordenes_atender/:orderId" component={finalizarOrdenes}/>
+        <Route path="/ordenes_atender/dietetica/:orderId" component={finalizarDietetica}/>
+        <Route path="/ordenes_atender/farmacia/:orderId" component={finalizarFarmacia}/>
+        <Route path="/ordenes_atender/cirugia/:orderId" component={finalizarCirugia}/>
+        <Route path="/ordenes_atender/laboratorio/:orderId" component={finalizarLaboratorio}/>
+        <Route exact path="/ordenes/farmacia/nuevo" component={nuevoFarmacia}/>
+        <Route exact path="/ordenes/imagenes/nuevo" component={nuevoImagenes}/>
+        <Route exact path="/ordenes/laboratorio/nuevo" component={nuevoLaboratorio}/>
+        <Route exact path="/ordenes/cirugia/nuevo" component={nuevoCirugia}/>
+        <Route exact path="/ordenes/consultas/nuevo" component={nuevoConsulta}/>
+        <Route exact path="/ordenes/dietetica/nuevo" component={nuevoDietetica}/>
         <Route path="/servicios" component={serviceList}/>
         <Route path="/servicios/nuevo" component={addService}/>
         <Route path="/servicios/nuevo2" component={formServicios}/>

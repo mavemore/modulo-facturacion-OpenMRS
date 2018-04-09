@@ -1,11 +1,10 @@
 import React from 'react';
-import {Link} from 'react-router';
-import request from 'superagent';
+import {Link, hashHistory} from 'react-router';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance} from '../../axios-orders';
+import {instance,paquetesDietetica_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 const selectRowProp = {
@@ -123,7 +122,7 @@ export default class FormDietetica extends React.Component {
     }
     
     searchPaquete(query){
-        return instance.get('/v1/concept/767bfd99-0f7c-4c32-83fa-7302c8b3273b')
+        return instance.get('/v1/concept/'+paquetesDietetica_id)
         .then(
             (res) => {
                 var resultado = [];
@@ -144,33 +143,34 @@ export default class FormDietetica extends React.Component {
   
     generarOrden(e){
         e.preventDefault();
-        var ordenes = this.state.data.map((item) => ({
-                  "type" : "order",
+        var ordenes = [{
+                  "type" : "testorder",
                   "patient" : this.state.pacienteSeleccionado.value,
-                  "concept" : item.paquete,
+                  "concept" : this.state.paquete.value,
                   "orderer": this.state.medico.value,
-                  "careSetting" : "c365e560-c3ec-11e3-9c1a-0800200c9a66",
-                  "orderReasonNonCoded": item.observaciones,
-                  "startDate": this.state.fechaInicio.format(),
-                  "autoExpireDate":this.state.fechaFin.format(),
-        }));
+                  "careSetting" : careSettingInpatient_id,
+                  "orderReasonNonCoded": this.state.observaciones,
+                  //"startDate": this.state.fechaInicio.format(),
+                  //"autoExpireDate":this.state.fechaFin.format(),
+                  "specimenSource": specimenSourceNA_id,
+        }];
 
         const body = {
             "patient": this.state.pacienteSeleccionado.value,
             "location": this.state.ubicacion.uuid,
-            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": "240b26f9-dd88-4172-823d-4a8bfeb7841f"}],
-            "encounterType": "bc26c537-023c-4284-b921-bc83bb16101c",
+            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+            "encounterType": encounterTypeOrdenNueva_id,
             "encounterDatetime": this.state.date.format(),
             "orders": ordenes,
             "obs": [
                 {obsDatetime: this.state.date.format(), 
-                concept:'70885eca-dfe9-4d6a-9dfd-cd2feebd77f3',
+                concept:ObservacioneAreaServicio_id,
                 value: 'Dietetica'}]
         }
         instance.post('/v1/encounter', body)
         .then(
             (res) => {
-                console.log("yaaas");
+                hashHistory.push('/');
             }
         ).catch(
             (err)=> {
@@ -237,8 +237,6 @@ export default class FormDietetica extends React.Component {
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
                     loadOptions={this.searchPaciente}/>
-                    <label htmlFor="ubicacion">Ubicacion:</label>
-                    <input type='text' name="ubicacion" value={this.state.ubicacion} id="ubicacion" readOnly/>
                     <br/>
                     <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
@@ -253,8 +251,6 @@ export default class FormDietetica extends React.Component {
                 </fieldset>
                 <fieldset>
                     <legend>Informacion Dietetica:</legend>
-                    <label> Fecha Inicio: </label><DatePicker selected={this.state.fechaInicio} onChange={this.handleChangeInicio}/>
-                    <label> Fecha Fin: </label><DatePicker selected={this.state.fechaFin} onChange={this.handleChangeFin}/>
                    <label> Paquete: </label>
                     <Select.Async 
                         autoload={false}
