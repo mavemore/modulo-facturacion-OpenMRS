@@ -67,10 +67,20 @@ export const specimenSourceNA_id = '7d8ac6b8-c6c8-4eac-9b63-05cc03429b70';
 export const unidades_id = '162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 //uuid del concepto de servicios
-export const servicios_id = 'a45d556e-e0c5-4d27-9a0c-17324ff284e3';
+export const servicios_id ='3ec05ea7-d02d-48c8-bf1c-1da61a411a3d';
 
 //uuid del datatype de servicio num
 export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
 
 //uuid conceptclass de servicios
 export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f';
+-----------------------------------------------------------------------
+/*
+//uuid del concepto de servicios
+export const servicios_id = 'a45d556e-e0c5-4d27-9a0c-17324ff284e3';
+
+//uuid del datatype de servicio num
+export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
+
+//uuid conceptclass de servicios
+export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f';*/
