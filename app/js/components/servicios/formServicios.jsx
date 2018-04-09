@@ -5,7 +5,7 @@ import ReactTable from 'react-table';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
-import {instance} from '../../axios-orders';
+import {instance, servicios_id, datatype_id, conceptclass_id} from '../../axios-orders';
 
 export default class formServicios extends React.Component{  
     constructor(){
@@ -45,7 +45,7 @@ export default class formServicios extends React.Component{
                     "conceptNameType": "FULLY_SPECIFIED"
                     }
                 ],
-                "datatype": "8d4a4488-c2cc-11de-8d13-0010c6dffd0f",
+                "datatype": datatype_id,
                 "set": true,
                 "version":this.state.fecha.format('L').toString(),               
                 "hiNormal": "10",
@@ -56,7 +56,7 @@ export default class formServicios extends React.Component{
                 "lowCritical": "1",
                 "allowDecimal": true,
                 "displayPrecision": 2,
-                "conceptClass": "8d4907b2-c2cc-11de-8d13-0010c6dffd0f",
+                "conceptClass": con,
                 "descriptions": [{
                     "description": this.state.precio	
                     } 
@@ -72,7 +72,7 @@ export default class formServicios extends React.Component{
                         console.log(response.data);
                         uuid = response.data.results[0];
                         console.log(uuid);
-                        instance.get('/v1/concept/a45d556e-e0c5-4d27-9a0c-17324ff284e3?v=full')
+                        instance.get('/v1/concept/'+ servicios_id +'?v=full')
                             .then(response => {
                                 console.log(response.data);
                                 response.data.setMembers.push(uuid)
@@ -80,7 +80,7 @@ export default class formServicios extends React.Component{
                                     members.setMembers.push(response.data.setMembers[key].uuid)
                                     console.log(members);
                                 }
-                                instance.post('/v1/concept/a45d556e-e0c5-4d27-9a0c-17324ff284e3?v=full', members)
+                                instance.post('/v1/concept/' + servicios_id +'?v=full', members)
                                     .then(response => {
                                         console.log("save")
                                     })
