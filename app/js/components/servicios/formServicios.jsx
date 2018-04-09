@@ -5,7 +5,7 @@ import ReactTable from 'react-table';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
-import {instance, servicios_id, datatype_id, conceptclass_id} from '../../axios-orders';
+import {instance, servicios_id, datatype_id, conceptclass_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
 
 export default class formServicios extends React.Component{  
     constructor(){
@@ -13,12 +13,14 @@ export default class formServicios extends React.Component{
         this.state = {
             nombre: '',
             precio: '',
-            fecha: moment()
+            fecha: moment(),
+            area:consultas_id,
         };
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
         this.nombreChangedHandler = this.nombreChangedHandler.bind(this);
         this.precioChangedHandler = this.precioChangedHandler.bind(this);
         this.guardarServicio = this.guardarServicio.bind(this);
+        this.handleChangeArea = this.handleChangeArea.bind(this);
     }
 
     handleChangeInicio(date){
@@ -34,6 +36,11 @@ export default class formServicios extends React.Component{
         console.log(event.target.value);
         this.setState({precio: event.target.value});
     }
+    
+    handleChangeArea(event){
+        console.log(event.target.value);
+        this.setState({area: event.target.value});
+    }
 
     guardarServicio(){
         const prueba = {
@@ -46,7 +53,7 @@ export default class formServicios extends React.Component{
                     }
                 ],
                 "datatype": datatype_id,
-                "set": true,
+                "set": false,
                 "version":this.state.fecha.format('L').toString(),               
                 "hiNormal": "10",
                 "hiAbsolute": "10",
@@ -63,7 +70,8 @@ export default class formServicios extends React.Component{
                 ],
         }
         instance.post( '/v1/concept', prueba )
-             .then( (response) => {
+             .then( 
+            (response) => {
                  console.log('guardado');
                  let uuid;
                  let members = {"setMembers":[]};
@@ -72,7 +80,7 @@ export default class formServicios extends React.Component{
                         console.log(response.data);
                         uuid = response.data.results[0];
                         console.log(uuid);
-                        instance.get('/v1/concept/'+ servicios_id +'?v=full')
+                        instance.get('/v1/concept/'+ this.state.area +'?v=full')
                             .then(response => {
                                 console.log(response.data);
                                 response.data.setMembers.push(uuid)
@@ -80,7 +88,7 @@ export default class formServicios extends React.Component{
                                     members.setMembers.push(response.data.setMembers[key].uuid)
                                     console.log(members);
                                 }
-                                instance.post('/v1/concept/' + servicios_id +'?v=full', members)
+                                instance.post('/v1/concept/' + this.state.area +'?v=full', members)
                                     .then(response => {
                                         console.log("save")
                                     })
@@ -123,6 +131,16 @@ export default class formServicios extends React.Component{
                         <fieldset style= {{width: '90%'}}>
                             <div><input placeholder="Ingresar Nombre" type="text" onChange={this.nombreChangedHandler}/></div>
                             <div><input placeholder="Ingresar Precio" type="number" onChange={this.precioChangedHandler}/></div>
+                            <div>
+                                <label> Area: </label>
+                                <select onChange={this.handleChangeArea}>
+                                    <option value={consultas_id}>Consultas</option>
+                                    <option value={cirugias_id}>Cirugias</option>
+                                    <option value={examenes_id}>Laboratorio</option>
+                                    <option value={imagenes_id}>Imagenes</option>
+                                    <option value={paquetesDietetica_id}>Dietetica</option>
+                                </select>
+                            </div>
                             <div>
                                 <label> Fecha: </label>
                                 <DatePicker selected={this.state.fecha} onChange={this.handleChangeInicio}/>

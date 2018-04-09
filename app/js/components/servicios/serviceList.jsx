@@ -4,7 +4,7 @@ import {Link} from 'react-router';
 import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import {instance, servicios_id} from '../../axios-orders';
+import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
 
 
 export default class serviceList extends React.Component{  
@@ -12,17 +12,7 @@ export default class serviceList extends React.Component{
     constructor(){
         super();
         this.state = {
-            data : [{
-                nombre: 'servicio 1',
-                precio: 10,
-                fecha: '15-02-2018',
-                acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
-              },{
-                nombre: 'servicio 2',
-                precio: 20,
-                fecha: '15-02-2018',
-                acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
-              }],
+            data : [],
             loading : false
         };
         this.fetchData = this.fetchData.bind(this);   
@@ -41,14 +31,14 @@ export default class serviceList extends React.Component{
 
     fetchData(){
         this.setState( { loading: true } );
-        instance.get('/v1/concept/'+ servicios_id +'?v=full')
-            .then( response => {
-                let newData = [];
+        let newData = [];
                 let name;
                 let precio;
                 let fecha = moment().format('L')
                 let uuid;
-                for (let key in response.data.setMembers){
+        instance.get('/v1/concept/'+ cirugias_id +'?v=full')
+            .then( response => {
+            for (let key in response.data.setMembers){
                     name = response.data.setMembers[key].name.name;
                     uuid = response.data.setMembers[key].uuid;
                     if (response.data.setMembers[key].descriptions.length>0){
@@ -65,7 +55,87 @@ export default class serviceList extends React.Component{
                     };
                     newData.push(newItem); 
                 }
-                this.setState({data: newData, loading: false});
+                instance.get('/v1/concept/'+ consultas_id +'?v=full')
+                .then( response => 
+                      {for (let key in response.data.setMembers){
+                        name = response.data.setMembers[key].name.name;
+                        uuid = response.data.setMembers[key].uuid;
+                        if (response.data.setMembers[key].descriptions.length>0){
+                            precio = response.data.setMembers[key].descriptions[0].display;
+                        } 
+                        if(response.data.setMembers[key].version){
+                            fecha = response.data.setMembers[key].version
+                        }
+                        let newItem = {
+                            nombre: name,
+                            precio: parseFloat(precio),
+                            fecha: fecha,
+                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                        };
+                        newData.push(newItem); 
+                }
+                    instance.get('/v1/concept/'+ examenes_id +'?v=full')
+                    .then( response => 
+                      {for (let key in response.data.setMembers){
+                        name = response.data.setMembers[key].name.name;
+                        uuid = response.data.setMembers[key].uuid;
+                        if (response.data.setMembers[key].descriptions.length>0){
+                            precio = response.data.setMembers[key].descriptions[0].display;
+                        } 
+                        if(response.data.setMembers[key].version){
+                            fecha = response.data.setMembers[key].version
+                        }
+                        let newItem = {
+                            nombre: name,
+                            precio: parseFloat(precio),
+                            fecha: fecha,
+                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                        };
+                        newData.push(newItem); 
+                    }
+                    instance.get('/v1/concept/'+ imagenes_id +'?v=full')
+                    .then( response => 
+                          {for (let key in response.data.setMembers){
+                            name = response.data.setMembers[key].name.name;
+                            uuid = response.data.setMembers[key].uuid;
+                            if (response.data.setMembers[key].descriptions.length>0){
+                                precio = response.data.setMembers[key].descriptions[0].display;
+                            } 
+                            if(response.data.setMembers[key].version){
+                                fecha = response.data.setMembers[key].version
+                            }
+                            let newItem = {
+                                nombre: name,
+                                precio: parseFloat(precio),
+                                fecha: fecha,
+                                acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                            };
+                            newData.push(newItem); 
+                        }
+                        instance.get('/v1/concept/'+ paquetesDietetica_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                };
+                                newData.push(newItem); 
+                            }
+                            this.setState({data: newData, loading: false});
+                            } );
+                        } );
+                    } );
+                } );
             } )
             .catch( (err) => { console.log(err); });
     }

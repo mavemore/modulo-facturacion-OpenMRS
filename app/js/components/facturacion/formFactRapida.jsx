@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance, servicios_id} from '../../axios-orders';
+import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import ReactTable from 'react-table';
@@ -21,6 +21,7 @@ export default class FormFactRapida extends React.Component {
             usuario:'',
             servicioSeleccionado: '',
             total:0,
+            area:consultas_id,
             
         };
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -32,6 +33,7 @@ export default class FormFactRapida extends React.Component {
         this.fetchData = this.fetchData.bind(this);
         this.onAfterDeleteRow = this.onAfterDeleteRow.bind(this);
         this.findValue = this.findValue.bind(this);
+        this.handleChangeArea = this.handleChangeArea.bind(this);
     }
     
     getUsuario(){
@@ -84,7 +86,7 @@ export default class FormFactRapida extends React.Component {
     }
      
     searchServicios(){
-        return instance.get('/v1/concept/'+ servicios_id +'?v=full')
+        return instance.get('/v1/concept/'+ this.state.area +'?v=full')
         .then( response => {
             let resultado = [];
             console.log(response.data.setMembers);
@@ -92,24 +94,23 @@ export default class FormFactRapida extends React.Component {
                 resultado = response.data.setMembers.map((item) => ({
                     value: item.uuid,
                     label: item.display,
-                    precio: item.descriptions[0].display,
-                    nombre: item.display
+                    //precio: item.descriptions[0].display,
+                    //nombre: item.display,
                 }));
+                console.log(resultado);
             }
-            console.log(resultado)
             return {options: resultado};
         })
+    }
+    
+    handleChangeArea(event){
+        console.log(event.target.value);
+        this.setState({area: event.target.value});
     }
 
     handleChangeServicio(opcion){
         console.log('opcion:'+opcion);
-        instance.get('/v1/concept?v=full&q='+opcion.value)
-        .then(
-            (res) => {
-                console.log(res.data);
-                this.setState({servicioSeleccionado:opcion});
-        })
-        .catch( (err) => { console.log(err); });
+        this.setState({servicioSeleccionado:opcion});
     }
     
     findValue(array, value){
@@ -249,9 +250,19 @@ export default class FormFactRapida extends React.Component {
             </fieldset>
             <fieldset style= {{width: '90%'}}>
                 <legend>Lineas Items:</legend>
+                <div>
+                    <label> Area: </label>
+                    <select onChange={this.handleChangeArea}>
+                        <option value={consultas_id}>Consultas</option>
+                        <option value={cirugias_id}>Cirugias</option>
+                        <option value={examenes_id}>Laboratorio</option>
+                        <option value={imagenes_id}>Imagenes</option>
+                        <option value={paquetesDietetica_id}>Dietetica</option>
+                    </select>
+                </div>
                 <Select.Async 
                     autoload={false}
-                    name="Lineas Items" 
+                    name="LineasItems" 
                     value={this.state.servicioSeleccionado} 
                     onChange={this.handleChangeServicio}
                     loadOptions={this.searchServicios} style={{width: '50%'}}/>
