@@ -7,9 +7,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import {instance, cirugias_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
+import Simplert from 'react-simplert';
 
 const options = {   // A hook for after insert rows
 };
@@ -26,6 +24,10 @@ export default class FormCirugia extends React.Component {
             ubicacion:'',
             observaciones:'',
             cirugia:'',
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -35,6 +37,7 @@ export default class FormCirugia extends React.Component {
         this.handleChangeObs = this.handleChangeObs.bind(this);
         this.searchCirugia = this.searchCirugia.bind(this);
         this.handleChangeCirugia = this.handleChangeCirugia.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     searchPaciente(query){
@@ -136,41 +139,56 @@ export default class FormCirugia extends React.Component {
     handleChangeCirugia(opcion){
         this.setState({cirugia:opcion});
     }
+    
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
   
     generarOrden(e){
         e.preventDefault();
-        var ordenes = [{
-                  "type" : "testorder",
-                  "patient" : this.state.pacienteSeleccionado.value,
-                  "location": this.state.ubicacion.uuid,
-                  "concept" : this.state.cirugia.value,
-                  "orderer": this.state.medico.value,
-                  "careSetting" : careSettingInpatient_id,
-                  "orderReasonNonCoded": this.state.observaciones,
-                  "specimenSource": specimenSourceNA_id,
-        }];
+        if(this.state.pacienteSeleccionado==''||this.state.cirugia==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Cirugia",
+                          typeAlert: 'error'});
+        }else{
+            var ordenes = [{
+                      "type" : "testorder",
+                      "patient" : this.state.pacienteSeleccionado.value,
+                      "location": this.state.ubicacion.uuid,
+                      "concept" : this.state.cirugia.value,
+                      "orderer": this.state.medico.value,
+                      "careSetting" : careSettingInpatient_id,
+                      "orderReasonNonCoded": this.state.observaciones,
+                      "specimenSource": specimenSourceNA_id,
+            }];
 
-        const body = {
-            "patient": this.state.pacienteSeleccionado.value,
-            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-            "encounterType": encounterTypeOrdenNueva_id,
-            "encounterDatetime": this.state.date.format(),
-            "orders": ordenes,
-            "obs": [
-                {obsDatetime: this.state.date.format(), 
-                concept:ObservacioneAreaServicio_id,
-                value: 'Cirugia'}]
+            const body = {
+                "patient": this.state.pacienteSeleccionado.value,
+                "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                "encounterType": encounterTypeOrdenNueva_id,
+                "encounterDatetime": this.state.date.format(),
+                "orders": ordenes,
+                "obs": [
+                    {obsDatetime: this.state.date.format(), 
+                    concept:ObservacioneAreaServicio_id,
+                    value: 'Cirugia'}]
+            }
+            instance.post('/v1/encounter', body)
+            .then(
+                (res) => {
+                    hashHistory.push('/');
+                }
+            ).catch(
+                (err)=> {
+                    console.log(err);
+                    this.setState({showAlert:true,
+                          titleAlert: "Error Servidor",
+                          messageAlert:"Ha ocurrido un error en el servidor",
+                          typeAlert: 'error'});
+                }
+            )
         }
-        instance.post('/v1/encounter', body)
-        .then(
-            (res) => {
-                hashHistory.push('/');
-            }
-        ).catch(
-            (err)=> {
-                console.log(err);
-            }
-        )
     }
 
     handleChange(date){
@@ -182,7 +200,7 @@ export default class FormCirugia extends React.Component {
     }
         
     render() {
-    const { data } = this.state;
+    const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
         const Style1 = {
             float: 'left',
 		};
@@ -192,6 +210,13 @@ export default class FormCirugia extends React.Component {
         
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">
@@ -235,12 +260,7 @@ export default class FormCirugia extends React.Component {
                     />
                 </fieldset>
                 <fieldset>
-                    <legend>Informacion Cirugia:</legend>
-                   <label htmlFor='especialista'>Especialista: </label>
-                   <input type='text' name='especialista' id='especialista'/>
-                   <label htmlFor='parteCuerpo'>Area cirugia: </label>
-                   <input type='text' name='parteCuerpo' id='parteCuerpo'/>
-                   <label> Cirugia: </label>
+                    <legend>Informacion Cirugia:</legend>                   
                     <Select.Async 
                         autoload={false}
                         name="cirugia" 

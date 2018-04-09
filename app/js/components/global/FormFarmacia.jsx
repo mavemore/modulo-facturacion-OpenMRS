@@ -8,9 +8,7 @@ import ReactTable from 'react-table';
 import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
+import Simplert from 'react-simplert';
 
 const options = {   // A hook for after insert rows
 };
@@ -34,6 +32,10 @@ export default class FormFarmacia extends React.Component {
             observaciones: '',
             frecuencia: '',
             route: '',
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -52,6 +54,7 @@ export default class FormFarmacia extends React.Component {
         this.handleChangeRuta = this.handleChangeRuta.bind(this);
         this.searchFrecuencia = this.searchFrecuencia.bind(this);
         this.handleChangeFrecuencia = this.handleChangeFrecuencia.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     searchPaciente(query){
@@ -221,33 +224,50 @@ export default class FormFarmacia extends React.Component {
         this.setState({observaciones:e.target.value});
     }
     
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
+    
     anadirFilas(){
-        var newdatashow = {medicina: this.state.medicinaSeleccionada.label, 
-                      dosis: this.state.dosis,
-                      unidad: this.state.unidad.label,
-                      observaciones: this.state.observaciones,
-                      route: this.state.route.label,
-                      frecuencia: this.state.frecuencia.label}
-        var newdata = {medicina: this.state.medicinaSeleccionada.value, 
-                      dosis: this.state.dosis,
-                      unidad: this.state.unidad.value,
-                      observaciones: this.state.observaciones,
-                      route: this.state.route.value,
-                      frecuencia: this.state.frecuencia.value}
-        this.setState({
-            data: this.state.data.concat(newdata), 
-            datashow: this.state.datashow.concat(newdatashow), 
-            medicinaSeleccionada: {},
-            unidad:{},
-            dosis: 0.00,
-            observaciones: '',
-            frecuencia: {},
-            route: {}
-        });
+        if(this.state.medicinaSeleccionada==''||this.state.dosis==0.00||this.state.unidad==''||this.state.route==''||this.state.frecuencia==''||this.state.observaciones==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos para agregar el medicamento.",
+                          typeAlert: 'error'});
+        }else{
+            var newdatashow = {medicina: this.state.medicinaSeleccionada.label, 
+                          dosis: this.state.dosis,
+                          unidad: this.state.unidad.label,
+                          observaciones: this.state.observaciones,
+                          route: this.state.route.label,
+                          frecuencia: this.state.frecuencia.label}
+            var newdata = {medicina: this.state.medicinaSeleccionada.value, 
+                          dosis: this.state.dosis,
+                          unidad: this.state.unidad.value,
+                          observaciones: this.state.observaciones,
+                          route: this.state.route.value,
+                          frecuencia: this.state.frecuencia.value}
+            this.setState({
+                data: this.state.data.concat(newdata), 
+                datashow: this.state.datashow.concat(newdatashow), 
+                medicinaSeleccionada: '',
+                unidad:'',
+                dosis: 0.00,
+                observaciones: '',
+                frecuencia: '',
+                route: '',
+            });
+        }
     }
   
     generarOrden(e){
         e.preventDefault();
+        if(this.state.pacienteSeleccionado==''||this.state.data.length==0){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Medicamentos",
+                          typeAlert: 'error'});
+        }else{
         var ordenes = this.state.data.map((item) => ({
                   "type" : "drugorder",
                   "patient" : this.state.pacienteSeleccionado.value,
@@ -282,8 +302,12 @@ export default class FormFarmacia extends React.Component {
         ).catch(
             (err)=> {
                 console.log(err);
+                this.setState({showAlert:true,
+                          titleAlert: "Error Servidor",
+                          messageAlert:"Ha ocurrido un error en el servidor",
+                          typeAlert: 'error'});
             }
-        )
+        )}
     }
 
     handleChange(date){
@@ -300,7 +324,7 @@ export default class FormFarmacia extends React.Component {
     }
     
     render() {
-    const { data } = this.state;
+    const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
         const Style1 = {
             float: 'left',
 		};
@@ -340,6 +364,13 @@ export default class FormFarmacia extends React.Component {
         
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">

@@ -7,9 +7,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import {instance,paquetesDietetica_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
+import Simplert from 'react-simplert';
 
 const options = {   // A hook for after insert rows
 };
@@ -28,6 +26,10 @@ export default class FormDietetica extends React.Component {
             ubicacion:'',
             observaciones:'',
             paquete:'',
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeInicio = this.handleChangeInicio.bind(this);
@@ -39,6 +41,7 @@ export default class FormDietetica extends React.Component {
         this.handleChangeObs = this.handleChangeObs.bind(this);
         this.searchPaquete = this.searchPaquete.bind(this);
         this.handleChangePaquete = this.handleChangePaquete.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     searchPaciente(query){
@@ -140,43 +143,58 @@ export default class FormDietetica extends React.Component {
     handleChangePaquete(opcion){
         this.setState({paquete:opcion});
     }
+    
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
   
     generarOrden(e){
         e.preventDefault();
-        var ordenes = [{
-                  "type" : "testorder",
-                  "patient" : this.state.pacienteSeleccionado.value,
-                  "concept" : this.state.paquete.value,
-                  "orderer": this.state.medico.value,
-                  "careSetting" : careSettingInpatient_id,
-                  "orderReasonNonCoded": this.state.observaciones,
-                  //"startDate": this.state.fechaInicio.format(),
-                  //"autoExpireDate":this.state.fechaFin.format(),
-                  "specimenSource": specimenSourceNA_id,
-        }];
+        if(this.state.pacienteSeleccionado==''||this.state.paquete==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Cirugia",
+                          typeAlert: 'error'});
+        }else{
+            var ordenes = [{
+                      "type" : "testorder",
+                      "patient" : this.state.pacienteSeleccionado.value,
+                      "concept" : this.state.paquete.value,
+                      "orderer": this.state.medico.value,
+                      "careSetting" : careSettingInpatient_id,
+                      "orderReasonNonCoded": this.state.observaciones,
+                      //"startDate": this.state.fechaInicio.format(),
+                      //"autoExpireDate":this.state.fechaFin.format(),
+                      "specimenSource": specimenSourceNA_id,
+            }];
 
-        const body = {
-            "patient": this.state.pacienteSeleccionado.value,
-            "location": this.state.ubicacion.uuid,
-            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-            "encounterType": encounterTypeOrdenNueva_id,
-            "encounterDatetime": this.state.date.format(),
-            "orders": ordenes,
-            "obs": [
-                {obsDatetime: this.state.date.format(), 
-                concept:ObservacioneAreaServicio_id,
-                value: 'Dietetica'}]
+            const body = {
+                "patient": this.state.pacienteSeleccionado.value,
+                "location": this.state.ubicacion.uuid,
+                "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                "encounterType": encounterTypeOrdenNueva_id,
+                "encounterDatetime": this.state.date.format(),
+                "orders": ordenes,
+                "obs": [
+                    {obsDatetime: this.state.date.format(), 
+                    concept:ObservacioneAreaServicio_id,
+                    value: 'Dietetica'}]
+            }
+            instance.post('/v1/encounter', body)
+            .then(
+                (res) => {
+                    hashHistory.push('/');
+                }
+            ).catch(
+                (err)=> {
+                    console.log(err);
+                    this.setState({showAlert:true,
+                          titleAlert: "Error Servidor",
+                          messageAlert:"Ha ocurrido un error en el servidor",
+                          typeAlert: 'error'});
+                }
+            )
         }
-        instance.post('/v1/encounter', body)
-        .then(
-            (res) => {
-                hashHistory.push('/');
-            }
-        ).catch(
-            (err)=> {
-                console.log(err);
-            }
-        )
         
     }
 
@@ -197,7 +215,7 @@ export default class FormDietetica extends React.Component {
     }
         
     render() {
-    const { data } = this.state;
+    const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
         const Style1 = {
             float: 'left',
 		};
@@ -207,6 +225,13 @@ export default class FormDietetica extends React.Component {
         
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">

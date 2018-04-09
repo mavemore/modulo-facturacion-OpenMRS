@@ -8,9 +8,7 @@ import ReactTable from 'react-table';
 import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenes_id,ObservacioneAreaServicio_id,specimenSources_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-const selectRowProp = {
-  mode: 'checkbox'
-};
+import Simplert from 'react-simplert';
 
 const options = {   // A hook for after insert rows
 };
@@ -29,6 +27,10 @@ export default class FormLaboratorio extends React.Component {
             muestra: '',
             examen: '',
             observaciones: '',
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -42,6 +44,7 @@ export default class FormLaboratorio extends React.Component {
         this.anadirFilas = this.anadirFilas.bind(this);
         this.removerExamen = this.removerExamen.bind(this);
         this.handleChangeObs = this.handleChangeObs.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     searchPaciente(query){
@@ -164,42 +167,56 @@ export default class FormLaboratorio extends React.Component {
     handleChangeExamen(opcion){
         this.setState({examen:opcion});
     }
+    
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
   
     generarOrden(e){
         e.preventDefault();
-        var ordenes = this.state.data.map((item) => ({
-                  "type" : "testorder",
-                  "patient" : this.state.pacienteSeleccionado.value,
-                  "concept" : item.examen,
-                  "orderer": this.state.medico.value,
-                  "careSetting" : careSettingInpatient_id,
-                  "orderReasonNonCoded": item.observaciones,
-                  "specimenSource": item.muestra,
-        }));
+        if(this.state.pacienteSeleccionado==''||this.state.data.length==0){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Pruebas de Laboratorio.",
+                          typeAlert: 'error'});
+        }else{
+            var ordenes = this.state.data.map((item) => ({
+                      "type" : "testorder",
+                      "patient" : this.state.pacienteSeleccionado.value,
+                      "concept" : item.examen,
+                      "orderer": this.state.medico.value,
+                      "careSetting" : careSettingInpatient_id,
+                      "orderReasonNonCoded": item.observaciones,
+                      "specimenSource": item.muestra,
+            }));
 
-        const body = {
-            "patient": this.state.pacienteSeleccionado.value,
-            "location": this.state.ubicacion.uuid,
-            "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-            "encounterType": encounterTypeOrdenNueva_id,
-            "encounterDatetime": this.state.date.format(),
-            "orders": ordenes,
-            "obs": [
-                {obsDatetime: this.state.date.format(), 
-                concept:ObservacioneAreaServicio_id,
-                value: 'Laboratorio'}]
+            const body = {
+                "patient": this.state.pacienteSeleccionado.value,
+                "location": this.state.ubicacion.uuid,
+                "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                "encounterType": encounterTypeOrdenNueva_id,
+                "encounterDatetime": this.state.date.format(),
+                "orders": ordenes,
+                "obs": [
+                    {obsDatetime: this.state.date.format(), 
+                    concept:ObservacioneAreaServicio_id,
+                    value: 'Laboratorio'}]
+            }
+            instance.post('/v1/encounter', body)
+            .then(
+                (res) => {
+                    hashHistory.push('/');
+                }
+            ).catch(
+                (err)=> {
+                    console.log(err);
+                    this.setState({showAlert:true,
+                          titleAlert: "Error Servidor",
+                          messageAlert:"Ha ocurrido un error en el servidor",
+                          typeAlert: 'error'});
+                }
+            )
         }
-        instance.post('/v1/encounter', body)
-        .then(
-            (res) => {
-                hashHistory.push('/');
-            }
-        ).catch(
-            (err)=> {
-                console.log(err);
-            }
-        )
-        
     }
     
     handleChangeObs(e){
@@ -211,19 +228,26 @@ export default class FormLaboratorio extends React.Component {
     }
     
     anadirFilas(){
-        var newdatashow = {examen: this.state.examen.label, 
-                      muestra: this.state.muestra.label,
-                      observaciones: this.state.observaciones}
-        var newdata = {examen: this.state.examen.value, 
-                      muestra: this.state.muestra.value,
-                      observaciones: this.state.observaciones}
-        this.setState({
-            data: this.state.data.concat(newdata), 
-            datashow: this.state.datashow.concat(newdatashow), 
-            examen: {},
-            muestra:{},
-            observaciones: '',
-        });
+        if(this.state.examen==''||this.state.muestra==''||this.state.observaciones==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos.",
+                          typeAlert: 'error'});
+        }else{
+            var newdatashow = {examen: this.state.examen.label, 
+                          muestra: this.state.muestra.label,
+                          observaciones: this.state.observaciones}
+            var newdata = {examen: this.state.examen.value, 
+                          muestra: this.state.muestra.value,
+                          observaciones: this.state.observaciones}
+            this.setState({
+                data: this.state.data.concat(newdata), 
+                datashow: this.state.datashow.concat(newdatashow), 
+                examen: '',
+                muestra:'',
+                observaciones: '',
+            });
+        }
     }
     
     removerExamen(index){
@@ -236,7 +260,7 @@ export default class FormLaboratorio extends React.Component {
     }
     
     render() {
-    const { data } = this.state;
+    const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
         const Style1 = {
             float: 'left',
 		};
@@ -267,6 +291,13 @@ export default class FormLaboratorio extends React.Component {
         
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">

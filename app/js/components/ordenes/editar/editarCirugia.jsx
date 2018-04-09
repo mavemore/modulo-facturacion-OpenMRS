@@ -4,8 +4,9 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance, cirugias_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../axios-orders';
+import {instance, cirugias_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
+import Simplert from 'react-simplert';
 
 //import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
@@ -21,6 +22,10 @@ export default class editarCirugia extends React.Component {
             data:[],
             observaciones: '',
             cirugia:'',
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
             
         };
         this.handleChange = this.handleChange.bind(this);
@@ -33,6 +38,7 @@ export default class editarCirugia extends React.Component {
         this.handleChangeObs = this.handleChangeObs.bind(this);
         this.searchCirugia = this.searchCirugia.bind(this);
         this.handleChangeCirugia = this.handleChangeCirugia.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     componentDidMount(){
@@ -142,46 +148,61 @@ export default class editarCirugia extends React.Component {
     handleChangeObs(e){
         this.setState({observaciones:e.target.value});
     }
+    
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
         
     guardarOrden(e){
         e.preventDefault();
-        instance.delete('/v1/encounter/'+this.state.idorden)
-        .then(
-            (res2) => {
-                var ordenes = [{
-                          "type" : "testorder",
-                          "patient" : this.state.pacienteSeleccionado.value,
-                          "location": this.state.ubicacion.uuid,
-                          "concept" : this.state.cirugia.value,
-                          "orderer": this.state.medico.value,
-                          "careSetting" : careSettingInpatient_id,
-                          "orderReasonNonCoded": this.state.observaciones,
-                          "specimenSource": specimenSourceNA_id,
-                }];
+        if(this.state.pacienteSeleccionado==''||this.state.cirugia==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Cirugia",
+                          typeAlert: 'error'});
+        }else{
+            instance.delete('/v1/encounter/'+this.state.idorden)
+            .then(
+                (res2) => {
+                    var ordenes = [{
+                              "type" : "testorder",
+                              "patient" : this.state.pacienteSeleccionado.value,
+                              "location": this.state.ubicacion.uuid,
+                              "concept" : this.state.cirugia.value,
+                              "orderer": this.state.medico.value,
+                              "careSetting" : careSettingInpatient_id,
+                              "orderReasonNonCoded": this.state.observaciones,
+                              "specimenSource": specimenSourceNA_id,
+                    }];
 
-                const body = {
-                    "patient": this.state.pacienteSeleccionado.value,
-                    "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-                    "encounterType": encounterTypeOrdenNueva_id,
-                    "encounterDatetime": this.state.date.format(),
-                    "orders": ordenes,
-                    "obs": [
-                        {obsDatetime: this.state.date.format(), 
-                        concept:ObservacioneAreaServicio_id,
-                        value: 'Cirugia'}]
+                    const body = {
+                        "patient": this.state.pacienteSeleccionado.value,
+                        "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                        "encounterType": encounterTypeOrdenNueva_id,
+                        "encounterDatetime": this.state.date.format(),
+                        "orders": ordenes,
+                        "obs": [
+                            {obsDatetime: this.state.date.format(), 
+                            concept:ObservacioneAreaServicio_id,
+                            value: 'Cirugia'}]
+                    }
+                    instance.post('/v1/encounter', body)
+                    .then(
+                        (res) => {
+                            hashHistory.push('/');
+                        }
+                    ).catch(
+                        (err)=> {
+                            console.log(err);
+                            this.setState({showAlert:true,
+                              titleAlert: "Error Servidor",
+                              messageAlert:"Ha ocurrido un error en el servidor",
+                              typeAlert: 'error'});
+                        }
+                    )
                 }
-                instance.post('/v1/encounter', body)
-                .then(
-                    (res) => {
-                        hashHistory.push('/');
-                    }
-                ).catch(
-                    (err)=> {
-                        console.log(err);
-                    }
-                )
-            }
-        )
+            )
+        }
     }
     
     cancelarOrden(e){
@@ -223,7 +244,7 @@ export default class editarCirugia extends React.Component {
     }
     
     render() {
-    const { data } = this.state;
+    const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
         const Style1 = {
             float: 'left',
 		};
@@ -234,6 +255,13 @@ export default class editarCirugia extends React.Component {
     
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">
@@ -278,10 +306,6 @@ export default class editarCirugia extends React.Component {
                 </fieldset>
                  <fieldset>
                     <legend>Informacion Cirugia:</legend>
-                   <label htmlFor='especialista'>Especialista: </label>
-                   <input type='text' name='especialista' id='especialista'/>
-                   <label htmlFor='parteCuerpo'>Area cirugia: </label>
-                   <input type='text' name='parteCuerpo' id='parteCuerpo'/>
                    <label> Cirugia: </label>
                     <Select.Async 
                         autoload={false}

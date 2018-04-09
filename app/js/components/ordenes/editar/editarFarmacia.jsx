@@ -4,8 +4,9 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../axios-orders';
+import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
+import Simplert from 'react-simplert';
 
 //import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
@@ -27,6 +28,10 @@ export default class editarFarmacia extends React.Component {
             frecuencia: '',
             route: '',
             datashow: [],
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
             
         };
         this.handleChange = this.handleChange.bind(this);
@@ -47,6 +52,7 @@ export default class editarFarmacia extends React.Component {
         this.handleChangeRuta = this.handleChangeRuta.bind(this);
         this.searchFrecuencia = this.searchFrecuencia.bind(this);
         this.handleChangeFrecuencia = this.handleChangeFrecuencia.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     componentDidMount(){
@@ -244,29 +250,40 @@ export default class editarFarmacia extends React.Component {
         this.setState({observaciones:e.target.value});
     }
     
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
+    
     anadirFilas(){
-        var newdatashow = {medicina: this.state.medicinaSeleccionada.label, 
-                      dosis: this.state.dosis,
-                      unidad: this.state.unidad.label,
-                      observaciones: this.state.observaciones,
-                      route: this.state.route.label,
-                      frecuencia: this.state.frecuencia.label}
-        var newdata = {medicina: this.state.medicinaSeleccionada.value, 
-                      dosis: this.state.dosis,
-                      unidad: this.state.unidad.value,
-                      observaciones: this.state.observaciones,
-                      route: this.state.route.value,
-                      frecuencia: this.state.frecuencia.value}
-        this.setState({
-            data: this.state.data.concat(newdata), 
-            datashow: this.state.datashow.concat(newdatashow), 
-            medicinaSeleccionada: {},
-            unidad:{},
-            dosis: 0.00,
-            observaciones: '',
-            frecuencia: {},
-            route: {}
-        });
+        if(this.state.medicinaSeleccionada==''||this.state.dosis==0.00||this.state.unidad==''||this.state.route==''||this.state.frecuencia==''||this.state.observaciones==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos para agregar el medicamento.",
+                          typeAlert: 'error'});
+        }else{
+            var newdatashow = {medicina: this.state.medicinaSeleccionada.label, 
+                          dosis: this.state.dosis,
+                          unidad: this.state.unidad.label,
+                          observaciones: this.state.observaciones,
+                          route: this.state.route.label,
+                          frecuencia: this.state.frecuencia.label}
+            var newdata = {medicina: this.state.medicinaSeleccionada.value, 
+                          dosis: this.state.dosis,
+                          unidad: this.state.unidad.value,
+                          observaciones: this.state.observaciones,
+                          route: this.state.route.value,
+                          frecuencia: this.state.frecuencia.value}
+            this.setState({
+                data: this.state.data.concat(newdata), 
+                datashow: this.state.datashow.concat(newdatashow), 
+                medicinaSeleccionada: '',
+                unidad:'',
+                dosis: 0.00,
+                observaciones: '',
+                frecuencia: '',
+                route: '',
+            });
+        }
     }
     
     removerMed(index){
@@ -280,47 +297,58 @@ export default class editarFarmacia extends React.Component {
   
     guardarOrden(e){
         e.preventDefault();
-        instance.delete('/v1/encounter/'+this.state.idorden)
-        .then(
-            (res2) => {
-                var ordenes = this.state.data.map((item) => ({
-                          "type" : "drugorder",
-                          "patient" : this.state.pacienteSeleccionado.value,
-                          "concept" : item.medicina,
-                          "orderer": this.state.medico.value,
-                          "careSetting" : careSettingInpatient_id,
-                          "drug": item.medicina,
-                          "dose" : item.dosis,
-                          "doseUnits" : item.unidad,
-                          "frequency" : item.frecuencia,
-                          "route" : item.route, 
-                          "orderReasonNonCoded": item.observaciones,
-                }));
+        if(this.state.pacienteSeleccionado==''||this.state.data.length==0){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Medicamentos",
+                          typeAlert: 'error'});
+        }else{
+            instance.delete('/v1/encounter/'+this.state.idorden)
+            .then(
+                (res2) => {
+                    var ordenes = this.state.data.map((item) => ({
+                              "type" : "drugorder",
+                              "patient" : this.state.pacienteSeleccionado.value,
+                              "concept" : item.medicina,
+                              "orderer": this.state.medico.value,
+                              "careSetting" : careSettingInpatient_id,
+                              "drug": item.medicina,
+                              "dose" : item.dosis,
+                              "doseUnits" : item.unidad,
+                              "frequency" : item.frecuencia,
+                              "route" : item.route, 
+                              "orderReasonNonCoded": item.observaciones,
+                    }));
 
-                const body = {
-                    "patient": this.state.pacienteSeleccionado.value,
-                    "location": this.state.ubicacion.uuid,
-                    "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
-                    "encounterType": encounterTypeOrdenNueva_id,
-                    "encounterDatetime": this.state.date.format(),
-                    "orders": ordenes,
-                    "obs": [
-                        {obsDatetime: this.state.date.format(), 
-                        concept:ObservacioneAreaServicio_id,
-                        value: 'Farmacia'}]
+                    const body = {
+                        "patient": this.state.pacienteSeleccionado.value,
+                        "location": this.state.ubicacion.uuid,
+                        "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                        "encounterType": encounterTypeOrdenNueva_id,
+                        "encounterDatetime": this.state.date.format(),
+                        "orders": ordenes,
+                        "obs": [
+                            {obsDatetime: this.state.date.format(), 
+                            concept:ObservacioneAreaServicio_id,
+                            value: 'Farmacia'}]
+                    }
+                    instance.post('/v1/encounter', body)
+                    .then(
+                        (res) => {
+                            hashHistory.push('/ordenes');
+                        }
+                    ).catch(
+                        (err)=> {
+                            console.log(err);
+                            this.setState({showAlert:true,
+                          titleAlert: "Error Servidor",
+                          messageAlert:"Ha ocurrido un error en el servidor",
+                          typeAlert: 'error'});
+                        }
+                    )
                 }
-                instance.post('/v1/encounter', body)
-                .then(
-                    (res) => {
-                        hashHistory.push('/ordenes');
-                    }
-                ).catch(
-                    (err)=> {
-                        console.log(err);
-                    }
-                )
-            }
-        )
+            )
+        }
     }
     
     cancelarOrden(e){
@@ -363,7 +391,7 @@ export default class editarFarmacia extends React.Component {
     }
     
     render() {
-    const { data } = this.state;
+    const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
         const Style1 = {
             float: 'left',
 		};
@@ -393,6 +421,13 @@ export default class editarFarmacia extends React.Component {
     
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">

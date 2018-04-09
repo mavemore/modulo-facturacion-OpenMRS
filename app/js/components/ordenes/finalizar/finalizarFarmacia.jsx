@@ -8,6 +8,8 @@ import {instance,CLOUDINARY_UPLOAD_PRESET,CLOUDINARY_UPLOAD_URL,observacionesFot
 import 'react-datepicker/dist/react-datepicker.css';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
+import Simplert from 'react-simplert';
+
 
 export default class finalizarFarmacia extends React.Component {
     constructor(...args){
@@ -25,6 +27,10 @@ export default class finalizarFarmacia extends React.Component {
             fotoURL:'',
             dateFin: moment(),
             ordenes: [],
+            showAlert:false,
+            titleAlert: "titulo",
+            messageAlert:"mensaje",
+            typeAlert:'success',
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -34,7 +40,7 @@ export default class finalizarFarmacia extends React.Component {
         this.handleChangeFin = this.handleChangeFin.bind(this);
         this.handleChangeComentario = this.handleChangeComentario.bind(this);
         this.handleChangeFoto = this.handleChangeFoto.bind(this);
-        
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     componentDidMount(){
@@ -144,51 +150,61 @@ export default class finalizarFarmacia extends React.Component {
             }
         )
     }
+    cerrarAlert(){
+        this.setState({showAlert:false});
+    }
   
     guardarOrden(e){
         e.preventDefault();
-        var body = {
-            'encounterType': encounterTypeFinalizada_id,
-            'obs': [
-                {obsDatetime: this.state.date.format(), 
-                concept:observacionesFotoURL,
-                value: this.state.fotoURL}
-            ]
-        }
-        instance.post('/v1/encounter/'+this.state.idorden, body)
-        .then(
-            (res) => {
-                var i = 0;
-                for(i=0;i<this.state.data.length;i++){
-                    var detalles={
-                        "type":'drugorder',
-                        "action": 'DISCONTINUE',
-                        "previousOrder": this.state.ordenes[i].uuid,
-                        "careSetting": this.state.ordenes[i].careSetting,
-                        "concept": this.state.ordenes[i].medicina,
-                        "encounter": this.state.idorden,
-                        "orderer": this.state.medico.value,
-                        "patient": this.state.pacienteSeleccionado.value,
-                        "dateActivated": this.state.dateFin.format(),
-                        "orderReasonNonCoded": this.state.comentarios,
+        if(this.state.fotoURL==''){
+            this.setState({showAlert:true,
+                          titleAlert: "Campos Vacios",
+                          messageAlert:"falta por llenar campos requeridos.",
+                          typeAlert: 'error'});
+        }else{
+            var body = {
+                'encounterType': encounterTypeFinalizada_id,
+                'obs': [
+                    {obsDatetime: this.state.date.format(), 
+                    concept:observacionesFotoURL,
+                    value: this.state.fotoURL}
+                ]
+            }
+            instance.post('/v1/encounter/'+this.state.idorden, body)
+            .then(
+                (res) => {
+                    var i = 0;
+                    for(i=0;i<this.state.data.length;i++){
+                        var detalles={
+                            "type":'drugorder',
+                            "action": 'DISCONTINUE',
+                            "previousOrder": this.state.ordenes[i].uuid,
+                            "careSetting": this.state.ordenes[i].careSetting,
+                            "concept": this.state.ordenes[i].medicina,
+                            "encounter": this.state.idorden,
+                            "orderer": this.state.medico.value,
+                            "patient": this.state.pacienteSeleccionado.value,
+                            "dateActivated": this.state.dateFin.format(),
+                            "orderReasonNonCoded": this.state.comentarios,
+                        }
+                        instance.post('/v1/order', detalles)
+                        .then(
+                            (res2) => {
+                                hashHistory.push('/ordenes_atender');
+                            }
+                        ).catch(
+                            (err) => {
+                                console.log(err);
+                            }
+                        ) 
                     }
-                    instance.post('/v1/order', detalles)
-                    .then(
-                        (res2) => {
-                            hashHistory.push('/ordenes_atender');
-                        }
-                    ).catch(
-                        (err) => {
-                            console.log(err);
-                        }
-                    ) 
                 }
-            }
-        ).catch(
-            (err) => {
-                console.log(err);
-            }
-        )        
+            ).catch(
+                (err) => {
+                    console.log(err);
+                }
+            )   
+        }
     }
 
     handleChange(date){
@@ -241,6 +257,7 @@ export default class finalizarFarmacia extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
+    const { showAlert,titleAlert,messageAlert,typeAlert} = this.state;
     const {tipoOrden, data} = this.state;
     const columnas = [
                         {
@@ -259,6 +276,13 @@ export default class finalizarFarmacia extends React.Component {
                      ]
     return (
       <div>
+        <Simplert
+            showSimplert={showAlert}
+            type={typeAlert}
+            title={titleAlert}
+            message={messageAlert}
+            onClose={this.cerrarAlert}
+            onConfirm={this.cerrarAlert}/>
         <section>
             <div className="example">
                 <ul id="breadcrumbs">
