@@ -10,6 +10,7 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import {instance1} from '../../axios-openmrs';
 
 export default class FormFactRapida extends React.Component {
     
@@ -22,6 +23,8 @@ export default class FormFactRapida extends React.Component {
             servicioSeleccionado: '',
             total:0,
             area:consultas_id,
+            formaPago: '',
+            totalPago: ''
             
         };
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -34,6 +37,9 @@ export default class FormFactRapida extends React.Component {
         this.onAfterDeleteRow = this.onAfterDeleteRow.bind(this);
         this.findValue = this.findValue.bind(this);
         this.handleChangeArea = this.handleChangeArea.bind(this);
+        this.guardarFactura = this.guardarFactura.bind(this);
+        this.handleFormaPago = this.handleFormaPago.bind(this);
+        this.handleTotalPago = this.handleTotalPago.bind(this);
     }
     
     getUsuario(){
@@ -89,13 +95,14 @@ export default class FormFactRapida extends React.Component {
         return instance.get('/v1/concept/'+ this.state.area +'?v=full')
         .then( response => {
             let resultado = [];
+            console.log(response.data);
             console.log(response.data.setMembers);
             if ('data' in response){
                 resultado = response.data.setMembers.map((item) => ({
                     value: item.uuid,
                     label: item.display,
-                    //precio: item.descriptions[0].display,
-                    //nombre: item.display,
+                    precio: item.descriptions[0].display,
+                    nombre: item.display,
                 }));
                 console.log(resultado);
             }
@@ -189,6 +196,34 @@ export default class FormFactRapida extends React.Component {
         this.setState({data: updateArray, total: newTotal});
     }
 
+    handleFormaPago(event){
+        console.log(event.target.value);
+        this.setState({formaPago: event.target.value});
+    }
+
+    handleTotalPago(event){
+        console.log(event.target.value);
+        this.setState({totalPago: event.target.value});
+
+    }
+
+    guardarFactura(){
+        const factura = {
+            items: this.state.data,
+            user: this.state.usuario,
+            paciente: this.state.pacienteSeleccionado,
+            total: this.state.total,
+            fecha: moment().format('L').toString(),
+            tipo: 'Facturación Rápida'
+        } 
+        instance1.post('/facturaRapida.json', factura)
+            .then( response => {
+                console.log('Save factura')
+            } )
+            .catch( error => {
+            } );
+    }
+
     render() {
     const { data } = this.state;
         const Style1 = {
@@ -261,6 +296,7 @@ export default class FormFactRapida extends React.Component {
                         <option value={paquetesDietetica_id}>Dietetica</option>
                     </select>
                 </div>
+                
                 <Select.Async 
                     autoload={false}
                     name="LineasItems" 
@@ -292,16 +328,16 @@ export default class FormFactRapida extends React.Component {
                 <legend>Pagos:</legend>
                 <form>
                     <label htmlFor='formapago'>Forma de pago: </label>
-                    <input type='text' name='formapago' id='formapago'/>
+                    <input type='text' name='formapago' id='formapago' onChange={this.handleFormaPago}/>
                     <label htmlFor='cuotas'>Cantidad: </label>
-                    <input type='text' name='cuotas' id='cuotas'/>
+                    <input type='text' name='cuotas' id='cuotas' onChange={this.handleTotalPago}/>
                 </form>
             </fieldset>
             <br/>
             <br/>
             <div>
-                <form>
-                    <Link to="/"><button className="btn" type="submit" style={{float:'left'}}>Guardar Factura</button></Link>
+                <form >
+                    <Link to="/"><button className="btn" type="submit" style={{float:'left'}} onClick={this.guardarFactura}>Guardar Factura</button></Link>
                     <Link to="/"><button className="btn" style={{float:'right'}}>Descartar</button></Link>
                 </form>
             </div>

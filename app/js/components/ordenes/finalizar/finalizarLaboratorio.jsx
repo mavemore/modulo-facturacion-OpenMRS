@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,CLOUDINARY_UPLOAD_PRESET,CLOUDINARY_UPLOAD_URL,observacionesFotoURL, encounterTypeFinalizada_id} from '../../../axios-orders';
+import {instance,observacionesFotoURL, encounterTypeFinalizada_id,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
@@ -22,6 +22,7 @@ export default class finalizarLaboratorio extends React.Component {
             idorden: this.props.params.orderId,
             tipoOrden: '',
             data:[],
+            ordenes:[],
             comentarios:'',
             foto:'',
             fotoURL:'',
@@ -42,7 +43,9 @@ export default class finalizarLaboratorio extends React.Component {
         this.handleChangeComentario = this.handleChangeComentario.bind(this);
         this.handleChangeFoto = this.handleChangeFoto.bind(this);
         this.handleChangeObs = this.handleChangeObs.bind(this);
-         this.cerrarAlert = this.cerrarAlert.bind(this);
+        this.searchMuestra = this.searchMuestra.bind(this);
+        this.handleChangeMuestra = this.handleChangeMuestra.bind(this);
+        this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
     componentDidMount(){
@@ -61,35 +64,35 @@ export default class finalizarLaboratorio extends React.Component {
                     if(res.data.obs.length>0){
                         tipo = res.data.obs[0].display;
                     }
+                    var muestra = '';
+                    var obs = '';
                     if(res.data.orders.length>0){
-                        filas = res.data.orders.map((item,i)=>(
-                            {
-                                examen: item.concept.display,
-                                index: i,
-                                uuid: item.uuid,
-                                muestra : item.specimenSource.display,
-                                observaciones: item.orderReasonNonCoded,
-                            }));
-                        ordenes = res.data.orders.map((item,i)=>(
-                            {
-                                examen: item.concept.uuid,
-                                index: i+1,
-                                uuid: item.uuid,
-                                muestra : item.specimenSource.uuid, 
-                                observaciones: item.orderReasonNonCoded,
-                                careSetting: item.careSetting.uuid,
-                            }));
+                        ordenes = res.data.orders.map((item,i)=>{
+                            muestra = {value:item.specimenSource.uuid, label:item.specimenSource.display};
+                            obs = item.orderReasonNonCoded;
+                            return {
+                                        index:i,
+                                        uuid: item.uuid,
+                                        codigo: item.concept.uuid,
+                                        nombre: item.concept.display,
+
+                                    }
+                            });
+                            console.log(ordenes);
+                            this.setState({
+                                pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                                date: moment(res.data.encounterDatetime),
+                                medico: medico,
+                                tipoOrden: tipo,
+                                data: ordenes,
+                                muestra:muestra,
+                                observaciones:obs,
+                            });
+                        }
+                    
                     };
-                    this.setState({
-                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
-                        date: moment(res.data.encounterDatetime),
-                        medico: medico,
-                        tipoOrden: tipo,
-                        data: filas,
-                        ordenes: ordenes,
-                    });
                 }
-            }
+            
         ).catch(
             (err) => {
                 console.log(err);
@@ -142,6 +145,70 @@ export default class finalizarLaboratorio extends React.Component {
         )
     }
     
+    searchMuestra(query){
+        return instance.get('/v1/concept?searchType=fuzzy&name='+query+'&class='+specimenSources_id+'&v=custom:(uuid,display,conceptClass)')
+        .then(
+            (res) => {
+                var resultado = [];
+                if ('data' in res){
+                    resultado = res.data.results.map((item) => ({
+                        value: item.uuid,
+                        label: item.display,
+                    }));
+                }
+                return {options: resultado};
+            }
+        )
+    }
+        
+    handleChangeMuestra(opcion){
+        var examenid = '';
+        if (opcion.value == sangre_id){
+            examenid = examenesSangre_id;
+        }else if (opcion.value == orina_id){
+            examenid = examenesOrina_id;
+        }else if (opcion.value == sputum_id){
+            examenid = examenesSputum_id;
+        }else if (opcion.value == serum_id){
+            examenid = examenesSerum_id;
+        }else if (opcion.value == plasma_id){
+            examenid = examenesPlasma_id;
+        }else if (opcion.value == heces_id){
+            examenid = examenesHeces_id;
+        }else if (opcion.value == fluidoCerebro_id){
+            examenid = examenesCerebroEspinal_id;
+        }else if (opcion.value == fluidoAscitico_id){
+            examenid = examenesFluidoAscitico_id;
+        }
+        if (examenid == ''){
+            this.setState({muestra:opcion});
+        }else{
+        instance.get('/v1/concept/'+examenid+'?v=full')
+        .then(
+            (res3) => {
+                var resultado = [];
+                if ('data' in res3){
+                    var valor = false;
+                    resultado = 
+                    res3.data.setMembers.map((item,i) => {
+                        
+                        if (this.state.ordenes.indexOf(item.uuid)>=0){
+                            valor = true;
+                        }else{
+                            valor = false;
+                        }
+                        return {
+                        index:i,
+                        codigo: item.uuid,
+                        nombre: item.display,
+
+                    }});
+                }
+                this.setState({muestra:opcion, data:resultado});
+            }
+        )}
+    }
+    
     handleChangeObs(e){
         this.setState({observaciones:e.target.value});
     } 
@@ -152,31 +219,21 @@ export default class finalizarLaboratorio extends React.Component {
   
     guardarOrden(e){
         e.preventDefault();
-        if(this.state.fotoURL==''){
-            this.setState({showAlert:true,
-                          titleAlert: "Campos Vacios",
-                          messageAlert:"falta por llenar campos requeridos.",
-                          typeAlert: 'error'});
-        }else{
         var body = {
             'encounterType': encounterTypeFinalizada_id,
-            'obs': [
-                {obsDatetime: this.state.date.format(), 
-                concept:observacionesFotoURL,
-                value: this.state.fotoURL}
-            ]
         }
         instance.post('/v1/encounter/'+this.state.idorden, body)
         .then(
             (res) => {
                 var i = 0;
                 for(i=0;i<this.state.data.length;i++){
+                    i
                     var detalles={
                         "type":'testorder',
                         "action": 'DISCONTINUE',
-                        "previousOrder": this.state.ordenes[i].uuid,
-                        "careSetting": this.state.ordenes[i].careSetting,
-                        "concept": this.state.ordenes[i].examen,
+                        "previousOrder": this.state.data[i].uuid,
+                        "careSetting": careSettingInpatient_id,
+                        "concept": this.state.data[i].codigo,
                         "encounter": this.state.idorden,
                         "orderer": this.state.medico.value,
                         "patient": this.state.pacienteSeleccionado.value,
@@ -199,7 +256,7 @@ export default class finalizarLaboratorio extends React.Component {
             (err) => {
                 console.log(err);
             }
-        )}        
+        )        
     }
     
 
@@ -219,32 +276,6 @@ export default class finalizarLaboratorio extends React.Component {
         this.setState({foto:e.target.value});
     }
     
-    //UPLOAD IMAGEN
-    onImageDrop(files) {
-        this.setState({
-          foto: files[0]
-        });
-
-        this.handleImageUpload(files[0]);
-    }
-    
-    handleImageUpload(file) {
-        let upload = request.post(CLOUDINARY_UPLOAD_URL)
-                            .field('upload_preset', CLOUDINARY_UPLOAD_PRESET)
-                            .field('file', file);
-
-        upload.end((err, response) => {
-          if (err) {
-            console.error(err);
-          }
-
-          if (response.body.secure_url !== '') {
-            this.setState({
-              fotoURL: response.body.secure_url
-            });
-          }
-        });
-      }
     
     render() {
         const Style1 = {
@@ -257,11 +288,7 @@ export default class finalizarLaboratorio extends React.Component {
       const { showAlert,titleAlert,messageAlert,typeAlert} = this.state;  
     const columnas = [{
                         Header: 'Examen',
-                        accessor:'examen'},{
-                        Header: 'Muestra',
-                        accessor:'muestra'},{
-                        Header: 'Observaciones',
-                        accessor:'observaciones'}
+                        accessor:'nombre'}
                       ]
     
     return (
@@ -303,8 +330,10 @@ export default class finalizarLaboratorio extends React.Component {
                     name="paciente" 
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
-                    loadOptions={this.searchPaciente}/>
-                    <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
+                    loadOptions={this.searchPaciente}
+                    disabled={true}/>
+                    <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}
+                    disabled={true}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
                     <Select.Async 
                     autoload={false}
@@ -314,6 +343,20 @@ export default class finalizarLaboratorio extends React.Component {
                     loadOptions={this.getMedico}
                     disabled={true}
                     />
+                </fieldset>
+                <fieldset>
+                    <legend>Datos Examenes:</legend>
+                    <label> Muestra: </label>
+                    <Select.Async 
+                    autoload={false}
+                    name="muestra" 
+                    value={this.state.muestra} 
+                    onChange={this.handleChangeMuestra}
+                    loadOptions={this.searchMuestra}
+                    disabled={true}/>
+                    <label> Observaciones: </label>
+                    <input type="text" value={this.state.observaciones} onChange={this.handleChangeObs} readOnly/>
+                    
                 </fieldset>
                  <div>
                     <br></br>
@@ -326,26 +369,12 @@ export default class finalizarLaboratorio extends React.Component {
                       sortable={true}/>
                 </div>
                 <fieldset>
-                    <legend>Evidencia Entrega:</legend>
+                    <legend>Entrega:</legend>
                     <label> Fecha Realizacion: </label><DatePicker selected={this.state.dateFin} onChange={this.handleChangeFin}/>
                     <label htmlFor="comentarios">Comentario:</label>
                     <input type='text' name="comentarios" value={this.state.comentarios} id="comentarios" onChange={this.handleChangeComentario}/>
                     
                 </fieldset>
-                <div>
-                    <Dropzone
-                      multiple={false}
-                      accept="image/*"
-                      onDrop={this.onImageDrop.bind(this)}>
-                      <p>Arrastre una imagen o haga clic para seleccionar un archivo a cargar.</p>
-                    </Dropzone>
-                    <div>
-                    {this.state.fotoURL === '' ? null :
-                    <div>
-                      <img src={this.state.fotoURL} />
-                    </div>}
-                  </div>
-                </div>
                 <div>
                     <button className="btn" type="submit">Guardar</button>
                     <span>     </span>

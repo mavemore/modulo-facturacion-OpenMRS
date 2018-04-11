@@ -4,7 +4,7 @@ import {Link} from 'react-router';
 import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
+import {instance, servicios_id,cirugias_id,consultas_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
 
 
 export default class serviceList extends React.Component{  
@@ -12,17 +12,7 @@ export default class serviceList extends React.Component{
     constructor(){
         super();
         this.state = {
-            data : [/**{
-                nombre: 'servicio 1',
-                precio: 10,
-                fecha: '15-02-2018',
-                acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
-              },{
-                nombre: 'servicio 2',
-                precio: 20,
-                fecha: '15-02-2018',
-                acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
-              }**/],
+            data : [],
             loading : false
         };
         this.fetchData = this.fetchData.bind(this);   
@@ -77,7 +67,9 @@ export default class serviceList extends React.Component{
                         acciones:   <div>
                                         <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
                                             Remover</button>
-                                    </div>
+                                    </div>,
+                        area: 'Cirugia',
+                        /**acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>**/
                     };
                     //console.log(newItem);
                     newData.push(newItem); 
@@ -97,11 +89,17 @@ export default class serviceList extends React.Component{
                             nombre: name,
                             precio: parseFloat(precio),
                             fecha: fecha,
-                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                            _uuid: uuid,
+                            area: 'Consulta',
+                            acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                            /**acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>**/
                         };
                         newData.push(newItem); 
                 }
-                    instance.get('/v1/concept/'+ examenes_id +'?v=full')
+                    instance.get('/v1/concept/'+ examenesSangre_id +'?v=full')
                     .then( response => 
                       {for (let key in response.data.setMembers){
                         name = response.data.setMembers[key].name.name;
@@ -116,7 +114,12 @@ export default class serviceList extends React.Component{
                             nombre: name,
                             precio: parseFloat(precio),
                             fecha: fecha,
-                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                            _uuid: uuid,
+                            area: 'Examenes',
+                            acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                         };
                         newData.push(newItem); 
                     }
@@ -135,7 +138,12 @@ export default class serviceList extends React.Component{
                                 nombre: name,
                                 precio: parseFloat(precio),
                                 fecha: fecha,
-                                acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                _uuid: uuid,
+                                area:'Imagenes',
+                                acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                             };
                             newData.push(newItem); 
                         }
@@ -154,11 +162,191 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    _uuid: uuid,
+                                    area: 'Dietetica',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesOrina_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>, 
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesSputum_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesSerum_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesPlasma_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesHeces_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesCerebroEspinal_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                                };
+                                newData.push(newItem); 
+                            }
+                            instance.get('/v1/concept/'+ examenesFluidoAscitico_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    _uuid: uuid,
+                                    area: 'Examenes',
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
                             this.setState({data: newData, loading: false});
+                            } );
+                            } );
+                            } );
+                            } );
+                            } );
+                            } );
+                            } );
                             } );
                         } );
                     } );
@@ -207,14 +395,16 @@ export default class serviceList extends React.Component{
                     <div style={{marginTop: '30px'}}>
                         <ReactTable 
                         data={this.state.data} 
-                        noDataText="No existen ordenes"
+                        noDataText="No existen servicios"
                         columns={[{
                             Header: 'Nombre',
                             accessor:'nombre'},{
                             Header: 'Precio',
                             accessor:'precio'},{
-                            Header: 'Fecha de modificacion',
+                            Header: 'Fecha',
                             accessor: 'fecha'},{
+                            Header: 'Area',
+                            accessor:'area'},{
                             Header: 'Acciones',
                             accessor:'acciones'}
                         ]}

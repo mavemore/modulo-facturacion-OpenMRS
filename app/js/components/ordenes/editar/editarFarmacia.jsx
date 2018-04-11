@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../../axios-orders';
+import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,inpatientWard_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Simplert from 'react-simplert';
 
@@ -32,6 +32,8 @@ export default class editarFarmacia extends React.Component {
             titleAlert: "titulo",
             messageAlert:"mensaje",
             typeAlert:'success',
+            lugar:'',
+            editar: false,
             
         };
         this.handleChange = this.handleChange.bind(this);
@@ -56,6 +58,13 @@ export default class editarFarmacia extends React.Component {
     }
     
     componentDidMount(){
+        instance.get('/v1/appui/session')
+        .then((response) => {
+            var lugar = response.data.sessionLocation.uuid;
+            var editar = false;
+            if (lugar == inpatientWard_id){
+                editar= true;
+            }
         instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
         .then(
             (res) => {
@@ -107,6 +116,7 @@ export default class editarFarmacia extends React.Component {
                         tipoOrden: tipo,
                         data: ordenes,
                         datashow: filas,
+                        editar:editar,
                     });
                 }
             }
@@ -114,7 +124,7 @@ export default class editarFarmacia extends React.Component {
             (err) => {
                 console.log(err);
             }
-        )
+        )})
     }
     
     searchPaciente(query){
@@ -287,12 +297,13 @@ export default class editarFarmacia extends React.Component {
     }
     
     removerMed(index){
+        if(this.state.editar){
         var filas = this.state.data;
         var filashow = this.state.datashow;
         filas.splice(index,1);
         filashow.splice(index,1);
         this.setState({data:filas, datashow: filashow});
-        console.log(index);
+        console.log(index);}
     }
   
     guardarOrden(e){
@@ -474,6 +485,7 @@ export default class editarFarmacia extends React.Component {
                     />
                 </fieldset>
                  <div>
+                     {this.state.editar?
                     <fieldset>
                         <legend>Nueva Medicina:</legend>
                         <label> Nombre Medicina: </label>
@@ -514,7 +526,7 @@ export default class editarFarmacia extends React.Component {
                         <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
                         <br></br>
                         <button id="addfila" onClick={this.anadirFilas} type="button">Agregar Medicina</button>
-                    </fieldset>
+                    </fieldset>:null}
                     <br></br>
                     <br></br>
                     <ReactTable 
@@ -525,13 +537,18 @@ export default class editarFarmacia extends React.Component {
                       sortable={true}/>
                 </div>
                 <div>
-                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
-                    <span>     </span>
-                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>
+                    {this.state.editar?
+                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>:null}
+                    {this.state.editar?
+                    <span>     </span>:null}
+                    {this.state.editar?null:
+                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>}
                 </div>
                 <div>
-                    <button className="btn" type="submit">Guardar</button>
-                    <span>     </span>
+                    {this.state.editar?
+                    <button className="btn" type="submit">Guardar</button>:null}
+                    {this.state.editar?
+                    <span>     </span>:null}
                     <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
