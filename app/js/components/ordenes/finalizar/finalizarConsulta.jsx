@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,consultas_id,encounterTypeFinalizada_id,observacionesFotoURL,CLOUDINARY_UPLOAD_URL,CLOUDINARY_UPLOAD_PRESET} from '../../../axios-orders';
+import {instance,consultas_id,encounterTypeFinalizada_id,observacionesFotoURL} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
@@ -44,7 +44,6 @@ export default class finalizarConsulta extends React.Component {
         this.handleChangeConsulta = this.handleChangeConsulta.bind(this);
         this.handleChangeFin = this.handleChangeFin.bind(this);
         this.handleChangeComentario = this.handleChangeComentario.bind(this);
-        this.handleChangeFoto = this.handleChangeFoto.bind(this);
         this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
@@ -165,19 +164,9 @@ export default class finalizarConsulta extends React.Component {
     
     guardarOrden(e){
         e.preventDefault();
-        if(this.state.fotoURL==''){
-            this.setState({showAlert:true,
-                          titleAlert: "Campos Vacios",
-                          messageAlert:"falta por llenar campos requeridos.",
-                          typeAlert: 'error'});
-        }else{
             var body = {
                 'encounterType': encounterTypeFinalizada_id,
-                'obs': [
-                    {obsDatetime: this.state.date.format(), 
-                    concept:observacionesFotoURL,
-                    value: this.state.fotoURL}
-                ]
+                
             }
             instance.post('/v1/encounter/'+this.state.idorden, body)
             .then(
@@ -210,7 +199,7 @@ export default class finalizarConsulta extends React.Component {
                     console.log(err);
                 }
             )   
-        }
+        
     }
     
     handleChangeFin(date){
@@ -230,32 +219,6 @@ export default class finalizarConsulta extends React.Component {
         this.setState({date:date});
     }
     
-    //UPLOAD IMAGEN
-    onImageDrop(files) {
-        this.setState({
-          foto: files[0]
-        });
-
-        this.handleImageUpload(files[0]);
-    }
-    
-    handleImageUpload(file) {
-        let upload = request.post(CLOUDINARY_UPLOAD_URL)
-                            .field('upload_preset', CLOUDINARY_UPLOAD_PRESET)
-                            .field('file', file);
-
-        upload.end((err, response) => {
-          if (err) {
-            console.error(err);
-          }
-
-          if (response.body.secure_url !== '') {
-            this.setState({
-              fotoURL: response.body.secure_url
-            });
-          }
-        });
-      }
     
     render() {
     const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
@@ -337,26 +300,12 @@ export default class finalizarConsulta extends React.Component {
                     <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs} readOnly/>
                </fieldset>
                 <fieldset>
-                    <legend>Evidencia Entrega:</legend>
+                    <legend>Entrega:</legend>
                     <label> Fecha Realizacion: </label><DatePicker selected={this.state.dateFin} onChange={this.handleChangeFin}/>
                     <label htmlFor="comentarios">Comentario:</label>
                     <input type='text' name="comentarios" value={this.state.comentarios} id="comentarios" onChange={this.handleChangeComentario}/>
                     
                 </fieldset>
-                <div>
-                    <Dropzone
-                      multiple={false}
-                      accept="image/*"
-                      onDrop={this.onImageDrop.bind(this)}>
-                      <p>Arrastre una imagen o haga clic para seleccionar un archivo a cargar.</p>
-                    </Dropzone>
-                    <div>
-                    {this.state.fotoURL === '' ? null :
-                    <div>
-                      <img src={this.state.fotoURL} />
-                    </div>}
-                  </div>
-                </div>
                 <div>
                     <button className="btn" type="submit">Guardar</button>
                     <span>     </span>

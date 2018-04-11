@@ -5,7 +5,7 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import ReactTable from 'react-table';
-import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenes_id,ObservacioneAreaServicio_id,specimenSources_id} from '../../axios-orders';
+import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import Simplert from 'react-simplert';
@@ -20,7 +20,6 @@ export default class FormLaboratorio extends React.Component {
         this.state={
             date: moment(),
             data:[],
-            datashow: [],
             pacienteSeleccionado: '',
             medico: '',
             ubicacion:'',
@@ -41,8 +40,7 @@ export default class FormLaboratorio extends React.Component {
         this.handleChangeMuestra = this.handleChangeMuestra.bind(this);
         this.searchExamen = this.searchExamen.bind(this);
         this.handleChangeExamen = this.handleChangeExamen.bind(this);
-        this.anadirFilas = this.anadirFilas.bind(this);
-        this.removerExamen = this.removerExamen.bind(this);
+        this.cambiarEstado = this.cambiarEstado.bind(this);
         this.handleChangeObs = this.handleChangeObs.bind(this);
         this.cerrarAlert = this.cerrarAlert.bind(this);
     }
@@ -144,7 +142,46 @@ export default class FormLaboratorio extends React.Component {
     }
         
     handleChangeMuestra(opcion){
-        this.setState({muestra:opcion});
+        var examenid = '';
+        if (opcion.value == sangre_id){
+            examenid = examenesSangre_id;
+        }else if (opcion.value == orina_id){
+            examenid = examenesOrina_id;
+        }else if (opcion.value == sputum_id){
+            examenid = examenesSputum_id;
+        }else if (opcion.value == serum_id){
+            examenid = examenesSerum_id;
+        }else if (opcion.value == plasma_id){
+            examenid = examenesPlasma_id;
+        }else if (opcion.value == heces_id){
+            examenid = examenesHeces_id;
+        }else if (opcion.value == fluidoCerebro_id){
+            examenid = examenesCerebroEspinal_id;
+        }else if (opcion.value == fluidoAscitico_id){
+            examenid = examenesFluidoAscitico_id;
+        }
+        if (examenid == ''){
+            this.setState({muestra:opcion});
+        }else{
+        instance.get('/v1/concept/'+examenid+'?v=full')
+        .then(
+            (res3) => {
+                var resultado = [];
+                if ('data' in res3){
+                    resultado = 
+                    res3.data.setMembers.map((item,i) => {
+
+                        return {
+                        seleccion: true, 
+                        index:i,
+                        codigo: item.uuid,
+                        nombre: item.display,
+
+                    }});
+                }
+                this.setState({muestra:opcion, data:resultado});
+            }
+        )}
     }
     
     searchExamen(query){
@@ -180,16 +217,18 @@ export default class FormLaboratorio extends React.Component {
                           messageAlert:"falta por llenar campos requeridos: Paciente o Pruebas de Laboratorio.",
                           typeAlert: 'error'});
         }else{
-            var ordenes = this.state.data.map((item) => ({
-                      "type" : "testorder",
+            var ordenes = this.state.data.map((item) => {
+                    if(item.seleccion){
+                      return {"type" : "testorder",
                       "patient" : this.state.pacienteSeleccionado.value,
-                      "concept" : item.examen,
+                      "concept" : item.codigo,
                       "orderer": this.state.medico.value,
                       "careSetting" : careSettingInpatient_id,
-                      "orderReasonNonCoded": item.observaciones,
-                      "specimenSource": item.muestra,
-            }));
-
+                      "orderReasonNonCoded": this.state.observaciones,
+                      "specimenSource": this.state.muestra.value,
+                    }
+                    }});
+            ordenes = ordenes.filter(x => x!= undefined);
             const body = {
                 "patient": this.state.pacienteSeleccionado.value,
                 "location": this.state.ubicacion.uuid,
@@ -202,6 +241,7 @@ export default class FormLaboratorio extends React.Component {
                     concept:ObservacioneAreaServicio_id,
                     value: 'Laboratorio'}]
             }
+            console.log(body);
             instance.post('/v1/encounter', body)
             .then(
                 (res) => {
@@ -227,36 +267,14 @@ export default class FormLaboratorio extends React.Component {
         this.setState({date:date});
     }
     
-    anadirFilas(){
-        if(this.state.examen==''||this.state.muestra==''||this.state.observaciones==''){
-            this.setState({showAlert:true,
-                          titleAlert: "Campos Vacios",
-                          messageAlert:"falta por llenar campos requeridos.",
-                          typeAlert: 'error'});
-        }else{
-            var newdatashow = {examen: this.state.examen.label, 
-                          muestra: this.state.muestra.label,
-                          observaciones: this.state.observaciones}
-            var newdata = {examen: this.state.examen.value, 
-                          muestra: this.state.muestra.value,
-                          observaciones: this.state.observaciones}
-            this.setState({
-                data: this.state.data.concat(newdata), 
-                datashow: this.state.datashow.concat(newdatashow), 
-                examen: '',
-                muestra:'',
-                observaciones: '',
-            });
-        }
+    cambiarEstado(item){
+        var data = this.state.data;
+        data[item].seleccion = !data[item].seleccion;
+        this.setState({data:data});
     }
     
-    removerExamen(index){
-        var filas = this.state.data;
-        var filashow = this.state.datashow;
-        filas.splice(index,1);
-        filashow.splice(index,1);
-        this.setState({data:filas, datashow: filashow});
-        console.log(index);
+    cambiarObservaciones(e){
+        console.log(e);
     }
     
     render() {
@@ -269,25 +287,12 @@ export default class FormLaboratorio extends React.Component {
 		};
         
     const columnas = [{
-                        Header: 'Examen',
-                        accessor:'examen'},{
-                        Header: 'Muestra',
-                        accessor:'muestra'},{
-                        Header: 'Observaciones',
-                        accessor:'observaciones'},{
-                        Header: 'Acciones',
+                        Header: '',
                         accessor:'index',
-                        Cell: ({value})=> (<button type="button" onClick={()=>{this.removerMed({value})}}>Remover</button>)
-                        }
+                        Cell: ({value})=> (<input type="checkbox" checked={this.state.data[value].seleccion} onChange={()=>{this.cambiarEstado(value)}} onMouseOver={()=>{this.cambiarEstado(value)}}/>)},{
+                        Header: 'Examen',
+                        accessor:'nombre'}
                       ]
-
-    const filas = this.state.datashow.map(function(row,i){        
-            return ({
-                    index: i,
-                    examen: row.examen,
-                    muestra: row.muestra,
-                    observaciones: row.observaciones,
-            })});
         
     return (
       <div>
@@ -340,37 +345,27 @@ export default class FormLaboratorio extends React.Component {
                     disabled={true}
                     />
                 </fieldset>
+                <fieldset>
+                    <legend>Datos Examenes:</legend>
+                    <label> Muestra: </label>
+                    <Select.Async 
+                    autoload={false}
+                    name="muestra" 
+                    value={this.state.muestra} 
+                    onChange={this.handleChangeMuestra}
+                    loadOptions={this.searchMuestra}/>
+                    <label> Observaciones: </label>
+                    <input type="text" value={this.state.observaciones} onChange={this.handleChangeObs}/>
+                    
+                </fieldset>
                 <div>
-                    <fieldset>
-                        <legend>Nueva Examen:</legend>
-                        <label> Nombre Examen: </label>
-                        <Select.Async 
-                        autoload={false}
-                        name="examen" 
-                        value={this.state.examen} 
-                        onChange={this.handleChangeExamen}
-                        loadOptions={this.searchExamen}
-                        />
-                        <label> Tipo Muestra: </label>
-                        <Select.Async 
-                        autoload={false}
-                        name="muestra" 
-                        value={this.state.muestra} 
-                        onChange={this.handleChangeMuestra}
-                        loadOptions={this.searchMuestra}
-                        />
-                        <label htmlFor="observaciones">Observaciones:</label>
-                        <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
-                        <br></br>
-                        <button id="addfila" onClick={this.anadirFilas} type="button">Agregar Examen</button>
-                    </fieldset>
                     <br></br>
                     <br></br>
                     <ReactTable 
-                      data={filas} 
-                      noDataText="No existen ordenes"
+                      data={data} 
+                      noDataText="No existen examenes"
                       columns={columnas} 
-                      defaultPageSize={5} 
+                      defaultPageSize={10} 
                       sortable={true}/>
                 </div>
                 <br></br>

@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenes_id,ObservacioneAreaServicio_id,specimenSources_id} from '../../../axios-orders';
+import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Simplert from 'react-simplert';
 
@@ -20,9 +20,9 @@ export default class editarLaboratorio extends React.Component {
             idorden: this.props.params.orderId,
             tipoOrden: '',
             data:[],
+            ordenes:[],
             muestra: '',
             examen: '',
-            datashow: [],
             showAlert:false,
             titleAlert: "titulo",
             messageAlert:"mensaje",
@@ -40,8 +40,7 @@ export default class editarLaboratorio extends React.Component {
         this.handleChangeMuestra = this.handleChangeMuestra.bind(this);
         this.searchExamen = this.searchExamen.bind(this);
         this.handleChangeExamen = this.handleChangeExamen.bind(this);
-        this.anadirFilas = this.anadirFilas.bind(this);
-        this.removerExamen = this.removerExamen.bind(this);
+        this.cambiarEstado = this.cambiarEstado.bind(this);
         this.handleChangeObs = this.handleChangeObs.bind(this);
         this.cerrarAlert = this.cerrarAlert.bind(this);
     }
@@ -62,33 +61,68 @@ export default class editarLaboratorio extends React.Component {
                     if(res.data.obs.length>0){
                         tipo = res.data.obs[0].display;
                     }
+                    var muestra = '';
+                    var obs = '';
                     if(res.data.orders.length>0){
-                        filas = res.data.orders.map((item,i)=>(
-                            {
-                                examen: item.concept.display,
-                                index: i,
-                                uuid: item.uuid,
-                                muestra : item.specimenSource.display,
-                                observaciones: item.orderReasonNonCoded,
-                            }));
-                        ordenes = res.data.orders.map((item,i)=>(
-                            {
-                                examen: item.concept.uuid,
-                                index: i+1,
-                                uuid: item.uuid,
-                                muestra : item.specimenSource.uuid, 
-                                observaciones: item.orderReasonNonCoded,
-                                careSetting: item.careSetting.uuid,
-                            }));
+                        ordenes = res.data.orders.map((item,i)=>{
+                            muestra = {value:item.specimenSource.uuid, label:item.specimenSource.display};
+                            obs = item.orderReasonNonCoded;
+                            return item.concept.uuid
+                            });
+                        var examenid = '';
+                        var resultado = [];
+                        if (muestra.value == sangre_id){
+                            examenid = examenesSangre_id;
+                        }else if (muestra.value == orina_id){
+                            examenid = examenesOrina_id;
+                        }else if (muestra.value == sputum_id){
+                            examenid = examenesSputum_id;
+                        }else if (muestra.value == serum_id){
+                            examenid = examenesSerum_id;
+                        }else if (muestra.value == plasma_id){
+                            examenid = examenesPlasma_id;
+                        }else if (muestra.value == heces_id){
+                            examenid = examenesHeces_id;
+                        }else if (muestra.value == fluidoCerebro_id){
+                            examenid = examenesCerebroEspinal_id;
+                        }else if (muestra.value == fluidoAscitico_id){
+                            examenid = examenesFluidoAscitico_id;
+                        }
+                        if (examenid != ''){
+                        instance.get('/v1/concept/'+examenid+'?v=full')
+                        .then(
+                            (res3) => {
+                                var resultado = [];
+                                if ('data' in res3){
+                                    var valor = false;
+                                    resultado = 
+                                    res3.data.setMembers.map((item,i) => {
+
+                                        if (ordenes.indexOf(item.uuid)>=0){
+                                            valor = true;
+                                        }else{
+                                            valor = false;
+                                        }
+                                        return {
+                                        seleccion: valor, 
+                                        index:i,
+                                        codigo: item.uuid,
+                                        nombre: item.display,
+
+                                    }});
+                                }
+                                this.setState({
+                                    pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                                    date: moment(res.data.encounterDatetime),
+                                    medico: medico,
+                                    tipoOrden: tipo,
+                                    data: resultado,
+                                    muestra:muestra,
+                                    observaciones:obs,
+                                });
+                            }
+                        )}
                     };
-                    this.setState({
-                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
-                        date: moment(res.data.encounterDatetime),
-                        medico: medico,
-                        tipoOrden: tipo,
-                        data: ordenes,
-                        datashow: filas,
-                    });
                 }
             }
         ).catch(
@@ -160,7 +194,52 @@ export default class editarLaboratorio extends React.Component {
     }
         
     handleChangeMuestra(opcion){
-        this.setState({muestra:opcion});
+        var examenid = '';
+        if (opcion.value == sangre_id){
+            examenid = examenesSangre_id;
+        }else if (opcion.value == orina_id){
+            examenid = examenesOrina_id;
+        }else if (opcion.value == sputum_id){
+            examenid = examenesSputum_id;
+        }else if (opcion.value == serum_id){
+            examenid = examenesSerum_id;
+        }else if (opcion.value == plasma_id){
+            examenid = examenesPlasma_id;
+        }else if (opcion.value == heces_id){
+            examenid = examenesHeces_id;
+        }else if (opcion.value == fluidoCerebro_id){
+            examenid = examenesCerebroEspinal_id;
+        }else if (opcion.value == fluidoAscitico_id){
+            examenid = examenesFluidoAscitico_id;
+        }
+        if (examenid == ''){
+            this.setState({muestra:opcion});
+        }else{
+        instance.get('/v1/concept/'+examenid+'?v=full')
+        .then(
+            (res3) => {
+                var resultado = [];
+                if ('data' in res3){
+                    var valor = false;
+                    resultado = 
+                    res3.data.setMembers.map((item,i) => {
+                        
+                        if (this.state.ordenes.indexOf(item.uuid)>=0){
+                            valor = true;
+                        }else{
+                            valor = false;
+                        }
+                        return {
+                        seleccion: valor, 
+                        index:i,
+                        codigo: item.uuid,
+                        nombre: item.display,
+
+                    }});
+                }
+                this.setState({muestra:opcion, data:resultado});
+            }
+        )}
     }
     
     searchExamen(query){
@@ -192,37 +271,6 @@ export default class editarLaboratorio extends React.Component {
         this.setState({showAlert:false});
     }
     
-    anadirFilas(){
-        if(this.state.examen==''||this.state.muestra==''||this.state.observaciones==''){
-            this.setState({showAlert:true,
-                          titleAlert: "Campos Vacios",
-                          messageAlert:"falta por llenar campos requeridos.",
-                          typeAlert: 'error'});
-        }else{
-            var newdatashow = {examen: this.state.examen.label, 
-                          muestra: this.state.muestra.label,
-                          observaciones: this.state.observaciones}
-            var newdata = {examen: this.state.examen.value, 
-                          muestra: this.state.muestra.value,
-                          observaciones: this.state.observaciones}
-            this.setState({
-                data: this.state.data.concat(newdata), 
-                datashow: this.state.datashow.concat(newdatashow), 
-                examen: '',
-                muestra:'',
-                observaciones: '',
-            });
-        }
-    }
-    
-    removerExamen(index){
-        var filas = this.state.data;
-        var filashow = this.state.datashow;
-        filas.splice(index,1);
-        filashow.splice(index,1);
-        this.setState({data:filas, datashow: filashow});
-        console.log(index);
-    }
   
     guardarOrden(e){
         e.preventDefault();
@@ -235,19 +283,20 @@ export default class editarLaboratorio extends React.Component {
             instance.delete('/v1/encounter/'+this.state.idorden)
             .then(
                 (res2) => {
-                    var ordenes = this.state.data.map((item) => ({
-                              "type" : "testorder",
-                              "patient" : this.state.pacienteSeleccionado.value,
-                              "concept" : item.examen,
-                              "orderer": this.state.medico.value,
-                              "careSetting" : careSettingInpatient_id,
-                              "orderReasonNonCoded": item.observaciones,
-                              "specimenSource": item.muestra,
-                    }));
-
+                    var ordenes = this.state.data.map((item) => {
+                        if(item.seleccion){
+                          return {"type" : "testorder",
+                          "patient" : this.state.pacienteSeleccionado.value,
+                          "concept" : item.codigo,
+                          "orderer": this.state.medico.value,
+                          "careSetting" : careSettingInpatient_id,
+                          "orderReasonNonCoded": this.state.observaciones,
+                          "specimenSource": this.state.muestra.value,
+                        }
+                        }});
+                    ordenes = ordenes.filter(x => x!= undefined);
                     const body = {
                         "patient": this.state.pacienteSeleccionado.value,
-                        "location": this.state.ubicacion.uuid,
                         "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
                         "encounterType": encounterTypeOrdenNueva_id,
                         "encounterDatetime": this.state.date.format(),
@@ -260,7 +309,7 @@ export default class editarLaboratorio extends React.Component {
                     instance.post('/v1/encounter', body)
                     .then(
                         (res) => {
-                            hashHistory.push('/');
+                            hashHistory.push('/ordenes');
                         }
                     ).catch(
                         (err)=> {
@@ -314,6 +363,12 @@ export default class editarLaboratorio extends React.Component {
     handleChange(date){
         this.setState({date:date});
     }
+        
+    cambiarEstado(item){
+        var data = this.state.data;
+        data[item].seleccion = !data[item].seleccion;
+        this.setState({data:data});
+    }
     
     render() {
     const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
@@ -326,16 +381,11 @@ export default class editarLaboratorio extends React.Component {
     const {tipoOrden, datashow} = this.state;
         
     const columnas = [{
-                        Header: 'Examen',
-                        accessor:'examen'},{
-                        Header: 'Muestra',
-                        accessor:'muestra'},{
-                        Header: 'Observaciones',
-                        accessor:'observaciones'},{
-                        Header: 'Acciones',
+                        Header: '',
                         accessor:'index',
-                        Cell: ({value})=> (<button type="button" onClick={()=>{this.removerMed({value})}}>Remover</button>)
-                        }
+                        Cell: ({value})=> (<input type="checkbox" checked={this.state.data[value].seleccion} onChange={()=>{this.cambiarEstado(value)}} onMouseOver={()=>{this.cambiarEstado(value)}}/>)},{
+                        Header: 'Examen',
+                        accessor:'nombre'}
                       ]
     
     return (
@@ -389,37 +439,28 @@ export default class editarLaboratorio extends React.Component {
                     disabled={true}
                     />
                 </fieldset>
-                 <div>
-                    <fieldset>
-                        <legend>Nueva Examen:</legend>
-                        <label> Nombre Examen: </label>
-                        <Select.Async 
-                        autoload={false}
-                        name="examen" 
-                        value={this.state.examen} 
-                        onChange={this.handleChangeExamen}
-                        loadOptions={this.searchExamen}
-                        />
-                        <label> Tipo Muestra: </label>
-                        <Select.Async 
-                        autoload={false}
-                        name="muestra" 
-                        value={this.state.muestra} 
-                        onChange={this.handleChangeMuestra}
-                        loadOptions={this.searchMuestra}
-                        />
-                        <label htmlFor="observaciones">Observaciones:</label>
-                        <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
-                        <br></br>
-                        <button id="addfila" onClick={this.anadirFilas} type="button">Agregar Examen</button>
-                    </fieldset>
+                 <fieldset>
+                    <legend>Datos Examenes:</legend>
+                    <label> Muestra: </label>
+                    <Select.Async 
+                    autoload={false}
+                    name="muestra" 
+                    value={this.state.muestra} 
+                    onChange={this.handleChangeMuestra}
+                    loadOptions={this.searchMuestra}
+                    disabled={true}/>
+                    <label> Observaciones: </label>
+                    <input type="text" value={this.state.observaciones} onChange={this.handleChangeObs}/>
+                    
+                </fieldset>
+                <div>
                     <br></br>
                     <br></br>
                     <ReactTable 
-                      data={datashow} 
-                      noDataText="No existen ordenes"
+                      data={data} 
+                      noDataText="No existen examenes"
                       columns={columnas} 
-                      defaultPageSize={5} 
+                      defaultPageSize={10} 
                       sortable={true}/>
                 </div>
                 <div>

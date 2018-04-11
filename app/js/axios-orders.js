@@ -39,8 +39,17 @@ export const encounterTypeFinalizada_id ='26c0b07f-447f-4506-836c-edacef32886c';
 //uuid del encounter type de orden nueva -> creado para modulo
 export const encounterTypeOrdenNueva_id = 'bc26c537-023c-4284-b921-bc83bb16101c';
 
-//set de examenes -> creado en conceptos como conjunto y agregan miembros
-export const examenes_id = '4896e044-eec5-4295-bd16-a4c806fb5300';
+//set de examenes-> creado en conceptos como conjunto y agregan miembros
+export const examenesSangre_id = '29696d9d-2c84-4ad9-a6f0-89535467306e';
+export const examenesOrina_id = 'a4cf2d34-224f-4e3b-8cc9-a93b6e566ce9';
+export const examenesSputum_id = '22122cae-2ee7-40bf-a2ff-35afea6efdf1';
+export const examenesSerum_id = '849f4301-70e9-4318-a7db-25d469b3d662';
+export const examenesPlasma_id = '172aaa43-8cdf-4a3f-99e9-fd4e27bb4538';
+export const examenesHeces_id = '1491c8e4-85d7-44f7-8b61-cd7f11e7114d';
+export const examenesCerebroEspinal_id = '272b7892-0721-42eb-aa0b-c7718110fc15';
+export const examenesFluidoAscitico_id = '28142441-5424-46e0-9530-b9bf6a451359';
+
+export const examenes_id='999';
 
 //
 export const imagenes_id = '48242b83-020b-4d9e-915a-7734e4dfcfcb';
@@ -62,6 +71,16 @@ export const specimenSources_id ='8d492d0a-c2cc-11de-8d13-0010c6dffd0f';
 
 //uuid de un specimen source "ninguno" para resolver el problema de creacion de ordenes que no sean de medicamentos o pruebas de lab -> creado para modulo
 export const specimenSourceNA_id = '7d8ac6b8-c6c8-4eac-9b63-05cc03429b70';
+
+//specimenSOurces
+export const sangre_id = '1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const orina_id = '159994AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const sputum_id = '1004AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const serum_id = '1001AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const plasma_id = '1002AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const heces_id = '159993AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const fluidoCerebro_id = '159995AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const fluidoAscitico_id = '162403AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 //uuid de las unidades de medicion de dosis de medicamentos
 export const unidades_id = '162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
