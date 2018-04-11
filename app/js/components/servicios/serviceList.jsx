@@ -4,13 +4,7 @@ import {Link} from 'react-router';
 import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-<<<<<<< HEAD
-import {instance, servicios_id} from '../../axios-orders';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-
-=======
 import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
->>>>>>> 9f687e82014632dfe706337008c2c60b1b611b18
 
 
 export default class serviceList extends React.Component{  
