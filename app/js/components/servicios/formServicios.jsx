@@ -98,8 +98,11 @@ export default class formServicios extends React.Component{
             (response) => {
                 
                 var area = this.state.area;
+                console.log('Area 0:' + area);
                 if (this.state.area == examenes_id){
+                    console.log('Area == examen id');
                     var muestra = this.state.muestra;
+                    console.log('muestra:' + muestra);
                     if (muestra.value == sangre_id){
                             area = examenesSangre_id;
                         }else if (muestra.value == orina_id){
@@ -118,14 +121,18 @@ export default class formServicios extends React.Component{
                             area = examenesFluidoAscitico_id;
                         }
                 }
+                console.log('Area:' + area);
                 console.log('guardado');
                  var uuid='';
                  var members = {"setMembers":[]};
                 instance.get('/v1/concept/'+response.data.uuid+'?v=full')
                     .then(response => {
                         uuid = response.data.uuid;
+                        console.log('uuid:'+ uuid);
+                        console.log(response.data);
                         instance.get('/v1/concept/'+ area +'?v=full')
                             .then(response => {
+                                console.log('members:'+ response.data.setMembers);
                                 members.setMembers.push(uuid);
                                 for (let key in response.data.setMembers){
                                     members.setMembers.push(response.data.setMembers[key].uuid)

@@ -83,15 +83,23 @@ export default class Home extends React.Component {
           <Link to="/ordenes_atender" activeClassName="active">
             <button className="button big app"><i className="icon-ok"></i>Ordenes Aceptadas</button>
           </Link>
-            { this.state.lugar != registration_desk?null:
+          {/*this.state.lugar != registration_desk?null:*/}
+            { this.state.lugar != inpatientWard_id?null:
+          <Link to="/facturacion/ver" activeClassName="active">
+            <button className="button big app"><i className="icon-money"></i>Facturas</button>
+          </Link>}
+            {/*this.state.lugar != registration_desk?null:*/}
+            { this.state.lugar != inpatientWard_id?null:
           <Link to="/facturacion/orden" activeClassName="active">
             <button className="button big app"><i className="icon-money"></i>Facturación Ordenes</button>
           </Link>}
-            { this.state.lugar != registration_desk?null:
+            {/*this.state.lugar != registration_desk?null:*/}
+            { this.state.lugar != inpatientWard_id?null:
           <Link to="/facturacion/rapida" activeClassName="active">
             <button className="button big app"><i className="icon-money"></i>Facturación Rápida</button>
           </Link>}
-            { this.state.user != admin_id?null:
+            {/*this.state.user != admin_id?null:*/}  
+            { this.state.lugar != inpatientWard_id?null:
           <Link to="/servicios" activeClassName="active">
             <button className="button big app"><i className="icon-ambulance"></i>Administrar Servicios</button>
           </Link>}

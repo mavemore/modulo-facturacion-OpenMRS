@@ -20,11 +20,23 @@ export default class serviceList extends React.Component{
     }
     
     eliminarServicio(uuid){
-        //console.log(uuid);
+        console.log(uuid);
+        
+
         instance.delete('/v1/concept/'+uuid, {params: {'uuid':uuid}})
             .then(response => {
-                //console.log(response);
-                //console.log('deleted');
+                console.log(response);
+                console.log('deleted');
+                const updateData = [...this.state.data];
+                for (let key in updateData){
+                    //console.log(updateData[key])
+                    if(updateData[key]._uuid == uuid ){
+                        console.log('son iguales');
+                        updateData.splice(key, 1);
+                        break;
+                    }
+                }
+                this.setState({data: updateData});
             })
             .catch((err) => { console.log(err.response.data); })
     }
@@ -51,9 +63,15 @@ export default class serviceList extends React.Component{
                         nombre: name,
                         precio: parseFloat(precio),
                         fecha: fecha,
+                        _uuid: uuid,
+                        acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                         area: 'Cirugia',
-                        acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                        /**acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>**/
                     };
+                    //console.log(newItem);
                     newData.push(newItem); 
                 }
                 instance.get('/v1/concept/'+ consultas_id +'?v=full')
@@ -71,8 +89,13 @@ export default class serviceList extends React.Component{
                             nombre: name,
                             precio: parseFloat(precio),
                             fecha: fecha,
+                            _uuid: uuid,
                             area: 'Consulta',
-                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                            acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
+                            /**acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>**/
                         };
                         newData.push(newItem); 
                 }
@@ -91,8 +114,12 @@ export default class serviceList extends React.Component{
                             nombre: name,
                             precio: parseFloat(precio),
                             fecha: fecha,
+                            _uuid: uuid,
                             area: 'Examenes',
-                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                            acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                         };
                         newData.push(newItem); 
                     }
@@ -111,8 +138,12 @@ export default class serviceList extends React.Component{
                                 nombre: name,
                                 precio: parseFloat(precio),
                                 fecha: fecha,
+                                _uuid: uuid,
                                 area:'Imagenes',
-                                acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                             };
                             newData.push(newItem); 
                         }
@@ -131,8 +162,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Dietetica',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -151,8 +186,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>, 
                                 };
                                 newData.push(newItem); 
                             }
@@ -171,8 +210,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -191,8 +234,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -211,8 +258,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -231,8 +282,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -251,8 +306,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -271,8 +330,12 @@ export default class serviceList extends React.Component{
                                     nombre: name,
                                     precio: parseFloat(precio),
                                     fecha: fecha,
+                                    _uuid: uuid,
                                     area: 'Examenes',
-                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                    acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>,
                                 };
                                 newData.push(newItem); 
                             }
@@ -332,7 +395,7 @@ export default class serviceList extends React.Component{
                     <div style={{marginTop: '30px'}}>
                         <ReactTable 
                         data={this.state.data} 
-                        noDataText="No existen ordenes"
+                        noDataText="No existen servicios"
                         columns={[{
                             Header: 'Nombre',
                             accessor:'nombre'},{

@@ -38,6 +38,7 @@ import finalizarDietetica from './components/ordenes/finalizar/finalizarDietetic
 import finalizarLaboratorio from './components/ordenes/finalizar/finalizarLaboratorio';
 import finalizarConsulta from './components/ordenes/finalizar/finalizarConsulta';
 import finalizarImagenes from './components/ordenes/finalizar/finalizarImagenes';
+import verFacturas from './components/facturacion/verFacturas';
 
 export default () => {
   return (
@@ -45,6 +46,7 @@ export default () => {
         <Route exact path="/" component={Home}/>
         <Route path="/facturacion/orden" component={nuevaFactOrden}/>
         <Route path="/facturacion/rapida" component={nuevaFactRapida}/>
+        <Route path="/facturacion/ver" component={verFacturas}/>
         <Route path="/ordenes" component={HomeMedico}/>
         <Route path="/ordenes_atender" component={ordenesAceptadas}/>
         <Route path="/ordenes/:orderId" component={editarOrdenes}/>
