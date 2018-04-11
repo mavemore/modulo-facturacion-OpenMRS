@@ -5,6 +5,8 @@ import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import {instance, servicios_id} from '../../axios-orders';
+import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+
 
 
 export default class serviceList extends React.Component{  
@@ -12,7 +14,7 @@ export default class serviceList extends React.Component{
     constructor(){
         super();
         this.state = {
-            data : [{
+            data : [/**{
                 nombre: 'servicio 1',
                 precio: 10,
                 fecha: '15-02-2018',
@@ -22,7 +24,7 @@ export default class serviceList extends React.Component{
                 precio: 20,
                 fecha: '15-02-2018',
                 acciones: <div><i className="icon-remove delete-action" title="Delete"></i></div>
-              }],
+              }**/],
             loading : false
         };
         this.fetchData = this.fetchData.bind(this);   
@@ -30,11 +32,23 @@ export default class serviceList extends React.Component{
     }
     
     eliminarServicio(uuid){
-        //console.log(uuid);
+        console.log(uuid);
+        
+
         instance.delete('/v1/concept/'+uuid, {params: {'uuid':uuid}})
             .then(response => {
-                //console.log(response);
-                //console.log('deleted');
+                console.log(response);
+                console.log('deleted');
+                const updateData = [...this.state.data];
+                for (let key in updateData){
+                    //console.log(updateData[key])
+                    if(updateData[key]._uuid == uuid ){
+                        console.log('son iguales');
+                        updateData.splice(key, 1);
+                        break;
+                    }
+                }
+                this.setState({data: updateData});
             })
             .catch((err) => { console.log(err.response.data); })
     }
@@ -61,8 +75,13 @@ export default class serviceList extends React.Component{
                         nombre: name,
                         precio: parseFloat(precio),
                         fecha: fecha,
-                        acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                        _uuid: uuid,
+                        acciones:   <div>
+                                        <button className="button"  onClick={() => this.eliminarServicio(newItem._uuid)}>
+                                            Remover</button>
+                                    </div>
                     };
+                    //console.log(newItem);
                     newData.push(newItem); 
                 }
                 this.setState({data: newData, loading: false});

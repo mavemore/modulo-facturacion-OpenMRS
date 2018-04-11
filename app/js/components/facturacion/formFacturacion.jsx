@@ -106,7 +106,7 @@ export default class FormFacturacion extends React.Component {
             </div>
         </section>
         <div>
-            <form onSubmit={this.generarOrden.bind(this)} id="formOrden">
+            <form  id="formOrden">
                 <label htmlFor="usuario"> Usuario: </label>
                     <Select.Async 
                     autoload={false}

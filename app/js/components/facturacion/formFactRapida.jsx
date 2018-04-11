@@ -123,6 +123,7 @@ export default class FormFactRapida extends React.Component {
         return false;
     }
 
+    //insertar servicio.
     fetchData(){
         let servicio = this.state.servicioSeleccionado;
         //console.log(servicio);

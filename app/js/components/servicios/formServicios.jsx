@@ -56,7 +56,7 @@ export default class formServicios extends React.Component{
                 "lowCritical": "1",
                 "allowDecimal": true,
                 "displayPrecision": 2,
-                "conceptClass": con,
+                "conceptClass": conceptclass_id,
                 "descriptions": [{
                     "description": this.state.precio	
                     } 
@@ -69,9 +69,9 @@ export default class formServicios extends React.Component{
                  let members = {"setMembers":[]};
                 instance.get('/v1/concept?v=full&q='+this.state.nombre)
                     .then(response => {
-                        console.log(response.data);
+                        //console.log(response.data);
                         uuid = response.data.results[0];
-                        console.log(uuid);
+                        //console.log(uuid);
                         instance.get('/v1/concept/'+ servicios_id +'?v=full')
                             .then(response => {
                                 console.log(response.data);
