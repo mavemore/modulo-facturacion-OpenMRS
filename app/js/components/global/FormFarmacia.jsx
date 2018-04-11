@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import ReactTable from 'react-table';
-import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id} from '../../axios-orders';
+import {instance,unidades_id,routes_id,ObservacioneAreaServicio_id,encounterTypeOrdenNueva_id,encounterRoleClinician_id,careSettingInpatient_id,encounterTypeOrdenAceptada_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import Simplert from 'react-simplert';
@@ -36,6 +36,7 @@ export default class FormFarmacia extends React.Component {
             titleAlert: "titulo",
             messageAlert:"mensaje",
             typeAlert:'success',
+            guardar: false,
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -77,7 +78,22 @@ export default class FormFarmacia extends React.Component {
         instance.get('/v1/patient/'+opcion.value+'?v=full')
         .then(
             (res) => {
-                this.setState({pacienteSeleccionado:opcion, ubicacion: res.data.identifiers[0].location});
+                var ubicacion =res.data.identifiers[0].location;
+                instance.get('/v1/encounter?patient='+opcion.value+'&v=full')
+                .then(
+                    (res2) => {
+                        var ordenes = res2.data.results.filter(x => (x.encounterType.uuid==encounterTypeOrdenNueva_id||x.encounterType.uuid==encounterTypeOrdenAceptada_id))
+                        ordenes = ordenes.filter(x=>x.obs[0].value == 'Farmacia');
+                        var guardar = false;
+                        if(ordenes.length>0){
+                            guardar  = true;
+                        }
+                        console.log(res2.data.results);
+                        console.log(ordenes);
+                        console.log(guardar);
+                        this.setState({pacienteSeleccionado:opcion, ubicacion: ubicacion, guardar:guardar});
+                    }
+                )
             }
         )
     }
@@ -469,7 +485,7 @@ export default class FormFarmacia extends React.Component {
                 <br></br>
                 <br></br>
                 <div>
-                    <button className="btn" type="submit">Generar Orden</button>
+                    <button className="btn" type="submit" r disabled={this.state.guardar}>Generar Orden</button>
                     <span>     </span>
                     <Link to="/"><button className="btn" type="button">Descartar</button></Link>
                 </div>

@@ -4,7 +4,7 @@ import Header from '../global/Header';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import moment from 'moment';
-import {instance,ObservacioneAreaServicio_id,encounterTypeOrdenAceptada_id} from '../../axios-orders';
+import {instance,ObservacioneAreaServicio_id,encounterTypeOrdenAceptada_id,inpatientWard_id,laboratory_id,pharmacy_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
@@ -16,18 +16,23 @@ export default class ordenesAceptadas extends React.Component {
             data:[],
             pacienteSeleccionado: '',
             usuario:'',
+            lugar:'',
+            editar: false,
         };
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
     }
     
     componentDidMount(){
-        instance.get('/v1/session')
-        .then(
-            (res) => {
-                this.setState({usuario: {value: res.data.user.person.uuid, label: res.data.user.person.display}});
-            }
-        )
+        instance.get('/v1/appui/session')
+        .then((response) => {
+            var lugar = response.data.sessionLocation.uuid;
+            instance.get('/v1/session')
+            .then(
+                (res) => {
+                    this.setState({usuario: {value: res.data.user.person.uuid, label: res.data.user.person.display}, lugar:lugar});
+                }
+            )})
     }
     
     searchPaciente(query){
@@ -88,6 +93,15 @@ export default class ordenesAceptadas extends React.Component {
                                 fecha: moment(item.encounterDatetime).format('DD/MM/YYYY'),
                                 }
                             });
+                            if (this.state.lugar == pharmacy_id){
+                            ordenes = ordenes.filter(x=> x.area == 'Farmacia');}
+                            else if(this.state.lugar == laboratory_id){
+                            ordenes = ordenes.filter(x=> x.area == 'Laboratorio');}
+                            else if(this.state.lugar == inpatientWard_id){
+                            ordenes = ordenes.filter(x=> (x.area != 'Laboratorio')&&(x.area != 'Farmacia'));}
+                            else{
+                                ordenes = [];
+                            }
                         }
                         this.setState({data: ordenes});
                     }

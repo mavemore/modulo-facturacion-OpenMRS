@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance, cirugias_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../../axios-orders';
+import {instance, cirugias_id,careSettingInpatient_id,inpatientWard_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Simplert from 'react-simplert';
 
@@ -26,6 +26,8 @@ export default class editarCirugia extends React.Component {
             titleAlert: "titulo",
             messageAlert:"mensaje",
             typeAlert:'success',
+            lugar:'',
+            editar: false,
             
         };
         this.handleChange = this.handleChange.bind(this);
@@ -42,42 +44,51 @@ export default class editarCirugia extends React.Component {
     }
     
     componentDidMount(){
-        instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
-        .then(
-            (res) => {
-                if ('data' in res){
-                    var medico = '';
-                    var tipo = '';
-                    var orden = '';
-                    if(res.data.encounterProviders.length>0){
-                        medico = { value: res.data.encounterProviders[0].provider.uuid, label: res.data.encounterProviders[0].provider.display}
-                                }
-                    if(res.data.obs.length>0){
-                        tipo = res.data.obs[0].display;
+        instance.get('/v1/appui/session')
+        .then((response) => {
+            var lugar = response.data.sessionLocation.uuid;
+            var editar = false;
+            if (lugar == inpatientWard_id){
+                editar= true;
+            }
+            instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
+            .then(
+                (res) => {
+                    if ('data' in res){
+                        var medico = '';
+                        var tipo = '';
+                        var orden = '';
+                        if(res.data.encounterProviders.length>0){
+                            medico = { value: res.data.encounterProviders[0].provider.uuid, label: res.data.encounterProviders[0].provider.display}
+                                    }
+                        if(res.data.obs.length>0){
+                            tipo = res.data.obs[0].display;
+                        }
+                        if(res.data.orders.length>0){
+                            var ordenes = res.data.orders.map((item,i)=>(
+                                {
+                                    cirugia: {value: item.concept.uuid, label:item.concept.display},
+                                    index: i,
+                                    observaciones: item.orderReasonNonCoded,
+                                }));
+                            orden = ordenes[0];
+                        };
+                        this.setState({
+                            pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
+                            lugar: lugar,
+                            date: moment(res.data.encounterDatetime),
+                            medico: medico,
+                            observaciones: orden.observaciones,
+                            cirugia: orden.cirugia,
+                            editar:editar,
+                        });
                     }
-                    if(res.data.orders.length>0){
-                        var ordenes = res.data.orders.map((item,i)=>(
-                            {
-                                cirugia: {value: item.concept.uuid, label:item.concept.display},
-                                index: i,
-                                observaciones: item.orderReasonNonCoded,
-                            }));
-                        orden = ordenes[0];
-                    };
-                    this.setState({
-                        pacienteSeleccionado: {value: res.data.patient.uuid, label: res.data.patient.display},
-                        date: moment(res.data.encounterDatetime),
-                        medico: medico,
-                        observaciones: orden.observaciones,
-                        cirugia: orden.cirugia,
-                    });
                 }
-            }
-        ).catch(
-            (err) => {
-                console.log(err);
-            }
-        )
+            ).catch(
+                (err) => {
+                    console.log(err);
+                }
+            )})
     }
     
     searchPaciente(query){
@@ -318,12 +329,16 @@ export default class editarCirugia extends React.Component {
                     <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
                </fieldset>
                 <div>
-                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
-                    <span>     </span>
-                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>
+                    {this.state.editar?
+                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>:null}
+                    {this.state.editar?
+                    <span>     </span>:null}
+                    {this.state.editar?
+                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>:null}
                 </div>
                 <div>
-                    <button className="btn" type="submit">Guardar</button>
+                    {this.state.editar?
+                    <button className="btn" type="submit">Guardar</button>:null}
                     <span>     </span>
                     <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>

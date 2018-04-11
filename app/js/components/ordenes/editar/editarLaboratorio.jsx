@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id} from '../../../axios-orders';
+import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,inpatientWard_id,laboratory_id,pharmacy_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Simplert from 'react-simplert';
 
@@ -26,6 +26,8 @@ export default class editarLaboratorio extends React.Component {
             showAlert:false,
             titleAlert: "titulo",
             messageAlert:"mensaje",
+            lugar:'',
+            editar: false,
             typeAlert:'success',
             
         };
@@ -46,6 +48,13 @@ export default class editarLaboratorio extends React.Component {
     }
     
     componentDidMount(){
+        instance.get('/v1/appui/session')
+        .then((response) => {
+            var lugar = response.data.sessionLocation.uuid;
+            var editar = false;
+            if (lugar == inpatientWard_id){
+                editar= true;
+            }
         instance.get('/v1/encounter/'+this.props.params.orderId+'?v=full')
         .then(
             (res) => {
@@ -119,6 +128,7 @@ export default class editarLaboratorio extends React.Component {
                                     data: resultado,
                                     muestra:muestra,
                                     observaciones:obs,
+                                    editar:editar,
                                 });
                             }
                         )}
@@ -129,7 +139,7 @@ export default class editarLaboratorio extends React.Component {
             (err) => {
                 console.log(err);
             }
-        )
+        )})
     }
     
     searchPaciente(query){
@@ -365,9 +375,11 @@ export default class editarLaboratorio extends React.Component {
     }
         
     cambiarEstado(item){
+        if(this.state.editar){
         var data = this.state.data;
         data[item].seleccion = !data[item].seleccion;
         this.setState({data:data});
+        }
     }
     
     render() {
@@ -450,7 +462,7 @@ export default class editarLaboratorio extends React.Component {
                     loadOptions={this.searchMuestra}
                     disabled={true}/>
                     <label> Observaciones: </label>
-                    <input type="text" value={this.state.observaciones} onChange={this.handleChangeObs}/>
+                    <input type="text" value={this.state.observaciones} onChange={this.handleChangeObs} readOnly={!this.state.editar}/>
                     
                 </fieldset>
                 <div>
@@ -464,13 +476,18 @@ export default class editarLaboratorio extends React.Component {
                       sortable={true}/>
                 </div>
                 <div>
-                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
-                    <span>     </span>
-                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>
+                    {this.state.editar?
+                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>:null}
+                    {this.state.editar?
+                    <span>     </span>:null}
+                    {this.state.editar?null:
+                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>}
                 </div>
                 <div>
-                    <button className="btn" type="submit">Guardar</button>
-                    <span>     </span>
+                    {this.state.editar?
+                    <button className="btn" type="submit">Guardar</button>:null}
+                    {this.state.editar?
+                    <span>     </span>:null}
                     <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>

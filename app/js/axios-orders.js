@@ -63,6 +63,16 @@ export const observacionesFotoURL = '4102718a-a02b-49da-86c9-a296b073610b';
 //set de paquetes de dieta -> creado en conceptos como conjunto y agregan miembros
 export const paquetesDietetica_id = '767bfd99-0f7c-4c32-83fa-7302c8b3273b';
 
+
+//lugares locations
+export const inpatientWard_id = 'b1a8b05e-3542-4037-bbd3-998ee9c40574';
+export const laboratory_id = '7fdfa2cb-bc95-405a-88c6-32b7673c0453';
+export const pharmacy_id = '7f65d926-57d6-4402-ae10-a5b3bcbf7986';
+export const registration_desk = '6351fcf4-e311-4a19-90f9-35667d99a8af';
+
+//users
+export const admin_id = '1c3db49d-440a-11e6-a65c-00e04c680037';
+
 //uuid de las posibles vias de administracion de medicamentos
 export const routes_id = '162394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
