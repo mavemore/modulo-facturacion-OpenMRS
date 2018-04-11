@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export const instance = axios.create({
-    baseURL: 'http://localhost:8081/openmrs-standalone/ws/rest',
-    //baseURL: 'http://localhost:8080/openmrs/ws/rest',
+    //baseURL: 'http://localhost:8081/openmrs-standalone/ws/rest',
+    baseURL: 'http://localhost:8080/openmrs/ws/rest',
     headers: {'Content-Type': 'application/json'},
     auth: {
         username: 'admin',
@@ -21,6 +21,9 @@ export const careSettingInpatient_id = 'c365e560-c3ec-11e3-9c1a-0800200c9a66';
 //set de cirugias -> creado en conceptos como conjunto y agregan miembros
 export const cirugias_id = '0e24b5b6-cd0c-4215-989e-1bac76a013d5';
 
+//set de consultas -> creado en conceptos como conjunto y agregan miembros
+export const consultas_id = 'd0aaed00-a4af-4d2f-98d2-36a7148f0220';
+
 //uuid del encounter role de usuario clinico
 export const encounterRoleClinician_id = '240b26f9-dd88-4172-823d-4a8bfeb7841f';
 
@@ -38,6 +41,9 @@ export const encounterTypeOrdenNueva_id = 'bc26c537-023c-4284-b921-bc83bb16101c'
 
 //set de examenes -> creado en conceptos como conjunto y agregan miembros
 export const examenes_id = '4896e044-eec5-4295-bd16-a4c806fb5300';
+
+//
+export const imagenes_id = '48242b83-020b-4d9e-915a-7734e4dfcfcb';
 
 //concepto creado para definir el area del servicio dado
 export const ObservacioneAreaServicio_id = '70885eca-dfe9-4d6a-9dfd-cd2feebd77f3';
@@ -61,10 +67,20 @@ export const specimenSourceNA_id = '7d8ac6b8-c6c8-4eac-9b63-05cc03429b70';
 export const unidades_id = '162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 //uuid del concepto de servicios
-export const servicios_id = 'a45d556e-e0c5-4d27-9a0c-17324ff284e3';
+export const servicios_id ='3ec05ea7-d02d-48c8-bf1c-1da61a411a3d';
 
 //uuid del datatype de servicio num
 export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
 
-//uuid conceptcalls de servicios
+//uuid conceptclass de servicios
 export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f';
+//-----------------------------------------------------------------------
+
+//uuid del concepto de servicios
+//export const servicios_id = 'a45d556e-e0c5-4d27-9a0c-17324ff284e3';
+
+//uuid del datatype de servicio num
+//export const datatype_id = '8d4a4488-c2cc-11de-8d13-0010c6dffd0f';
+
+//uuid conceptclass de servicios
+//export const conceptclass_id = '8d4907b2-c2cc-11de-8d13-0010c6dffd0f'

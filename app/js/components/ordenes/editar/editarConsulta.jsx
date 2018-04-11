@@ -4,15 +4,13 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,cirugias_id,encounterTypeFinalizada_id,observacionesFotoURL,CLOUDINARY_UPLOAD_URL,CLOUDINARY_UPLOAD_PRESET} from '../../../axios-orders';
+import {instance, consultas_id,careSettingInpatient_id,specimenSourceNA_id,encounterRoleClinician_id,encounterTypeOrdenAceptada_id,encounterTypeOrdenCancelada_id,encounterTypeOrdenNueva_id,ObservacioneAreaServicio_id} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
-import Dropzone from 'react-dropzone';
-import request from 'superagent';
 import Simplert from 'react-simplert';
 
 //import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
-export default class finalizarCirugia extends React.Component {
+export default class editarConsulta extends React.Component {
     constructor(...args){
         super(...args);
         this.state={
@@ -23,11 +21,7 @@ export default class finalizarCirugia extends React.Component {
             tipoOrden: '',
             data:[],
             observaciones: '',
-            cirugia:'',
-            orden:'',
-            fechaFin: moment(),
-            foto:'',
-            fotoURL:'',
+            consulta:'',
             showAlert:false,
             titleAlert: "titulo",
             messageAlert:"mensaje",
@@ -39,12 +33,11 @@ export default class finalizarCirugia extends React.Component {
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
+        this.cancelarOrden = this.cancelarOrden.bind(this);
+        this.procesarOrden = this.procesarOrden.bind(this);
         this.handleChangeObs = this.handleChangeObs.bind(this);
-        this.searchCirugia = this.searchCirugia.bind(this);
-        this.handleChangeCirugia = this.handleChangeCirugia.bind(this);
-        this.handleChangeFin = this.handleChangeFin.bind(this);
-        this.handleChangeComentario = this.handleChangeComentario.bind(this);
-        this.handleChangeFoto = this.handleChangeFoto.bind(this);
+        this.searchConsulta = this.searchConsulta.bind(this);
+        this.handleChangeConsulta = this.handleChangeConsulta.bind(this);
         this.cerrarAlert = this.cerrarAlert.bind(this);
     }
     
@@ -65,11 +58,9 @@ export default class finalizarCirugia extends React.Component {
                     if(res.data.orders.length>0){
                         var ordenes = res.data.orders.map((item,i)=>(
                             {
-                                cirugia: {value: item.concept.uuid, label:item.concept.display},
+                                consulta: {value: item.concept.uuid, label:item.concept.display},
                                 index: i,
-                                uuid: item.uuid,
                                 observaciones: item.orderReasonNonCoded,
-                                careSetting: item.careSetting.uuid,
                             }));
                         orden = ordenes[0];
                     };
@@ -78,8 +69,7 @@ export default class finalizarCirugia extends React.Component {
                         date: moment(res.data.encounterDatetime),
                         medico: medico,
                         observaciones: orden.observaciones,
-                        cirugia: orden.cirugia,
-                        orden: orden,
+                        consulta: orden.consulta,
                     });
                 }
             }
@@ -135,8 +125,8 @@ export default class finalizarCirugia extends React.Component {
         )
     }
     
-    searchCirugia(query){
-        return instance.get('/v1/concept/'+cirugias_id)
+    searchConsulta(query){
+        return instance.get('/v1/concept/'+consultas_id)
         .then(
             (res) => {
                 var resultado = [];
@@ -151,111 +141,107 @@ export default class finalizarCirugia extends React.Component {
         )
     }
         
-    handleChangeCirugia(opcion){
-        this.setState({cirugia:opcion});
+    handleChangeConsulta(opcion){
+        this.setState({consulta:opcion});
     }
     
     handleChangeObs(e){
         this.setState({observaciones:e.target.value});
     }
-        
+    
     cerrarAlert(){
         this.setState({showAlert:false});
     }
-    
+        
     guardarOrden(e){
         e.preventDefault();
-        if(this.state.fotoURL==''){
+        if(this.state.pacienteSeleccionado==''||this.state.consulta==''){
             this.setState({showAlert:true,
                           titleAlert: "Campos Vacios",
-                          messageAlert:"falta por llenar campos requeridos.",
+                          messageAlert:"falta por llenar campos requeridos: Paciente o Consulta",
                           typeAlert: 'error'});
         }else{
-            var body = {
-                'encounterType': encounterTypeFinalizada_id,
-                'obs': [
-                    {obsDatetime: this.state.date.format(), 
-                    concept:observacionesFotoURL,
-                    value: this.state.fotoURL}
-                ]
-            }
-            instance.post('/v1/encounter/'+this.state.idorden, body)
+            instance.delete('/v1/encounter/'+this.state.idorden)
             .then(
-                (res) => {
-                    var detalles={
-                        "type":'testorder',
-                        "action": 'DISCONTINUE',
-                        "previousOrder": this.state.orden.uuid,
-                        "careSetting": this.state.orden.careSetting,
-                        "concept": this.state.orden.cirugia.value,
-                        "encounter": this.state.idorden,
-                        "orderer": this.state.medico.value,
+                (res2) => {
+                    var ordenes = [{
+                              "type" : "testorder",
+                              "patient" : this.state.pacienteSeleccionado.value,
+                              "location": this.state.ubicacion.uuid,
+                              "concept" : this.state.consulta.value,
+                              "orderer": this.state.medico.value,
+                              "careSetting" : careSettingInpatient_id,
+                              "orderReasonNonCoded": this.state.observaciones,
+                              "specimenSource": specimenSourceNA_id,
+                    }];
+
+                    const body = {
                         "patient": this.state.pacienteSeleccionado.value,
-                        "dateActivated": this.state.dateFin.format(),
-                        "orderReasonNonCoded": this.state.comentarios,
+                        "encounterProviders": [{"provider": this.state.medico.value, "encounterRole": encounterRoleClinician_id}],
+                        "encounterType": encounterTypeOrdenNueva_id,
+                        "encounterDatetime": this.state.date.format(),
+                        "orders": ordenes,
+                        "obs": [
+                            {obsDatetime: this.state.date.format(), 
+                            concept:ObservacioneAreaServicio_id,
+                            value: 'Consulta'}]
                     }
-                    instance.post('/v1/order', detalles)
+                    instance.post('/v1/encounter', body)
                     .then(
-                        (res2) => {
-                            hashHistory.push('/ordenes_atender');
+                        (res) => {
+                            hashHistory.push('/');
                         }
                     ).catch(
-                        (err) => {
+                        (err)=> {
                             console.log(err);
+                            this.setState({showAlert:true,
+                              titleAlert: "Error Servidor",
+                              messageAlert:"Ha ocurrido un error en el servidor",
+                              typeAlert: 'error'});
                         }
-                    ) 
+                    )
                 }
-            ).catch(
-                (err) => {
-                    console.log(err);
-                }
-            )   
+            )
         }
     }
     
-    handleChangeFin(date){
-        this.setState({dateFin:date});
+    cancelarOrden(e){
+        var body = {'encounterType': encounterTypeOrdenCancelada_id}
+        instance.post('/v1/encounter/'+this.state.idorden, body)
+        .then(
+            (res) => {
+                instance.delete('/v1/encounter/'+this.state.idorden)
+                .then(
+                    (res2) => {
+                        hashHistory.push('/ordenes');
+                    }
+                )
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
     
-    handleChangeComentario(e){
-        this.setState({comentarios:e.target.value});
-    }
-    
-    handleChangeFoto(e){
-        this.setState({foto:e.target.value});
+    procesarOrden(e){
+        var body = {'encounterType': encounterTypeOrdenAceptada_id}
+        instance.post('/v1/encounter/'+this.state.idorden, body)
+        .then(
+            (res) => {
+                hashHistory.push('/ordenes');
+            }
+        ).catch(
+            (err) => {
+                console.log(err);
+            }
+        )
     }
     
 
     handleChange(date){
         this.setState({date:date});
     }
-    
-    //UPLOAD IMAGEN
-    onImageDrop(files) {
-        this.setState({
-          foto: files[0]
-        });
-
-        this.handleImageUpload(files[0]);
-    }
-    
-    handleImageUpload(file) {
-        let upload = request.post(CLOUDINARY_UPLOAD_URL)
-                            .field('upload_preset', CLOUDINARY_UPLOAD_PRESET)
-                            .field('file', file);
-
-        upload.end((err, response) => {
-          if (err) {
-            console.error(err);
-          }
-
-          if (response.body.secure_url !== '') {
-            this.setState({
-              fotoURL: response.body.secure_url
-            });
-          }
-        });
-      }
     
     render() {
     const { data ,showAlert,titleAlert,messageAlert,typeAlert} = this.state;
@@ -306,13 +292,8 @@ export default class finalizarCirugia extends React.Component {
                     name="paciente" 
                     value={this.state.pacienteSeleccionado} 
                     onChange={this.handleChangePaciente}
-                    loadOptions={this.searchPaciente}
-                    disabled={true}/>
-                    <label> Fecha: </label>
-                    <DatePicker 
-                    selected={this.state.date} 
-                    onChange={this.handleChange}
-                    disabled={true}/>
+                    loadOptions={this.searchPaciente}/>
+                    <label> Fecha: </label><DatePicker selected={this.state.date} onChange={this.handleChange}/>
                     <label htmlFor="medico"> M&eacute;dico: </label>
                     <Select.Async 
                     autoload={false}
@@ -324,43 +305,27 @@ export default class finalizarCirugia extends React.Component {
                     />
                 </fieldset>
                  <fieldset>
-                    <legend>Informacion Cirugia:</legend>
-                   <label> Cirugia: </label>
+                    <legend>Informacion Consulta:</legend>
+                   <label> COnsulta: </label>
                     <Select.Async 
                         autoload={false}
-                        name="cirugia" 
-                        value={this.state.cirugia} 
-                        onChange={this.handleChangeCirugia}
-                        loadOptions={this.searchCirugia}
-                        disabled={true} />
+                        name="consulta" 
+                        value={this.state.consulta} 
+                        onChange={this.handleChangeConsulta}
+                        loadOptions={this.searchConsulta}
+                        />
                    <label htmlFor="observaciones">Observaciones:</label>
-                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs} readOnly/>
+                    <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs}/>
                </fieldset>
-                <fieldset>
-                    <legend>Evidencia Entrega:</legend>
-                    <label> Fecha Realizacion: </label><DatePicker selected={this.state.dateFin} onChange={this.handleChangeFin}/>
-                    <label htmlFor="comentarios">Comentario:</label>
-                    <input type='text' name="comentarios" value={this.state.comentarios} id="comentarios" onChange={this.handleChangeComentario}/>
-                    
-                </fieldset>
                 <div>
-                    <Dropzone
-                      multiple={false}
-                      accept="image/*"
-                      onDrop={this.onImageDrop.bind(this)}>
-                      <p>Arrastre una imagen o haga clic para seleccionar un archivo a cargar.</p>
-                    </Dropzone>
-                    <div>
-                    {this.state.fotoURL === '' ? null :
-                    <div>
-                      <img src={this.state.fotoURL} />
-                    </div>}
-                  </div>
+                    <button className="btn" type="button" onClick={this.cancelarOrden}>Cancelar Orden</button>
+                    <span>     </span>
+                    <button className="btn" type="button" onClick={this.procesarOrden}>Aceptar Orden</button>
                 </div>
                 <div>
                     <button className="btn" type="submit">Guardar</button>
                     <span>     </span>
-                    <Link to="/ordenes_atender"><button className="btn" type="button">Descartar</button></Link>
+                    <Link to="/ordenes"><button className="btn" type="button">Descartar</button></Link>
                 </div>
             </form>
         </div>

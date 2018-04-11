@@ -25,6 +25,8 @@ import editarFarmacia from './components/ordenes/editar/editarFarmacia';
 import editarCirugia from './components/ordenes/editar/editarCirugia';
 import editarDietetica from './components/ordenes/editar/editarDietetica';
 import editarLaboratorio from './components/ordenes/editar/editarLaboratorio';
+import editarConsulta from './components/ordenes/editar/editarConsulta';
+import editarImagenes from './components/ordenes/editar/editarImagenes';
 import serviceList from './components/servicios/serviceList';
 import addService from './components/servicios/addService';
 import formServicios from './components/servicios/formServicios';
@@ -34,6 +36,8 @@ import finalizarFarmacia from './components/ordenes/finalizar/finalizarFarmacia'
 import finalizarCirugia from './components/ordenes/finalizar/finalizarCirugia';
 import finalizarDietetica from './components/ordenes/finalizar/finalizarDietetica';
 import finalizarLaboratorio from './components/ordenes/finalizar/finalizarLaboratorio';
+import finalizarConsulta from './components/ordenes/finalizar/finalizarConsulta';
+import finalizarImagenes from './components/ordenes/finalizar/finalizarImagenes';
 
 export default () => {
   return (
@@ -46,10 +50,14 @@ export default () => {
         <Route path="/ordenes/:orderId" component={editarOrdenes}/>
         <Route path="/ordenes/dietetica/ver/:orderId" component={editarDietetica}/>
         <Route path="/ordenes/farmacia/ver/:orderId" component={editarFarmacia}/>
+        <Route path="/ordenes/consulta/ver/:orderId" component={editarConsulta}/>
+        <Route path="/ordenes/imagenes/ver/:orderId" component={editarImagenes}/>
         <Route path="/ordenes/cirugia/ver/:orderId" component={editarCirugia}/>
         <Route path="/ordenes/laboratorio/ver/:orderId" component={editarLaboratorio}/>
         <Route path="/ordenes_atender/:orderId" component={finalizarOrdenes}/>
         <Route path="/ordenes_atender/dietetica/:orderId" component={finalizarDietetica}/>
+        <Route path="/ordenes_atender/consulta/:orderId" component={finalizarConsulta}/>
+        <Route path="/ordenes_atender/imagenes/:orderId" component={finalizarImagenes}/>
         <Route path="/ordenes_atender/farmacia/:orderId" component={finalizarFarmacia}/>
         <Route path="/ordenes_atender/cirugia/:orderId" component={finalizarCirugia}/>
         <Route path="/ordenes_atender/laboratorio/:orderId" component={finalizarLaboratorio}/>

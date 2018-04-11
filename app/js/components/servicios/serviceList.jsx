@@ -4,9 +4,13 @@ import {Link} from 'react-router';
 import moment from 'moment';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+<<<<<<< HEAD
 import {instance, servicios_id} from '../../axios-orders';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 
+=======
+import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id} from '../../axios-orders';
+>>>>>>> 9f687e82014632dfe706337008c2c60b1b611b18
 
 
 export default class serviceList extends React.Component{  
@@ -55,14 +59,14 @@ export default class serviceList extends React.Component{
 
     fetchData(){
         this.setState( { loading: true } );
-        instance.get('/v1/concept/'+ servicios_id +'?v=full')
-            .then( response => {
-                let newData = [];
+        let newData = [];
                 let name;
                 let precio;
                 let fecha = moment().format('L')
                 let uuid;
-                for (let key in response.data.setMembers){
+        instance.get('/v1/concept/'+ cirugias_id +'?v=full')
+            .then( response => {
+            for (let key in response.data.setMembers){
                     name = response.data.setMembers[key].name.name;
                     uuid = response.data.setMembers[key].uuid;
                     if (response.data.setMembers[key].descriptions.length>0){
@@ -84,7 +88,87 @@ export default class serviceList extends React.Component{
                     //console.log(newItem);
                     newData.push(newItem); 
                 }
-                this.setState({data: newData, loading: false});
+                instance.get('/v1/concept/'+ consultas_id +'?v=full')
+                .then( response => 
+                      {for (let key in response.data.setMembers){
+                        name = response.data.setMembers[key].name.name;
+                        uuid = response.data.setMembers[key].uuid;
+                        if (response.data.setMembers[key].descriptions.length>0){
+                            precio = response.data.setMembers[key].descriptions[0].display;
+                        } 
+                        if(response.data.setMembers[key].version){
+                            fecha = response.data.setMembers[key].version
+                        }
+                        let newItem = {
+                            nombre: name,
+                            precio: parseFloat(precio),
+                            fecha: fecha,
+                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                        };
+                        newData.push(newItem); 
+                }
+                    instance.get('/v1/concept/'+ examenes_id +'?v=full')
+                    .then( response => 
+                      {for (let key in response.data.setMembers){
+                        name = response.data.setMembers[key].name.name;
+                        uuid = response.data.setMembers[key].uuid;
+                        if (response.data.setMembers[key].descriptions.length>0){
+                            precio = response.data.setMembers[key].descriptions[0].display;
+                        } 
+                        if(response.data.setMembers[key].version){
+                            fecha = response.data.setMembers[key].version
+                        }
+                        let newItem = {
+                            nombre: name,
+                            precio: parseFloat(precio),
+                            fecha: fecha,
+                            acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                        };
+                        newData.push(newItem); 
+                    }
+                    instance.get('/v1/concept/'+ imagenes_id +'?v=full')
+                    .then( response => 
+                          {for (let key in response.data.setMembers){
+                            name = response.data.setMembers[key].name.name;
+                            uuid = response.data.setMembers[key].uuid;
+                            if (response.data.setMembers[key].descriptions.length>0){
+                                precio = response.data.setMembers[key].descriptions[0].display;
+                            } 
+                            if(response.data.setMembers[key].version){
+                                fecha = response.data.setMembers[key].version
+                            }
+                            let newItem = {
+                                nombre: name,
+                                precio: parseFloat(precio),
+                                fecha: fecha,
+                                acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                            };
+                            newData.push(newItem); 
+                        }
+                        instance.get('/v1/concept/'+ paquetesDietetica_id +'?v=full')
+                        .then( response => 
+                              {for (let key in response.data.setMembers){
+                                name = response.data.setMembers[key].name.name;
+                                uuid = response.data.setMembers[key].uuid;
+                                if (response.data.setMembers[key].descriptions.length>0){
+                                    precio = response.data.setMembers[key].descriptions[0].display;
+                                } 
+                                if(response.data.setMembers[key].version){
+                                    fecha = response.data.setMembers[key].version
+                                }
+                                let newItem = {
+                                    nombre: name,
+                                    precio: parseFloat(precio),
+                                    fecha: fecha,
+                                    acciones: <div><i className="icon-remove delete-action" title="Delete" onClick={this.eliminarServicio(uuid)}></i></div>
+                                };
+                                newData.push(newItem); 
+                            }
+                            this.setState({data: newData, loading: false});
+                            } );
+                        } );
+                    } );
+                } );
             } )
             .catch( (err) => { console.log(err); });
     }

@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import ReactTable from 'react-table';
-import {instance,cirugias_id,encounterTypeFinalizada_id,observacionesFotoURL,CLOUDINARY_UPLOAD_URL,CLOUDINARY_UPLOAD_PRESET} from '../../../axios-orders';
+import {instance,consultas_id,encounterTypeFinalizada_id,observacionesFotoURL,CLOUDINARY_UPLOAD_URL,CLOUDINARY_UPLOAD_PRESET} from '../../../axios-orders';
 import 'react-datepicker/dist/react-datepicker.css';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
@@ -12,7 +12,7 @@ import Simplert from 'react-simplert';
 
 //import FormOrdenesEdit from '../global/FormOrdenesEdit';
 
-export default class finalizarCirugia extends React.Component {
+export default class finalizarConsulta extends React.Component {
     constructor(...args){
         super(...args);
         this.state={
@@ -23,7 +23,7 @@ export default class finalizarCirugia extends React.Component {
             tipoOrden: '',
             data:[],
             observaciones: '',
-            cirugia:'',
+            consulta:'',
             orden:'',
             fechaFin: moment(),
             foto:'',
@@ -40,8 +40,8 @@ export default class finalizarCirugia extends React.Component {
         this.getMedico = this.getMedico.bind(this);
         this.handleChangeMedico = this.handleChangeMedico.bind(this);
         this.handleChangeObs = this.handleChangeObs.bind(this);
-        this.searchCirugia = this.searchCirugia.bind(this);
-        this.handleChangeCirugia = this.handleChangeCirugia.bind(this);
+        this.searchConsulta = this.searchConsulta.bind(this);
+        this.handleChangeConsulta = this.handleChangeConsulta.bind(this);
         this.handleChangeFin = this.handleChangeFin.bind(this);
         this.handleChangeComentario = this.handleChangeComentario.bind(this);
         this.handleChangeFoto = this.handleChangeFoto.bind(this);
@@ -65,7 +65,7 @@ export default class finalizarCirugia extends React.Component {
                     if(res.data.orders.length>0){
                         var ordenes = res.data.orders.map((item,i)=>(
                             {
-                                cirugia: {value: item.concept.uuid, label:item.concept.display},
+                                consulta: {value: item.concept.uuid, label:item.concept.display},
                                 index: i,
                                 uuid: item.uuid,
                                 observaciones: item.orderReasonNonCoded,
@@ -78,7 +78,7 @@ export default class finalizarCirugia extends React.Component {
                         date: moment(res.data.encounterDatetime),
                         medico: medico,
                         observaciones: orden.observaciones,
-                        cirugia: orden.cirugia,
+                        consulta: orden.consulta,
                         orden: orden,
                     });
                 }
@@ -135,8 +135,8 @@ export default class finalizarCirugia extends React.Component {
         )
     }
     
-    searchCirugia(query){
-        return instance.get('/v1/concept/'+cirugias_id)
+    searchConsulta(query){
+        return instance.get('/v1/concept/'+consultas_id)
         .then(
             (res) => {
                 var resultado = [];
@@ -151,8 +151,8 @@ export default class finalizarCirugia extends React.Component {
         )
     }
         
-    handleChangeCirugia(opcion){
-        this.setState({cirugia:opcion});
+    handleChangeConsulta(opcion){
+        this.setState({consulta:opcion});
     }
     
     handleChangeObs(e){
@@ -187,7 +187,7 @@ export default class finalizarCirugia extends React.Component {
                         "action": 'DISCONTINUE',
                         "previousOrder": this.state.orden.uuid,
                         "careSetting": this.state.orden.careSetting,
-                        "concept": this.state.orden.cirugia.value,
+                        "concept": this.state.orden.consulta.value,
                         "encounter": this.state.idorden,
                         "orderer": this.state.medico.value,
                         "patient": this.state.pacienteSeleccionado.value,
@@ -324,14 +324,14 @@ export default class finalizarCirugia extends React.Component {
                     />
                 </fieldset>
                  <fieldset>
-                    <legend>Informacion Cirugia:</legend>
-                   <label> Cirugia: </label>
+                    <legend>Informacion Consulta:</legend>
+                   <label> Consulta: </label>
                     <Select.Async 
                         autoload={false}
-                        name="cirugia" 
-                        value={this.state.cirugia} 
-                        onChange={this.handleChangeCirugia}
-                        loadOptions={this.searchCirugia}
+                        name="consulta" 
+                        value={this.state.consulta} 
+                        onChange={this.handleChangeConsulta}
+                        loadOptions={this.searchConsulta}
                         disabled={true} />
                    <label htmlFor="observaciones">Observaciones:</label>
                     <input type='text' name="observaciones" id="observaciones" value={this.state.observaciones} onChange={this.handleChangeObs} readOnly/>
