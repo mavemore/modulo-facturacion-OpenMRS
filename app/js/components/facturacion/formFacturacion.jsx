@@ -110,6 +110,7 @@ export default class FormFacturacion extends React.Component {
                                 }
                             }
                         }
+                        console.log(this.state.data);
                         this.setState({pacienteSeleccionado:opcion, data:ordenes});
                     }
                 ).catch((err)=>{console.log(err);})
@@ -324,7 +325,7 @@ export default class FormFacturacion extends React.Component {
             <fieldset style= {{width: '90%'}}>
                 <br/>
                 <br/>
-                    <BootstrapTable data={ this.state.data } deleteRow={ true } selectRow={ selectRowProp } options={ options }>
+                    <BootstrapTable data={ this.state.data }>
                         <TableHeaderColumn dataField='cod' isKey>ID</TableHeaderColumn>
                         <TableHeaderColumn dataField='nombre'>Nombre</TableHeaderColumn>
                         <TableHeaderColumn dataField='cantidad'>Cantidad</TableHeaderColumn>
