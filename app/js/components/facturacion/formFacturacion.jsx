@@ -28,12 +28,9 @@ export default class FormFacturacion extends React.Component {
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getUsuario = this.getUsuario.bind(this);
         this.handleChangeUsuario = this.handleChangeUsuario.bind(this);
-        this.searchServicios = this.searchServicios.bind(this);
-        this.handleChangeServicio = this.handleChangeServicio.bind(this);
         this.fetchData = this.fetchData.bind(this);
-        this.onAfterDeleteRow = this.onAfterDeleteRow.bind(this);
         this.findValue = this.findValue.bind(this);
-        this.handleChangeArea = this.handleChangeArea.bind(this);
+       
     }
     
     getUsuario(){
@@ -83,15 +80,22 @@ export default class FormFacturacion extends React.Component {
                 instance.get('/v1/encounter?patient='+opcion.value+'&encounterType='+encounterTypeFinalizada_id+'&v=full')
                 .then(
                     (res2) => {
+                        console.log(res2.data);
+                        console.log('res2:' + res2.data.results)
                         var ordenes = [];
                         var fila = [];
                         if(res2.data.results.length>0){
                             for (var encounter in res2.data.results){
+                                console.log('Encounter:'+encounter)
                                 for (var orden in res2.data.results[encounter].orders){
+                                    console.log('orden:'+orden)
                                    if('concept' in res2.data.results[encounter].orders[orden]){
+                                       console.log('concept:');
                                    instance.get('/v1/concept/'+res2.data.results[encounter].orders[orden].concept.uuid)
                                     .then(
                                         (res3) => {
+                                            console.log('res3:' + res3.data.results);
+                                            console.log('res3:' + res3.data);
                                             var precio = '';
                                             if (res3.data.descriptions.length>0){
                                                 precio = res3.data.descriptions[0].display;
@@ -116,34 +120,7 @@ export default class FormFacturacion extends React.Component {
             }
         ).catch((err)=>{console.log(err);})
     }
-     
-    searchServicios(){
-        return instance.get('/v1/concept/'+ this.state.area +'?v=full')
-        .then( response => {
-            let resultado = [];
-            console.log(response.data.setMembers);
-            if ('data' in response){
-                resultado = response.data.setMembers.map((item) => ({
-                    value: item.uuid,
-                    label: item.display,
-                    //precio: item.descriptions[0].display,
-                    //nombre: item.display,
-                }));
-                console.log(resultado);
-            }
-            return {options: resultado};
-        })
-    }
     
-    handleChangeArea(event){
-        console.log(event.target.value);
-        this.setState({area: event.target.value});
-    }
-
-    handleChangeServicio(opcion){
-        console.log('opcion:'+opcion);
-        this.setState({servicioSeleccionado:opcion});
-    }
     
     findValue(array, value){
         for (let key in array){
@@ -200,25 +177,6 @@ export default class FormFacturacion extends React.Component {
         this.setState({data: array, total: newTotal});
     }
 
-    onAfterDeleteRow(rowKeys){
-        const updateArray = [...this.state.data];
-        let newTotal;
-        for (let key in updateArray){
-            console.log('id:'+ updateArray[key].cod + ' rowkey:' + rowKeys);
-            if(updateArray[key].cod == rowKeys){
-                //console.log('Eliminar esta:'+ updateArray[key].id);
-                let oldTotal = this.state.total;
-                let antPrice = updateArray[key].precio;
-                newTotal = oldTotal - antPrice;
-                //console.log(newTotal);
-                newTotal.toFixed(2);
-                //console.log(newTotal);
-                updateArray.splice(key, 1);
-                break;
-            }
-        }
-        this.setState({data: updateArray, total: newTotal});
-    }
     
     generarFactura(e){
         e.preventDefault();
@@ -294,7 +252,7 @@ export default class FormFacturacion extends React.Component {
                         <Link to="/"><i className="icon-chevron-right link"></i>Facturacion</Link>
                     </li>
                     <li>
-                        <i className="icon-chevron-right link"></i>Rapida
+                        <i className="icon-chevron-right link"></i>Ordenes
                     </li>
                 </ul>
             </div>

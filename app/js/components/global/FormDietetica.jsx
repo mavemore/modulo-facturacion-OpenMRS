@@ -187,7 +187,8 @@ export default class FormDietetica extends React.Component {
                 }
             ).catch(
                 (err)=> {
-                    console.log(err);
+                    console.log(err.response.data);
+                    console.log(err.data);
                     this.setState({showAlert:true,
                           titleAlert: "Error Servidor",
                           messageAlert:"Ha ocurrido un error en el servidor",
