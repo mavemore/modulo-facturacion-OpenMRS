@@ -5,11 +5,14 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id,encounterTypeFinalizada_id} from '../../axios-orders';
+import {instance, servicios_id,cirugias_id,consultas_id,examenes_id,imagenes_id,paquetesDietetica_id,encounterTypeFinalizada_id, 
+    encounterTypeOrdenPagada_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import {instance1} from '../../axios-openmrs';
+
 
 export default class FormFacturacion extends React.Component {
     
@@ -22,15 +25,18 @@ export default class FormFacturacion extends React.Component {
             servicioSeleccionado: '',
             total:0,
             area:consultas_id,
+            formaPago: '',
+            totalPago: ''
             
         };
         this.searchPaciente = this.searchPaciente.bind(this);
         this.handleChangePaciente = this.handleChangePaciente.bind(this);
         this.getUsuario = this.getUsuario.bind(this);
-        this.handleChangeUsuario = this.handleChangeUsuario.bind(this);
-        this.fetchData = this.fetchData.bind(this);
+        this.handleChangeUsuario = this.handleChangeUsuario.bind(this);     
         this.findValue = this.findValue.bind(this);
-       
+        this.guardarFactura = this.guardarFactura.bind(this);  
+        this.handleFormaPago = this.handleFormaPago.bind(this);
+        this.handleTotalPago = this.handleTotalPago.bind(this);
     }
     
     getUsuario(){
@@ -73,55 +79,17 @@ export default class FormFacturacion extends React.Component {
         )
     }
     
-    handleChangePaciente(opcion){
-        instance.get('/v1/patient/'+opcion.value+'?v=full')
-        .then(
-            (res) => {
-                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType='+encounterTypeFinalizada_id+'&v=full')
-                .then(
-                    (res2) => {
-                        console.log(res2.data);
-                        console.log('res2:' + res2.data.results)
-                        var ordenes = [];
-                        var fila = [];
-                        if(res2.data.results.length>0){
-                            for (var encounter in res2.data.results){
-                                console.log('Encounter:'+encounter)
-                                for (var orden in res2.data.results[encounter].orders){
-                                    console.log('orden:'+orden)
-                                   if('concept' in res2.data.results[encounter].orders[orden]){
-                                       console.log('concept:');
-                                   instance.get('/v1/concept/'+res2.data.results[encounter].orders[orden].concept.uuid)
-                                    .then(
-                                        (res3) => {
-                                            console.log('res3:' + res3.data.results);
-                                            console.log('res3:' + res3.data);
-                                            var precio = '';
-                                            if (res3.data.descriptions.length>0){
-                                                precio = res3.data.descriptions[0].display;
-                                            }
-                                            fila = {
-                                                cod: res3.data.uuid,
-                                                nombre: res3.data.display,
-                                                cantidad: 1,
-                                                precio: precio,
-                                            }
-                                            ordenes.push(fila);
-                                        }
-                                    ).catch((err)=>{console.log(err);})
-                                   }
-                                    
-                                }
-                            }
-                        }
-                        this.setState({pacienteSeleccionado:opcion, data:ordenes});
-                    }
-                ).catch((err)=>{console.log(err);})
-            }
-        ).catch((err)=>{console.log(err);})
+    handleFormaPago(event){
+        console.log(event.target.value);
+        this.setState({formaPago: event.target.value});
     }
-    
-    
+
+    handleTotalPago(event){
+        console.log(event.target.value);
+        this.setState({totalPago: event.target.value});
+
+    }
+
     findValue(array, value){
         for (let key in array){
             console.log(array[key].id);
@@ -133,51 +101,90 @@ export default class FormFacturacion extends React.Component {
         return false;
     }
 
-    fetchData(){
-        let servicio = this.state.servicioSeleccionado;
-        //console.log(servicio);
-        const array = [...this.state.data];
-        let newTotal;
-        let serv = {
-            id : servicio.value,
-            cod: servicio.value.slice(0,5),
-            nombre : servicio.nombre,
-            precio: servicio.precio,
-            cantidad: 1
-        }
+    handleChangePaciente(opcion){
+        instance.get('/v1/patient/'+opcion.value+'?v=full')
+        .then(
+            (res) => {
+                instance.get('/v1/encounter?patient='+opcion.value+'&encounterType='+encounterTypeFinalizada_id+'&v=full')
+                .then(
+                    (res2) => {
+                        console.log(res2.data);
+                        let ordenes = [];
+                        let fila = [];
+                        let oldtotal;
+                        let newtotal;
+                        let nombreOrden;
+                        let uuid; // uuid de la orden
+                        let encounter_id; // uuid del encounter -> ver tabla Encounter
+                        if(res2.data.results.length>0){
+                            for (let encounter in res2.data.results){
+                                for (let orden in res2.data.results[encounter].orders){
+                                   if('concept' in res2.data.results[encounter].orders[orden] && res2.data.results[encounter].orders[orden].previousOrder){
+                                    instance.get('/v1/concept/'+res2.data.results[encounter].orders[orden].concept.uuid)
+                                        .then(
+                                            (res3) => {
+                                                let precio = 10;
+                                                if (res3.data.descriptions.length>0){
+                                                    precio = res3.data.descriptions[0].display;
+                                                }
+                                                encounter_id = res2.data.results[encounter].orders[orden].encounter.uuid;
+                                                nombreOrden = res2.data.results[encounter].orders[orden].orderNumber;
+                                                uuid = res2.data.results[encounter].orders[orden].uuid;
+                                                fila = {
+                                                    cod: uuid,
+                                                    encounter: encounter_id,
+                                                    orderNumber: nombreOrden,
+                                                    nombre: res3.data.display,
+                                                    precio: precio,
+                                                }
+                                                oldtotal = this.state.total;
+                                                newtotal = oldtotal + parseFloat(precio);
+                                                newtotal.toFixed(2);
+                                                ordenes.push(fila);
+                                                console.log(ordenes);
+                                                this.setState({data:ordenes, total: newtotal});
+                                            }
+                                        ).catch((err)=>{console.log(err);})
+                                   }
+                                }
+                            }
+                        }
+                        this.setState({pacienteSeleccionado:opcion});
+                    }
+                ).catch((err)=>{console.log(err);})
+            }
+        ).catch((err)=>{console.log(err);})
+    }
+    
+    guardarFactura(){
+        const ordenes = [...this.state.data];
 
-        let index = this.findValue(array, serv.id);
-        //console.log('index: '+ index);
-        if(index === false){
-            //console.log('no lo incluye')
-            array.push(serv)
-            let oldTotal = this.state.total;
-            //console.log(oldTotal);
-            let actualPrice = servicio.precio;
-            //console.log(actualPrice);
-            //console.log(parseFloat(actualPrice));
-            newTotal = oldTotal + parseFloat(actualPrice)
-            //console.log('total:'+newTotal);
-        }
-        else{
-            //console.log('repetidox2' + index);
-            //console.log(array[index]);
-            array[index].cantidad = array[index].cantidad +1;
-            //console.log('nueva cantidad:' + array[index].cantidad);
-            let oldTotal = this.state.total;
-            let actualPrice = array[index].precio;
-            //console.log(actualPrice);
-            newTotal = oldTotal + parseFloat(actualPrice)
-            parseFloat(newTotal).toFixed(2);
-            array[index].precio = array[index].precio * array[index].cantidad;
-           // console.log('total:'+newTotal);
- 
-        }
-        console.log(array);
-        this.setState({data: array, total: newTotal});
+        const body = {"encounterType": encounterTypeOrdenPagada_id}
+
+        const factura = {
+            items: this.state.data,
+            user: this.state.usuario,
+            paciente: this.state.pacienteSeleccionado,
+            total: this.state.total,
+            fecha: moment().format('L').toString(),
+            tipo: 'Facturación de Ordenes'
+        } 
+        instance1.post('/facturaOrdenes.json', factura)
+            .then( response => {
+                console.log('Save factura');
+                for(let key in ordenes){
+                    console.log(ordenes[key]);
+                    instance.post('/v1/encounter/'+ ordenes[key].encounter, body)
+                    .then(
+                        (res) => {
+                            console.log('Change Encounters');
+                        }
+                    ).catch((err)=>{console.log(err.response.data);})
+                }
+            } )
+            .catch((err)=>{console.log(err.response.data);} );
     }
 
-    
     generarFactura(e){
         e.preventDefault();
         /*var body = {
@@ -227,17 +234,6 @@ export default class FormFacturacion extends React.Component {
 		const Style2 = {
             float: 'right',
 		};
-    
-
-    const options = {
-        afterDeleteRow: this.onAfterDeleteRow  // A hook for after droping rows.
-    };
-
-    // If you want to enable deleteRow, you must enable row selection also.
-    const selectRowProp = {
-        mode: 'checkbox'
-    };
-
 
     return (
       <div>
@@ -280,14 +276,22 @@ export default class FormFacturacion extends React.Component {
                     loadOptions={this.searchPaciente}/>
             </fieldset>
             <fieldset style= {{width: '90%'}}>
+                <legend>Ordenes:</legend>
                 <br/>
                 <br/>
-                    <BootstrapTable data={ this.state.data } deleteRow={ true } selectRow={ selectRowProp } options={ options }>
-                        <TableHeaderColumn dataField='cod' isKey>ID</TableHeaderColumn>
-                        <TableHeaderColumn dataField='nombre'>Nombre</TableHeaderColumn>
-                        <TableHeaderColumn dataField='cantidad'>Cantidad</TableHeaderColumn>
-                        <TableHeaderColumn dataField='precio'>Total</TableHeaderColumn>
-                    </BootstrapTable>
+                    <ReactTable 
+                    data={this.state.data} 
+                    noDataText="No existen ordenes"
+                    columns={[{
+                        Header: 'No.',
+                        accessor:'orderNumber'},{
+                        Header: 'Nombre',
+                        accessor:'nombre'},{
+                        Header: 'Precio',
+                        accessor:'precio'}
+                    ]} 
+                    defaultPageSize={10} 
+                    sortable={true}/>
                 <br/>   
                 <form  id="formOrden"> 
                     <label htmlFor='totaltodo'>Total: </label>
@@ -300,16 +304,16 @@ export default class FormFacturacion extends React.Component {
                 <legend>Pagos:</legend>
                 <form>
                     <label htmlFor='formapago'>Forma de pago: </label>
-                    <input type='text' name='formapago' id='formapago'/>
+                    <input type='text' name='formapago' id='formapago' onChange={this.handleFormaPago}/>
                     <label htmlFor='cuotas'>Cantidad: </label>
-                    <input type='text' name='cuotas' id='cuotas'/>
+                    <input type='text' name='cuotas' id='cuotas' onChange={this.handleTotalPago}/>
                 </form>
             </fieldset>
             <br/>
             <br/>
             <div>
-                <form onSubmit={this.generarFactura.bind(this)}>
-                    <button className="btn" type="submit" style={{float:'left'}}>Guardar Factura</button>
+                <form>
+                    <Link to="/"><button className="btn" type="submit" style={{float:'left'}} onClick={this.guardarFactura}>Guardar Factura</button></Link>
                     <Link to="/"><button type="button" className="btn" style={{float:'right'}}>Descartar</button></Link>
                 </form>
             </div>

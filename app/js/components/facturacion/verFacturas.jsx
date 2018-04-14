@@ -46,6 +46,30 @@ export default class FormFactRapida extends React.Component {
                 this.setState({data: array}); 
             } )
             .catch((err) => { console.log(err.response.data); } );
+        
+        instance1.get('/facturaOrdenes.json')
+            .then( response => {
+                console.log(response.data)
+                const array = [...this.state.data];
+                let factura;
+                for(let key in response.data){
+                    console.log(response.data[key]);
+                    let _paciente = response.data[key].paciente.label;
+                    let _fecha = response.data[key].fecha;
+                    let _tipo = response.data[key].tipo;
+                    let _total = response.data[key].total;
+                    factura = {
+                        paciente: _paciente,
+                        fecha: _fecha,
+                        tipo: _tipo,
+                        total: _total
+                    }
+                    array.push(factura);
+                    console.log(factura)
+                }  
+                console.log(array);
+                this.setState({data: array}); 
+            }).catch((err) => { console.log(err.response.data); } );
     }
 
     render() {

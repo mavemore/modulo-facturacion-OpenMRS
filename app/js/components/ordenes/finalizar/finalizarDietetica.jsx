@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import {instance,paquetesDietetica_id,encounterTypeFinalizada_id,observacionesFotoURL} from '../../../axios-orders';
+import {instance,paquetesDietetica_id,encounterTypeFinalizada_id} from '../../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import Dropzone from 'react-dropzone';
@@ -33,6 +33,7 @@ export default class finalizarDietetica extends React.Component {
             titleAlert: "titulo",
             messageAlert:"mensaje",
             typeAlert:'success',
+            idorden: this.props.params.orderId
         };
         this.handleChange = this.handleChange.bind(this);
         this.searchPaciente = this.searchPaciente.bind(this);
@@ -166,10 +167,11 @@ export default class finalizarDietetica extends React.Component {
                 'encounterType': encounterTypeFinalizada_id,
                 
             }
+            console.log('body:'+ body);
             instance.post('/v1/encounter/'+this.state.idorden, body)
             .then(
                 (res) => {
-                    var detalles={
+                    let detalles={
                         "type":'testorder',
                         "action": 'DISCONTINUE',
                         "previousOrder": this.state.orden.uuid,
@@ -178,23 +180,25 @@ export default class finalizarDietetica extends React.Component {
                         "encounter": this.state.idorden,
                         "orderer": this.state.medico.value,
                         "patient": this.state.pacienteSeleccionado.value,
-                        "dateActivated": this.state.dateFin.format(),
+                        //"dateActivated": this.state.dateFin.format(),
                         "orderReasonNonCoded": this.state.comentarios,
                     }
+                    console.log('detalles: '+ detalles + 'date:' + this.state.dateFin.format())
                     instance.post('/v1/order', detalles)
                     .then(
                         (res2) => {
+                            console.log('Save 1');
                             hashHistory.push('/ordenes_atender');
                         }
                     ).catch(
                         (err) => {
-                            console.log(err);
+                            console.log(err.response.data);
                         }
                     ) 
                 }
             ).catch(
                 (err) => {
-                    console.log(err);
+                    console.log(err.response.data);
                 }
             ) 
         

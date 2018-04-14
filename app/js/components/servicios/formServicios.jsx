@@ -32,12 +32,14 @@ export default class formServicios extends React.Component{
     }
     
     searchMuestra(query){
-        return instance.get('/v1/concept?searchType=fuzzy&name='+query+'&class='+specimenSources_id+'&v=custom:(uuid,display,conceptClass)')
+        //return instance.get('/v1/concept?searchType=fuzzy&name='+query+'&class='+specimenSources_id+'&v=custom:(uuid,display,conceptClass)')
+        return instance.get('/v1/concept/'+specimenSources_id)
         .then(
             (res) => {
+                console.log('res.data');
                 var resultado = [];
                 if ('data' in res){
-                    resultado = res.data.results.map((item) => ({
+                    resultado = res.data.setMembers.map((item) => ({
                         value: item.uuid,
                         label: item.display,
                     }));

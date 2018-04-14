@@ -310,6 +310,7 @@ export default class FormFarmacia extends React.Component {
                 concept:ObservacioneAreaServicio_id,
                 value: 'Farmacia'}]
         }
+        console.log(body);
         instance.post('/v1/encounter', body)
         .then(
             (res) => {

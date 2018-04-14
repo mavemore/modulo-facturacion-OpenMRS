@@ -237,7 +237,7 @@ export default class finalizarLaboratorio extends React.Component {
                         "encounter": this.state.idorden,
                         "orderer": this.state.medico.value,
                         "patient": this.state.pacienteSeleccionado.value,
-                        "dateActivated": this.state.dateFin.format(),
+                        //"dateActivated": this.state.dateFin.format(),
                         "orderReasonNonCoded": this.state.comentarios,
                     }
                     instance.post('/v1/order', detalles)

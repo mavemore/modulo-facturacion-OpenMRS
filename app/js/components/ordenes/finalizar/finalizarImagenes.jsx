@@ -181,7 +181,7 @@ export default class finalizarImagenes extends React.Component {
                         "encounter": this.state.idorden,
                         "orderer": this.state.medico.value,
                         "patient": this.state.pacienteSeleccionado.value,
-                        "dateActivated": this.state.dateFin.format(),
+                        //"dateActivated": this.state.dateFin.format(),
                         "orderReasonNonCoded": this.state.comentarios,
                     }
                     instance.post('/v1/order', detalles)
@@ -191,7 +191,7 @@ export default class finalizarImagenes extends React.Component {
                         }
                     ).catch(
                         (err) => {
-                            console.log(err);
+                            console.log(err.response.data);
                         }
                     ) 
                 }

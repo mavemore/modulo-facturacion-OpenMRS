@@ -5,7 +5,10 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import ReactTable from 'react-table';
-import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,fluidoAscitico_id,specimenSources_id} from '../../axios-orders';
+import {instance,careSettingInpatient_id,encounterRoleClinician_id,encounterTypeOrdenNueva_id,examenesSangre_id,
+    examenesOrina_id,examenesSputum_id,examenesSerum_id,examenesPlasma_id,examenesHeces_id,examenesCerebroEspinal_id,
+    examenesFluidoAscitico_id,ObservacioneAreaServicio_id,sangre_id,orina_id,sputum_id,serum_id,plasma_id,heces_id,fluidoCerebro_id,
+    fluidoAscitico_id,specimenSources_id} from '../../axios-orders';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import Simplert from 'react-simplert';
@@ -126,16 +129,19 @@ export default class FormLaboratorio extends React.Component {
     }
     
     searchMuestra(query){
-        return instance.get('/v1/concept?searchType=fuzzy&name='+query+'&class='+specimenSources_id+'&v=custom:(uuid,display,conceptClass)')
+        //return instance.get('/v1/concept?searchType=fuzzy&name='+query+'&class='+specimenSources_id+'&v=custom:(uuid,display,conceptClass)')
+        return instance.get('/v1/concept/'+specimenSources_id)
         .then(
             (res) => {
+                console.log(res.data);
                 var resultado = [];
                 if ('data' in res){
-                    resultado = res.data.results.map((item) => ({
+                    resultado = res.data.setMembers.map((item) => ({
                         value: item.uuid,
                         label: item.display,
                     }));
                 }
+                console.log('resultado:'+ resultado);
                 return {options: resultado};
             }
         )

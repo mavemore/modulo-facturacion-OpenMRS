@@ -261,7 +261,7 @@ export default class FormConsulta extends React.Component {
                 </fieldset>
                 <fieldset>
                     <legend>Informacion Consulta:</legend>
-                    <label htmlFor="consulta"> M&eacute;dico: </label>
+                    <label htmlFor="consulta"> Info: </label>
                     <Select.Async 
                         autoload={false}
                         name="consulta" 

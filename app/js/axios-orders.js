@@ -54,6 +54,9 @@ export const encounterTypeFinalizada_id ='16485f97-16d8-4d09-89b0-05c234510469';
 //export const encounterTypeOrdenNueva_id = 'bc26c537-023c-4284-b921-bc83bb16101c';
 export const encounterTypeOrdenNueva_id = '81774753-ea90-42ef-926d-8090d3fc1709';
 
+//uuid del encounter type de orden pagada -> creado para modulo
+export const encounterTypeOrdenPagada_id = '27ed7926-cf07-4216-8291-0439d681ab39';
+
 //set de examenes-> creado en conceptos como conjunto y agregan miembros
 //export const examenesSangre_id = '29696d9d-2c84-4ad9-a6f0-89535467306e';
 //export const examenesOrina_id = 'a4cf2d34-224f-4e3b-8cc9-a93b6e566ce9';
@@ -109,13 +112,13 @@ export const admin_id = '1c3db49d-440a-11e6-a65c-00e04c680037';
 export const routes_id = '162394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 //concept class specimen sources uuid
-export const specimenSources_id ='8d492d0a-c2cc-11de-8d13-0010c6dffd0f';
-//export const specimenSources_id ='162476AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+//export const specimenSources_id ='8d492d0a-c2cc-11de-8d13-0010c6dffd0f';
+export const specimenSources_id ='162476AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 
 //uuid de un specimen source "ninguno" para resolver el problema de creacion de ordenes que no sean de medicamentos o pruebas de lab -> creado para modulo
 //export const specimenSourceNA_id = '7d8ac6b8-c6c8-4eac-9b63-05cc03429b70';
-export const specimenSourceNA_id = '162476AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const specimenSourceNA_id = '7e27dc09-5278-481c-888e-6f4377f8768d';
 
 //specimenSOurces
 export const sangre_id = '1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -129,6 +132,7 @@ export const fluidoAscitico_id = '162403AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 //uuid de las unidades de medicion de dosis de medicamentos
 export const unidades_id = '162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+
 
 //uuid del concepto de servicios
 export const servicios_id ='3ec05ea7-d02d-48c8-bf1c-1da61a411a3d';
