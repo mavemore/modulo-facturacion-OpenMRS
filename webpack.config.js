@@ -51,8 +51,8 @@ var getConfig = function () {
 	  } catch (err) {
 	    // create file with defaults if not found
 	    config = {
-	      'LOCAL_OWA_FOLDER': '/usr/share/tomcat7/.OpenMRS/owa/',
-	      'APP_ENTRY_POINT': 'http://localhost:8080/openmrs/owa/modulo-facturacion-openmrs/index.html'
+	      'LOCAL_OWA_FOLDER': '/home/manager/referenceapplication-package-2.7.0/owa/',
+	      'APP_ENTRY_POINT': 'http://200.10.147.155:8080/openmrs/owa/modulo-facturacion-openmrs/index.html'
 	    };
 
 	    fs.writeFile('config.json', JSON.stringify(config));
