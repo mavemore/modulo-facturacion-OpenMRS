@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 export const instance = axios.create({
-    baseURL: 'http://200.10.147.155:8080/openmrs/ws/rest',
+    //baseURL: 'http://200.10.147.155:8080/openmrs/ws/rest', base url server espol
     //baseURL: 'http://localhost:8080/openmrs/ws/rest',
+    baseURL: 'http://ec2-18-216-59-46.us-east-2.compute.amazonaws.com:8080/openmrs/ws/rest',
     headers: {'Content-Type': 'application/json'},
     auth: {
         username: 'admin',
