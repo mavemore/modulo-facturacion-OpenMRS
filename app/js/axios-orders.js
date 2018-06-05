@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-var instance = exports.instance = _axios2.default.create({
+var instance = exports.instance = axios.default.create({
 	    baseURL: 'http://200.10.147.155:8080/openmrs/ws/rest',
 	    //baseURL: 'http://localhost:8080/openmrs/ws/rest',
 	    headers: { 'Content-Type': 'application/json' },
